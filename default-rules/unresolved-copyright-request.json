@@ -3,7 +3,6 @@
     "search": {
         "op": "union",
         "of": [
-            "artist:copyright request",
             "copyright:copyright request",
             "meta:copyright request"
         ]

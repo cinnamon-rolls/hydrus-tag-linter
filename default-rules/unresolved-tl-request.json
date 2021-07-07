@@ -1,0 +1,9 @@
+{
+    "name": "Unresolved Translation Request",
+    "search": {
+        "op": "union",
+        "of": [
+            "meta:translation request"
+        ]
+    }
+}

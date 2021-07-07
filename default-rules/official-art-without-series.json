@@ -1,0 +1,9 @@
+{
+    "name": "Official Art Without Series",
+    "note": "Files with the 'meta:official art' tag should also have a 'series' tag.",
+    "search": [
+        "meta:official art",
+        "-series:*",
+        "-meta:series request"
+    ]
+}

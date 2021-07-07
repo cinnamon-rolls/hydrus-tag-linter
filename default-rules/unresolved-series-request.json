@@ -1,0 +1,11 @@
+{
+    "name": "Unresolved Series Request",
+    "search": {
+        "op": "union",
+        "of": [
+            "series:series request",
+            "series:copyright request",
+            "meta:series request"
+        ]
+    }
+}
