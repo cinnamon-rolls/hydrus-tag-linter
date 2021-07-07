@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 
-from searches import load_search
+from rules import Rule, load_rules
 import argparse
 import hydrus.utils
 import hydrus
-import json
-import os
 
 
 def str2bool(v):
@@ -67,77 +65,6 @@ argument_parser.add_argument(
     default="lint_results.html",
     help="File to write the lint results to"
 )
-
-
-class Rule:
-    def __init__(self, data: dict):
-        self.search = load_search(data.get('search'))
-        self.name = data.get('name', 'Unnamed Rule')
-        self.note = data.get('note', None)
-        self.disabled = data.get('disabled', False)
-
-    def is_enabled(self):
-        return not self.disabled
-
-    def runSearch(self, client, inbox, archive):
-        return self.search.execute(client, inbox, archive)
-
-
-def load_rule(rule_file_name):
-    "Reads a rule and returns it, or returns None if the rule is otherwise disabled"
-    json_len = len(JSON_EXT)
-
-    print("Reading: " + rule_file_name)
-    with open(rule_file_name) as rule_file:
-        data = json.load(rule_file)
-
-    return Rule(data)
-
-
-def load_rules(rules_dir):
-    ret = []
-    for file in os.listdir(rules_dir):
-        if file.endswith(JSON_EXT):
-            rule = load_rule(rules_dir + '/' + file)
-            if rule is not None and rule.is_enabled():
-                ret.append(rule)
-    return ret
-
-
-def lint(client, rule: Rule, inbox: bool, archive: bool):
-    """
-    Searches for noncompliant files, returns a list of failed file IDs
-    Or, returns an empty list if all files are OK
-    """
-
-    print("Checking rule '{}', inbox={}, archive={}".format(
-        rule.name, inbox, archive))
-
-    return rule.runSearch(client, inbox, archive)
-
-
-# https://stackoverflow.com/a/8290508
-def batch(iterable, n=1):
-    if isinstance(iterable, set):
-        iterable = list(iterable)
-
-    l = len(iterable)
-    for ndx in range(0, l, n):
-        yield iterable[ndx:min(ndx + n, l)]
-
-
-def ids2hashes(client: hydrus.BaseClient, file_ids):
-    ret = []
-    batch_size = 256
-
-    batches = batch(file_ids, batch_size)
-
-    for search_batch in batches:
-        res = client.file_metadata(file_ids=search_batch)
-        for val in res:
-            ret.append(val.get('hash'))
-
-    return ret
 
 
 def get_key(args, permissions):
@@ -208,7 +135,11 @@ def main(args):
 
         for rule in rules:
 
-            fails = lint(client, rule, inbox_enabled, archive_enabled)
+            if args.output_file_ids:
+                fails = rule.get_files(client, inbox_enabled, archive_enabled)
+            else:
+                fails = rule.get_hashes(client, inbox_enabled, archive_enabled)
+
 
             totalIssues += len(fails)
 
@@ -220,9 +151,6 @@ def main(args):
                 out.write("\n<h3>" + rule_name + "</h3>\n\n")
                 if(rule_note is not None):
                     out.write("<p>" + rule.note + "</p>\n")
-
-                if(not args.output_file_ids):
-                    fails = ids2hashes(client, fails)
 
                 out.write("\n<div class='hashes' id='hb_" + str(hash_block_no)
                           + "'><code id='hb_" + str(hash_block_no) + "_code'>\n")
