@@ -123,8 +123,8 @@ def main(args):
 
         out.write("<body>")
 
-        out.write("<h1>Lint Results</h1>\n\n")
-        out.write("\n<h2>Issues Detected</h2>\n\n")
+        out.write("<h1>Lint Results</h1>\n")
+        out.write("<h2>Issues Detected</h2>\n")
 
         totalIssues = 0
 
@@ -148,11 +148,11 @@ def main(args):
 
             if(len(fails) > 0):
 
-                out.write("\n<h3>" + rule_name + "</h3>\n\n")
+                out.write("<h3>" + rule_name + "</h3>\n")
                 if(rule_note is not None):
                     out.write("<p>" + rule.note + "</p>\n")
 
-                out.write("\n<div class='hashes' id='hb_" + str(hash_block_no)
+                out.write("<div class='hashes' id='hb_" + str(hash_block_no)
                           + "'><code id='hb_" + str(hash_block_no) + "_code'>\n")
 
                 for fail in fails:
@@ -170,13 +170,13 @@ def main(args):
             out.write("<p>No issues :)</p>\n")
 
         if len(rules_ok) > 0:
-            out.write("\n<h2>Rules with no problems</h2>\n\n")
+            out.write("<h2>Rules with no problems</h2>\n")
             out.write("<ul>")
             for rule_name in rules_ok:
                 out.write("<li>" + rule_name + "</li>\n")
             out.write("</ul>")
 
-        out.write("\n<h2>Summary</h2>\n\n")
+        out.write("<h2>Summary</h2>\n")
         out.write("<ul>")
         out.write("<li>Total issues: <code>" +
                   str(totalIssues) + "</code></li>\n")
