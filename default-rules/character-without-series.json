@@ -1,0 +1,11 @@
+{
+    "name": "Character Without Series",
+    "note": "Files with a 'character' tag should also have a 'series' tag.",
+    "search": [
+        "character:*",
+        "-series:*",
+        "-character:character request",
+        "-meta:character request",
+        "-character:original"
+    ]
+}

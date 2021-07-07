@@ -1,0 +1,10 @@
+{
+    "name": "Unresolved Character Request",
+    "search": {
+        "op": "union",
+        "of": [
+            "character:character request",
+            "meta:character request"
+        ]
+    }
+}

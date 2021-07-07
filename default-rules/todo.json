@@ -1,0 +1,11 @@
+{
+    "name": "TODO",
+    "note": "Catches the 'todo' tag and anything in the 'todo:' namespace",
+    "search": {
+        "op": "union",
+        "of": [
+            "todo",
+            "todo:*"
+        ]
+    }
+}

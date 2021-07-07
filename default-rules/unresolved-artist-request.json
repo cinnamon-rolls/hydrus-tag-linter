@@ -1,0 +1,10 @@
+{
+    "name": "Unresolved Artist Request",
+    "search": {
+        "op": "union",
+        "of": [
+            "artist:artist request",
+            "meta:artist request"
+        ]
+    }
+}
