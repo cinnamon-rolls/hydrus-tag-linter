@@ -153,48 +153,6 @@ def main(args):
             port=args.port,
             debug=args.debug)
 
-    #     out.write("<h1>Lint Results</h1>\n")
-    #     out.write("<h2>Issues Detected</h2>\n")
-
-    #     totalIssues = 0
-
-    #     rules_ok = []
-
-    #     # Provides a unique ID to each block of hashes
-    #     hash_block_no = 0
-
-    #     for rule in rules:
-
-    #         if(len(fails) > 0):
-
-    #             out.write("<h3>" + rule.get_name() + "</h3>\n")
-    #             if(rule.has_note()):
-    #                 out.write("<p>" + rule.get_note() + "</p>\n")
-
-    #             out.write("<div class='hashes' id='hb_" + str(hash_block_no)
-    #                       + "'><code id='hb_" + str(hash_block_no) + "_code'>\n")
-
-    #             for fail in fails:
-    #                 out.write(fail)
-    #                 out.write("<br>\n")
-
-    #             out.write("</code></div>\n")
-
-    #             hash_block_no += 1
-
-    #         else:
-    #             rules_ok.append(rule.get_name())
-
-    #     if totalIssues == 0:
-    #         out.write("<p>No issues :)</p>\n")
-
-    #     if len(rules_ok) > 0:
-    #         out.write("<h2>Rules with no problems</h2>\n")
-    #         out.write("<ul>")
-    #         for rule_name in rules_ok:
-    #             out.write("<li>" + rule_name + "</li>\n")
-    #         out.write("</ul>")
-
 
 if __name__ == "__main__":
     args = argp.parse_args()
