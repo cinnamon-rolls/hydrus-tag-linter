@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-from rules import Rule, load_rules
+from flask import Flask, render_template, jsonify, abort, request, make_response
+from server import Server
+import sys
 import argparse
 import hydrus.utils
 import hydrus
@@ -20,182 +22,183 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
 
-NAME = "hydrus tag linter"
-REQUIRED_PERMISSIONS = [
-    hydrus.Permission.SearchFiles
-]
-ERROR_EXIT_CODE = 1
-JSON_EXT = ".json"
+argp = argparse.ArgumentParser()
 
-
-argument_parser = argparse.ArgumentParser()
-
-argument_parser.add_argument(
+argp.add_argument(
     "--api_key", "-k",
     help="The API Key used to connect to the API")
 
-argument_parser.add_argument(
+argp.add_argument(
     "--api_url", "-a",
     default=hydrus.DEFAULT_API_URL,
     help="The URL the API is running on")
 
-argument_parser.add_argument(
+argp.add_argument(
     "--rules", "-r",
     nargs='+', default=["default-rules"],
     help="The directory that the rule definitions are stored in")
 
-argument_parser.add_argument(
+argp.add_argument(
     "--disable_archive",
     const=True, nargs='?', type=str2bool, default=False,
     help="Disables searching in the archive")
 
-argument_parser.add_argument(
+argp.add_argument(
     "--disable_inbox",
     const=True, nargs='?', type=str2bool, default=False,
     help="Disables searching in the inbox")
 
-argument_parser.add_argument(
-    "--output_file_ids",
-    const=True, nargs='?', type=str2bool, default=False,
-    help="If enabled, the script will print offending file IDs rather than hashes"
-)
-
-argument_parser.add_argument(
+argp.add_argument(
     "--out", "-o",
     default="lint_results.html",
     help="File to write the lint results to"
 )
 
+argp.add_argument(
+    "--debug", "-d",
+    const=True, nargs='?', type=str2bool, default=True,
+    help="Enables debug mode, which will give more info if things fail"
+)
 
-def get_key(args, permissions):
-    "Gets the API key supplied in the args, or read from input if its not specified"
-    if(args.api_key is not None):
-        return args.api_key
-    else:
-        return hydrus.utils.cli_request_api_key(NAME, permissions)
+argp.add_argument(
+    "--host", "-H",
+    default="localhost",
+    help="Defines the host to run the HTTP server on"
+)
+
+argp.add_argument(
+    "--port", "-P",
+    default=45868,
+    help="Defines the port to run the HTTP server on"
+)
+
+app = Flask(__name__)
+
+server = None
+
+
+def get_rule(rule_name):
+    rule = server.get_lint_rule(rule_name)
+    if rule is None:
+        abort(404, "rule not found")
+    return rule
+
+
+def get_summary():
+    return {
+        'total_rules': len(server.get_lint_rules()),
+        'total_issues': server.count_issues(),
+        'rules_without_issues': server.count_rules_without_issues()
+    }
+
+
+@app.route('/', methods=['GET'])
+def app_get_index():
+    server.refresh_all()
+    return render_template(
+        'index.html',
+        len=len,
+        server=server,
+        summary=get_summary(),
+        rules=server.get_lint_rules())
+
+
+@app.route('/api/rules/get_rules', methods=['GET'])
+def api_get_rules():
+    ret = list(map(lambda x: x.as_dict(), server.get_lint_rules()))
+    return jsonify(ret)
+
+
+@app.route('/api/rules/get_rule/', methods=['GET'])
+def api_get_rule():
+    rule = get_rule(request.args.get('name'))
+    return jsonify(rule.as_dict())
+
+
+@app.route('/api/rules/get_rule_names', methods=['GET'])
+def api_get_rule_names():
+    return jsonify(server.get_lint_rule_names())
+
+
+@app.route('/api/rules/get_files', methods=['GET'])
+def api_get_rule_files():
+    rule = get_rule(request.args.get('name'))
+    refresh = request.args.get('refresh', False)
+    return jsonify(server.get_rule_files(rule=rule, refresh=refresh))
+
+
+@app.route('/api/rules/get_hashes_as_text', methods=['GET'])
+def api_get_rule_hashes_as_text():
+    rule = get_rule(request.args.get('name'))
+    refresh = request.args.get('refresh', False)
+    text = "\n".join(server.get_rule_hashes(rule=rule, refresh=refresh))
+    response = make_response(text, 200)
+    response.mimetype = "text/plain"
+    return response
+
+
+@app.route('/api/rules/get_hashes', methods=['GET'])
+def api_get_rule_hashes():
+    rule = get_rule(request.args.get('name'))
+    refresh = request.args.get('refresh', False)
+    return jsonify(server.get_rule_hashes(rule=rule, refresh=refresh))
 
 
 def main(args):
-    archive_enabled = not args.disable_archive
-    inbox_enabled = not args.disable_inbox
+    global server, app
 
-    permissions = REQUIRED_PERMISSIONS
+    server = Server(args)
 
-    # Get the key
-    key = str(get_key(args, permissions))
-    if(not key):
-        print("The API key could not be obtained.")
-        return ERROR_EXIT_CODE
+    app.run(host=args.host,
+            port=args.port,
+            debug=args.debug)
 
-    # Try to log in
-    client = hydrus.Client(key, args.api_url)
-    if not hydrus.utils.verify_permissions(client, permissions):
-        print(
-            "The API key does not grant all required permissions:",
-            permissions)
-        return ERROR_EXIT_CODE
+    #     out.write("<h1>Lint Results</h1>\n")
+    #     out.write("<h2>Issues Detected</h2>\n")
 
-    rules = []
-    # Load rules for linting
-    for rule_dir in args.rules:
-        rules_loaded = load_rules(rule_dir)
-        for rule in rules_loaded:
-            rules.append(rule)
+    #     totalIssues = 0
 
-    print("got " + str(len(rules)) + " rules")
+    #     rules_ok = []
 
-    # Generate results :)
-    with open(args.out, "w") as out:
+    #     # Provides a unique ID to each block of hashes
+    #     hash_block_no = 0
 
-        out.write("<html>")
+    #     for rule in rules:
 
-        out.write("<head>")
+    #         if(len(fails) > 0):
 
-        with(open('assets/head.html')) as head_file:
-            out.writelines(head_file.readlines())
+    #             out.write("<h3>" + rule.get_name() + "</h3>\n")
+    #             if(rule.has_note()):
+    #                 out.write("<p>" + rule.get_note() + "</p>\n")
 
-        out.write("<style>")
-        with(open('assets/style.css')) as style_file:
-            out.writelines(style_file.readlines())
-        out.write("</style>")
+    #             out.write("<div class='hashes' id='hb_" + str(hash_block_no)
+    #                       + "'><code id='hb_" + str(hash_block_no) + "_code'>\n")
 
-        out.write("</head>")
+    #             for fail in fails:
+    #                 out.write(fail)
+    #                 out.write("<br>\n")
 
-        out.write("<body>")
+    #             out.write("</code></div>\n")
 
-        out.write("<h1>Lint Results</h1>\n")
-        out.write("<h2>Issues Detected</h2>\n")
+    #             hash_block_no += 1
 
-        totalIssues = 0
+    #         else:
+    #             rules_ok.append(rule.get_name())
 
-        rules_ok = []
+    #     if totalIssues == 0:
+    #         out.write("<p>No issues :)</p>\n")
 
-        # Provides a unique ID to each block of hashes
-        hash_block_no = 0
-
-        for rule in rules:
-
-            if args.output_file_ids:
-                fails = rule.get_files(client, inbox_enabled, archive_enabled)
-            else:
-                fails = rule.get_hashes(client, inbox_enabled, archive_enabled)
-
-
-            totalIssues += len(fails)
-
-            rule_name = rule.name
-            rule_note = rule.note
-
-            if(len(fails) > 0):
-
-                out.write("<h3>" + rule_name + "</h3>\n")
-                if(rule_note is not None):
-                    out.write("<p>" + rule.note + "</p>\n")
-
-                out.write("<div class='hashes' id='hb_" + str(hash_block_no)
-                          + "'><code id='hb_" + str(hash_block_no) + "_code'>\n")
-
-                for fail in fails:
-                    out.write(fail)
-                    out.write("<br>\n")
-
-                out.write("</code></div>\n")
-
-                hash_block_no += 1
-
-            else:
-                rules_ok.append(rule_name)
-
-        if totalIssues == 0:
-            out.write("<p>No issues :)</p>\n")
-
-        if len(rules_ok) > 0:
-            out.write("<h2>Rules with no problems</h2>\n")
-            out.write("<ul>")
-            for rule_name in rules_ok:
-                out.write("<li>" + rule_name + "</li>\n")
-            out.write("</ul>")
-
-        out.write("<h2>Summary</h2>\n")
-        out.write("<ul>")
-        out.write("<li>Total issues: <code>" +
-                  str(totalIssues) + "</code></li>\n")
-        out.write("<li>Rules checked: <code>" +
-                  str(len(rules)) + "</code></li>\n")
-        out.write("<li>Rules without issues: <code>" +
-                  str(len(rules_ok)) + "</code></li>\n")
-        out.write("</ul>")
-
-        out.write("</body>")
-
-        out.write("</html>")
-
-        print("Done")
+    #     if len(rules_ok) > 0:
+    #         out.write("<h2>Rules with no problems</h2>\n")
+    #         out.write("<ul>")
+    #         for rule_name in rules_ok:
+    #             out.write("<li>" + rule_name + "</li>\n")
+    #         out.write("</ul>")
 
 
 if __name__ == "__main__":
-    args = argument_parser.parse_args()
+    args = argp.parse_args()
     try:
-        argument_parser.exit(main(args))
+        sys.exit(main(args))
     except KeyboardInterrupt:
         pass

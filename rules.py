@@ -1,5 +1,6 @@
 from searches import load_search
 
+from typing import Iterable, Dict
 import json
 import os
 import hydrus
@@ -10,7 +11,7 @@ JSON_EXT = ".json"
 # https://stackoverflow.com/a/8290508
 def batch(iterable, batch_size=256):
     """
-    Breaks a 
+    Breaks a
     """
 
     if isinstance(iterable, set):
@@ -41,33 +42,70 @@ class Rule:
         self.name = data.get('name', 'Unnamed Rule')
         self.note = data.get('note', None)
         self.disabled = data.get('disabled', False)
+        self.cached_files = None
+
+    def as_dict(self) -> dict:
+        return {
+            'name': self.name,
+            'note': self.note
+        }
 
     def is_enabled(self):
         return not self.disabled
 
-    def get_files(self, client, inbox, archive):
-        return self.search.execute(client, inbox, archive)
-    
-    def get_hashes(self, client, inbox, archive):
-        return ids2hashes(client, self.get_files(client, inbox, archive))
+    def get_files(self, client, inbox, archive, refresh : bool = False):
+        if(not self.is_enabled()):
+            return []
+
+        if refresh == True:
+            self.cached_files = None
+
+        if self.cached_files is not None:
+            return self.cached_files
+
+        print("get files: " + self.name)
+
+        ret = self.search.execute(client, inbox, archive)
+        self.cached_files = ret
+        return ret
+
+    def get_hashes(self, client, inbox, archive, refresh=False):
+        return ids2hashes(client, self.get_files(client=client, inbox=inbox, archive=archive, refresh=refresh))
+
+    def get_name(self):
+        return self.name if self.name is not None else "Unnamed Rule"
+
+    def get_note(self):
+        return self.note
+
+    def has_note(self):
+        return self.note is None
+
+    def get_uid(self):
+        return self.uid
 
 
-def load_rule(rule_file_name):
+def load_rule(rule_file_name: str):
     "Reads a rule and returns it, or returns None if the rule is otherwise disabled"
-    json_len = len(JSON_EXT)
 
-    print("Reading: " + rule_file_name)
+    print("Reading rule file: " + rule_file_name)
     with open(rule_file_name) as rule_file:
         data = json.load(rule_file)
 
-    return Rule(data)
+    return Rule(data=data)
 
 
-def load_rules(rules_dir):
-    ret = []
-    for file in os.listdir(rules_dir):
-        if file.endswith(JSON_EXT):
-            rule = load_rule(rules_dir + '/' + file)
-            if rule is not None and rule.is_enabled():
-                ret.append(rule)
+def load_rules(rules_dirs) -> Dict[str, Rule]:
+    if not isinstance(rules_dirs, Iterable):
+        rules_dirs = [rules_dirs]
+
+    ret = {}
+
+    for rule_dir in rules_dirs:
+        for file in os.listdir(rule_dir):
+            if file.endswith(JSON_EXT):
+                rule = load_rule(rule_dir + '/' + file)
+                if rule is not None and rule.is_enabled():
+                    ret[rule.get_name()] = rule
+
     return ret
