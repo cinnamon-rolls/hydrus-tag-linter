@@ -1,9 +1,6 @@
 {
-    "name": "Unresolved Translation Request",
-    "search": {
-        "op": "union",
-        "of": [
-            "meta:translation request"
-        ]
-    }
+    "name": "unresolved translation request",
+    "search": [
+        "meta:translation request"
+    ]
 }

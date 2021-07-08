@@ -1,5 +1,5 @@
 {
-    "name": "Unresolved Artist Request",
+    "name": "unresolved artist request",
     "search": {
         "op": "union",
         "of": [

@@ -1,9 +1,11 @@
 {
-    "name": "Official Art Without Series",
-    "note": "Files with the 'meta:official art' tag should also have a 'series' tag.",
+    "name": "official art without series or copyright",
+    "note": "Files with the 'meta:official art' tag should also have a 'series' or 'copyright' tag.",
     "search": [
         "meta:official art",
         "-series:*",
-        "-meta:series request"
+        "-copyright:*",
+        "-meta:series request",
+        "-meta:copyright request"
     ]
 }

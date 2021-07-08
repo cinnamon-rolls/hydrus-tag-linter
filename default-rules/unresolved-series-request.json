@@ -1,5 +1,5 @@
 {
-    "name": "Unresolved Series Request",
+    "name": "unresolved series request",
     "search": {
         "op": "union",
         "of": [
