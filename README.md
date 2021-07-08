@@ -28,8 +28,8 @@ kept focused to a single feature/improvement.
 - `flask`
 - `hydrus-api`
 
-Also, some of famfamfam's Silk Icons are used.
-You can download them for your own project at http://www.famfamfam.com/lab/icons/silk/
+Also, some of famfamfam's Silk Icons are used. You can download them for your
+own project at http://www.famfamfam.com/lab/icons/silk/
 
 ## Usage
 
@@ -38,8 +38,9 @@ don't want GitHub to track there.
 
 I have included a script named `example_run.sh` which has all the arguments you
 need to get started. Open it up, paste in your access key, and then run it.
+Note: the `example_run.sh` file may change between versions.
 
-You can use the `--help` argument to get a list of arguments
+You can use the `--help` argument to get a list of command line arguments
 
 Once launched, a server will be running which you can connect to using your
 internet browser. The default URL is `http://localhost:45868/`, which you can
@@ -77,10 +78,9 @@ An example:
 
 ### Multiple Rules in a File
 
-If the root element in the JSON document is a list, then the list will be
-iterated and each object within the list will be treated as an individual rule.
-You may wish to keep closely related rules in one file, such as rules pertaining
-to a single character.
+If the root element in the JSON document is an array, then the array will be
+iterated and each object within the array will be treated as an individual rule.
+You may wish to keep closely related rules in one file.
 
 ## Search Definitions
 
