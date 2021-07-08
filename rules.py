@@ -1,6 +1,6 @@
 from searches import load_search
 
-from typing import Iterable, Dict
+from typing import Iterable, Dict, List
 import json
 import os
 import hydrus
@@ -85,17 +85,23 @@ class Rule:
         return self.uid
 
 
-def load_rule(rule_file_name: str):
+def load_rules_from_file(rule_file_name: str) -> List[Rule]:
     "Reads a rule and returns it, or returns None if the rule is otherwise disabled"
 
     print("Reading rule file: " + rule_file_name)
     with open(rule_file_name) as rule_file:
         data = json.load(rule_file)
 
-    return Rule(data=data)
+
+    if isinstance(data, list):
+        ret = [Rule(data=i) for i in data]
+    else:
+        ret = [Rule(data=data)]
+
+    return ret
 
 
-def load_rules(rules_dirs) -> Dict[str, Rule]:
+def load_rules_from_dirs(rules_dirs) -> Dict[str, Rule]:
     if not isinstance(rules_dirs, Iterable):
         rules_dirs = [rules_dirs]
 
@@ -104,8 +110,9 @@ def load_rules(rules_dirs) -> Dict[str, Rule]:
     for rule_dir in rules_dirs:
         for file in os.listdir(rule_dir):
             if file.endswith(JSON_EXT):
-                rule = load_rule(rule_dir + '/' + file)
-                if rule is not None and rule.is_enabled():
-                    ret[rule.get_name()] = rule
+                rules = load_rules_from_file(rule_dir + '/' + file)
+                for rule in rules:
+                    if rule is not None and rule.is_enabled():
+                        ret[rule.get_name()] = rule
 
     return ret
