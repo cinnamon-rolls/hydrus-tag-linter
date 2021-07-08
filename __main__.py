@@ -78,34 +78,29 @@ server = None
 
 
 def get_rule(rule_name):
-    rule = server.get_lint_rule(rule_name)
+    rule = server.get_rule(rule_name)
     if rule is None:
         abort(404, "rule not found")
     return rule
 
 
-def get_summary():
-    return {
-        'total_rules': len(server.get_lint_rules()),
-        'total_issues': server.count_issues(),
-        'rules_without_issues': server.count_rules_without_issues()
-    }
-
-
 @app.route('/', methods=['GET'])
 def app_get_index():
     server.refresh_all()
-    return render_template(
-        'index.html',
-        len=len,
-        server=server,
-        summary=get_summary(),
-        rules=server.get_lint_rules())
+    return render_template('index.html')
+
+
+@app.route('/rules/<rule_name>', methods=['GET'])
+def app_get_rule(rule_name):
+    rule = get_rule(rule_name)
+    # this will refresh the rule's cached list of files
+    server.get_rule_files(rule, refresh=True)
+    return render_template('rule.html', rule=rule)
 
 
 @app.route('/api/rules/get_rules', methods=['GET'])
 def api_get_rules():
-    ret = list(map(lambda x: x.as_dict(), server.get_lint_rules()))
+    ret = list(map(lambda x: x.as_dict(), server.get_rules()))
     return jsonify(ret)
 
 
@@ -117,7 +112,7 @@ def api_get_rule():
 
 @app.route('/api/rules/get_rule_names', methods=['GET'])
 def api_get_rule_names():
-    return jsonify(server.get_lint_rule_names())
+    return jsonify(server.get_rule_names())
 
 
 @app.route('/api/rules/get_files', methods=['GET'])
@@ -151,19 +146,27 @@ def before_first_request():
     server = Server(args)
 
 
+@app.context_processor
+def context_process():
+    return {
+        'len': len,
+        'server': server
+    }
+
+
 def main(args) -> int:
     global app
 
     app.run(host=args.host,
             port=args.port,
             debug=args.debug)
-    
+
     return 0
 
 
 if __name__ == "__main__":
     global args
-    
+
     args = argp.parse_args()
     try:
         sys.exit(main(args))

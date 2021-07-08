@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block head_extra %}
+  <script>
+    window.addEventListener("load", function () {
+
+      function getCopyFunc(elem) {
+        return function (e) {
+          navigator
+            .clipboard
+            .writeText(elem.innerText)
+        }
+      }
+
+      var btn = document.getElementById("copy_hashes_button");
+
+      var hashes = document.getElementById("hashes_holder")
+
+      btn.onclick = getCopyFunc(hashes)
+
+    })
+  </script>
+{% endblock %}
+
+{% block pagetitle %}
+  Rule:
+  {{ rule.name }}
+{% endblock %}
+
+{% block contenttitle %}
+  Rule:
+  {{ rule.name }}
+{% endblock %}
+
+{% block content %}
+
+  {% if rule.note %}
+    <p>{{ rule.note }}</p>
+  {% endif %}
+
+  <p>There are
+    <code>{{ len(server.get_rule_files(rule)) }}</code>
+    files detected by this rule</p>
+
+  <p>Paste these hashes into the
+    <code>system:hashes</code>
+    search in your Hydrus client</p>
+
+  <div class='hashes'>
+    <button id='copy_hashes_button'>
+      <span class='icon_page_copy'>Copy All</span>
+    </button>
+    <br>
+    <code>
+      <pre id='hashes_holder'>{{ server.get_rule_hashes_as_str(rule) }}</pre>
+    </code>
+  </div>
+
+{% endblock %}

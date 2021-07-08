@@ -1,25 +1,17 @@
 body {
-  background-color: #323232;
+  background-color: #232629;
   color: #f9f9f9;
   margin: 0;
+  font-family: arial, helvetica;
 }
 
 a {
-  color: #FFA02F;
+  color: #58a6ff;
   text-decoration: none;
 }
 
 a:hover {
   text-decoration: underline;
-}
-
-nav {
-  background-color: #232629;
-  padding: 8px 8px 8px 16px
-}
-
-nav .site-title {
-  font-size: 2em;
 }
 
 .content {
@@ -35,6 +27,53 @@ taking up the entire screen */
   overflow-y: scroll;
   width: auto;
 }
+
+/* Navigation */
+
+nav {
+  background-color: #323232;
+  padding: 8px 8px 8px 8px
+}
+
+nav .site-title {
+  font-size: 2em;
+}
+
+nav ul {
+  background-color: #323232;
+  list-style-type: none;
+  margin: 8px 0px 0px 0px;
+  padding: 0;
+}
+
+nav ul li {
+  display: inline;
+}
+
+/* Tables */
+
+table{
+  border-collapse: collapse;
+}
+
+table th {
+  text-align: left;
+  background-color: #525252;
+}
+
+table tr {
+  background-color: #323232;
+}
+
+table td, table th {
+  padding: 4px 8px 4px 8px
+}
+
+table td, table th {
+  border: 1px solid #636363
+}
+
+/* Icons */
 
 span.icon_page_copy {
   background: url('/static/icons/page_copy.png') no-repeat left center;

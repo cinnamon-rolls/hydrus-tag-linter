@@ -11,7 +11,7 @@
 
   <head>
     <title>
-      {% block title %}{% endblock %}
+      {% block pagetitle %}{% endblock %}
       | Tag Linter</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.png') }}"/>
@@ -28,11 +28,16 @@
           Tag Linter
         </a>
       </span>
+      <ul>
+        <li>
+          <a href="/">home</a>
+        </li>
+      </ul>
     </nav>
     <section class="content">
-      <header>
-        {% block header %}{% endblock %}
-      </header>
+      <h1>
+        <span>{% block contenttitle %}{% endblock %}</span>
+      </h1>
       {% for message in get_flashed_messages() %}
         <div class="flash">{{ message }}</div>
       {% endfor %}

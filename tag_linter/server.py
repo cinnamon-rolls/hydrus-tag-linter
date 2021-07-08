@@ -49,13 +49,18 @@ class Server:
     def is_inbox_enabled(self):
         return self.inbox_enabled
 
-    def get_lint_rules(self) -> List[Rule]:
-        return list(self.lint_rules.values())
+    def get_rules(self, sort_reverse=True) -> List[Rule]:
+        ret = list(self.lint_rules.values())
+        ret.sort(
+            key=lambda a: len(self.get_rule_files(a)),
+            reverse=sort_reverse
+        )
+        return ret
 
-    def get_lint_rule(self, rule_name: str) -> Rule:
+    def get_rule(self, rule_name: str) -> Rule:
         return self.lint_rules.get(rule_name)
 
-    def get_lint_rule_names(self) -> List[str]:
+    def get_rule_names(self) -> List[str]:
         return list(self.lint_rules.keys())
 
     def get_client(self) -> hydrus.BaseClient:
@@ -63,25 +68,25 @@ class Server:
 
     def get_rule_files(self, rule: typing.Union[str, Rule], refresh=False):
         if isinstance(rule, str):
-            rule = self.get_lint_rule(rule)
+            rule = self.get_rule(rule)
 
         if rule is None:
             return None
 
         return rule.get_files(self.client, self.inbox_enabled, self.archive_enabled, refresh)
-    
+
     def get_rule_hashes(self, rule: typing.Union[str, Rule], refresh=False):
         if isinstance(rule, str):
-            rule = self.get_lint_rule(rule)
+            rule = self.get_rule(rule)
 
         if rule is None:
             return None
 
         return rule.get_hashes(self.client, self.inbox_enabled, self.archive_enabled, refresh=refresh)
 
-    def get_rule_hashes_as_str(self, rule: typing.Union[str, Rule], refresh=False)->str:
+    def get_rule_hashes_as_str(self, rule: typing.Union[str, Rule], refresh=False) -> str:
         if isinstance(rule, str):
-            rule = self.get_lint_rule(rule)
+            rule = self.get_rule(rule)
 
         text = "\n".join(self.get_rule_hashes(rule=rule, refresh=refresh))
         return text
@@ -95,7 +100,7 @@ class Server:
         for rule in self.lint_rules.values():
             ret += len(self.get_rule_files(rule=rule, refresh=refresh))
         return ret
-    
+
     def count_rules_without_issues(self, refresh=False):
         ret = 0
         for rule in self.lint_rules.values():
@@ -103,3 +108,14 @@ class Server:
                 ret += 1
         return ret
 
+    def get_summary(self) -> List[dict]:
+        return [{
+            'name': "Total issues",
+            'value': self.count_issues()
+        }, {
+            'name': "Total rules",
+            'value': len(self.get_rules())
+        }, {
+            'name': "Rules without issues",
+            "value": self.count_rules_without_issues()
+        }]
