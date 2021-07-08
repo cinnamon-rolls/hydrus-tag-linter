@@ -1,16 +1,42 @@
 body {
   background-color: #323232;
   color: #f9f9f9;
+  margin: 0;
 }
 
 a {
-  color: #866949;
+  color: #FFA02F;
+  text-decoration: none;
 }
 
+a:hover {
+  text-decoration: underline;
+}
+
+nav {
+  background-color: #232629;
+  padding: 8px 8px 8px 16px
+}
+
+nav .site-title {
+  font-size: 2em;
+}
+
+.content {
+  margin: 8px;
+}
+
+/* Makes blocks of hashes look better and have a vertical scroll instead of
+taking up the entire screen */
 .hashes code {
   font-size: 8px;
   display: inline-block;
   max-height: 100px;
   overflow-y: scroll;
   width: auto;
+}
+
+span.icon_page_copy {
+  background: url('/static/icons/page_copy.png') no-repeat left center;
+  padding-left: 20px;
 }

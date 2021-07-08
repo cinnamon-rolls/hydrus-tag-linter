@@ -18,7 +18,7 @@ window.addEventListener("load", function () {
 
     if (code != null) {
       var btn = document.createElement("button");
-      btn.innerText = "Copy All";
+      btn.innerHTML = "<span class='icon_page_copy'>Copy All</span>";
 
       btn.onclick = getCopyFunc(code);
 
