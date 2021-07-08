@@ -75,6 +75,13 @@ An example:
 }
 ```
 
+### Multiple Rules in a File
+
+If the root element in the JSON document is a list, then the list will be
+iterated and each object within the list will be treated as an individual rule.
+You may wish to keep closely related rules in one file, such as rules pertaining
+to a single character.
+
 ## Search Definitions
 
 The simplest search definition is a single string, which will match all files in
