@@ -1,4 +1,4 @@
-from searches import load_search
+from tag_linter.searches import load_search
 
 from typing import Iterable, Dict, List
 import json

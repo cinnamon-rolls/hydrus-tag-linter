@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from flask import Flask, render_template, jsonify, abort, request, make_response
-from server import Server
+from tag_linter.server import Server
 import sys
 import argparse
 import hydrus.utils

@@ -1,7 +1,7 @@
 import typing
 import hydrus
 import hydrus.utils
-from rules import Rule, load_rules_from_dirs
+from tag_linter.rules import Rule, load_rules_from_dirs
 from typing import List
 
 NAME = "hydrus tag linter"
