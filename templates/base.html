@@ -1,0 +1,38 @@
+{% macro btn(name, text=None, icon=None) -%}
+<button>
+    {% if icon %}<img src="{{ url_for('static', filename='icons/' + icon + '.png') }}">{% endif %}
+    {% if text %}<span>{{ text }}</span>{% endif %}
+</button>
+{% endmacro -%}
+
+
+
+<!doctype html>
+<html>
+
+<head>
+    <title>{% block title %}{% endblock %} | Tag Linter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.png') }}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta charset="utf-8">
+    {% block head_extra %}{% endblock %}
+</head>
+
+<body>
+    <nav>
+        <h1>Tag Linter</h1>
+    </nav>
+    <section class="content">
+        <header>
+            {% block header %}{% endblock %}
+        </header>
+        {% for message in get_flashed_messages() %}
+        <div class="flash">{{ message }}</div>
+        {% endfor %}
+        {% block content %}{% endblock %}
+    </section>
+</body>
+
+</html>

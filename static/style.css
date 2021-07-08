@@ -1,0 +1,16 @@
+body {
+  background-color: #323232;
+  color: #f9f9f9;
+}
+
+a {
+  color: #866949;
+}
+
+.hashes code {
+  font-size: 8px;
+  display: inline-block;
+  max-height: 100px;
+  overflow-y: scroll;
+  width: auto;
+}

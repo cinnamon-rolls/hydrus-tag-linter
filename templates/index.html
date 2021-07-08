@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block head_extra %}
+<script src='{{ url_for("static", filename="auto-copy-all.js") }}'></script>
+{% endblock %}
+
+{% block header %}
+  <h1>
+    {% block title %}Overview{% endblock %}
+  </h1>
+{% endblock %}
+
+{% block content %}
+
+  {% if rules %}
+    <h2>Rules</h2>
+
+    {% for rule in rules %}
+      {% if rule.is_enabled()and len(server.get_rule_files(rule)) > 0 %}
+
+        <h3>{{ rule.name }}</h3>
+
+        {% if rule.note %}
+          <p>{{ rule.note }}</p>
+        {% endif %}
+
+        <div class='hashes' id='{{ "hb_" + rule.name }}'>
+          <code id='{{ "hb_" + rule.name + "_code" }}'>
+            <pre>{{ server.get_rule_hashes_as_str(rule) }}</pre>
+          </code>
+        </div>
+
+      {% endif %}
+    {% endfor %}
+
+    {% if summary.get('rules_without_issues') > 0 %}
+      <h2>Rules Without Issues</h2>
+      <ul>
+        {% for rule in rules %}
+          {% if rule.is_enabled()and len(server.get_rule_files(rule)) == 0 %}
+            <li>
+              <span>{{ rule.name }}</span>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+  {% endif %}
+
+  <h2>Summary</h2>
+  <ul>
+    <li>
+      <span>Total issues:</span>
+      <code>{{summary.get('total_issues')}}</code>
+    </li>
+    <li>
+      <span>Rules:</span>
+      <code>{{ summary.get('total_rules') }}</code>
+    </li>
+    <li>
+      <span>Rules without issues:</span>
+      <code>{{ summary.get('rules_without_issues') }}</code>
+    </li>
+  </ul>
+
+{% endblock %}
