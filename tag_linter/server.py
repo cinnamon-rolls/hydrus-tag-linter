@@ -1,7 +1,7 @@
 import typing
 import hydrus
 import hydrus.utils
-from tag_linter.rules import Rule, load_rules_from_dirs
+from tag_linter.rules import Rule, load_rules
 from typing import List
 
 NAME = "hydrus tag linter"
@@ -36,7 +36,7 @@ def create_hydrus_client(args):
 
 class Server:
     def __init__(self, args):
-        self.lint_rules = load_rules_from_dirs(args.rules)
+        self.lint_rules = load_rules(args.rules)
 
         self.archive_enabled = not args.disable_archive
         self.inbox_enabled = not args.disable_inbox

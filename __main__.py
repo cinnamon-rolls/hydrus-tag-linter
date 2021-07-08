@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from flask import Flask, render_template, jsonify, abort, request, make_response
 from tag_linter.server import Server
+from flask import Flask, render_template, jsonify, abort, request, make_response
 import sys
 import argparse
 import hydrus.utils
@@ -144,17 +144,26 @@ def api_get_rule_hashes():
     return jsonify(server.get_rule_hashes(rule=rule, refresh=refresh))
 
 
-def main(args):
-    global server, app
-
+@app.before_first_request
+def before_first_request():
+    "set up globals here"
+    global server
     server = Server(args)
+
+
+def main(args) -> int:
+    global app
 
     app.run(host=args.host,
             port=args.port,
             debug=args.debug)
+    
+    return 0
 
 
 if __name__ == "__main__":
+    global args
+    
     args = argp.parse_args()
     try:
         sys.exit(main(args))
