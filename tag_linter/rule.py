@@ -1,11 +1,12 @@
 from tag_linter.searches import load_search
+from typing import Iterable
 import hydrus
 
 
 # https://stackoverflow.com/a/8290508
-def batch(iterable, batch_size=256):
+def batch(iterable: Iterable, batch_size: int = 256):
     """
-    Breaks a
+    Breaks a large list into batches of a predetermined size
     """
 
     if isinstance(iterable, set):
