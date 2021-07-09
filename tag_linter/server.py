@@ -53,7 +53,6 @@ def batch(iterable: Iterable, batch_size: int = 256):
         yield iterable[ndx:min(ndx + batch_size, l)]
 
 
-
 class Server:
     def __init__(self, args):
         self.lint_rules = tag_linter.rules.load_rules(args.rules)
@@ -155,28 +154,33 @@ class Server:
         return ret
 
     def get_summary(self) -> List[dict]:
-        return [{
-            'name': "Total issues",
-            'value': self.count_issues()
-        }, {
-            'name': "Total rules",
-            'value': len(self.get_rules())
-        }, {
-            'name': "Rules without issues",
-            "value": self.count_rules_without_issues()
-        }, {
-            'name': "Inbox Enabled?",
-            "value": self.inbox_enabled
-        }, {
-            'name': "Archive Enabled?",
-            'value': self.archive_enabled
-        }, {
-            'name': "API Version",
-            'value': self.api_verison
-        }, {
-            'name': "API URL",
-            'value': self.client.api_url
-        }, {
-            'name': "Tag Service",
-            'value': self.tag_service
-        }]
+        return {
+            "mrbones": [
+                {
+                    'name': "Total issues",
+                    'value': self.count_issues()
+                }, {
+                    'name': "Total rules",
+                    'value': len(self.get_rules())
+                }, {
+                    'name': "Rules without issues",
+                    "value": self.count_rules_without_issues()
+                }],
+            "hydrus": [
+                {
+                    'name': "Inbox Enabled?",
+                    "value": self.inbox_enabled
+                }, {
+                    'name': "Archive Enabled?",
+                    'value': self.archive_enabled
+                }, {
+                    'name': "API Version",
+                    'value': self.api_verison
+                }, {
+                    'name': "API URL",
+                    'value': self.client.api_url
+                }, {
+                    'name': "Tag Service",
+                    'value': self.tag_service
+                }]
+        }

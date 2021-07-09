@@ -42,8 +42,9 @@
 
   {% set summary_vals = server.get_summary() %}
   <h2>Summary</h2>
+  <h3>Progress</h3>
   <table>
-    {% for summary in summary_vals %}
+    {% for summary in summary_vals.mrbones %}
       <tr>
         <td>
           <span>{{ summary.get('name') }}</span>
@@ -54,5 +55,17 @@
       </tr>
     {% endfor %}
   </table>
-
+  <h3>Hydrus</h3>
+  <table>
+    {% for summary in summary_vals.hydrus %}
+      <tr>
+        <td>
+          <span>{{ summary.get('name') }}</span>
+        </td>
+        <td>
+          <code>{{ summary.get('value') }}</code>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
 {% endblock %}
