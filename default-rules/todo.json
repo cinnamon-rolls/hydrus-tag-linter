@@ -1,5 +1,5 @@
 {
-    "name": "todo",
+    "name": "todo tag present",
     "note": "Catches the 'todo' tag and anything in the 'todo:' namespace",
     "search": {
         "op": "union",

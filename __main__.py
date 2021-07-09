@@ -23,6 +23,9 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
 
+TAG_ACTION_ADD_LOCAL = "0"
+TAG_ACTION_DELETE_LOCAL = "1"
+
 argp = argparse.ArgumentParser()
 
 argp.add_argument(
@@ -62,6 +65,12 @@ argp.add_argument(
 )
 
 argp.add_argument(
+    "--tag_service",
+    default="my tags",
+    help="The name of the tag service to operate on"
+)
+
+argp.add_argument(
     "--host", "-H",
     default="localhost",
     help="Defines the host to run the HTTP server on"
@@ -79,18 +88,12 @@ server = None
 
 
 def get_rule(rule_name):
+    if rule_name is None:
+        abort(400, "rule name not specified")
     rule = server.get_rule(rule_name)
     if rule is None:
-        abort(404, "rule not found")
+        abort(400, "rule not found: '" + rule_name + "'")
     return rule
-
-
-def api_abort(status=400, message=None, err=None):
-    if message is None and err is None:
-        return make_response(status)
-    response = make_response(message, status)
-    response.mimetype = "text/plain"
-    return response
 
 
 @app.route('/', methods=['GET'])
@@ -139,6 +142,58 @@ def api_get_rule_hashes_as_text():
     response = make_response(text, 200)
     response.mimetype = "text/plain"
     return response
+
+
+@app.route('/api/rules/apply_linter_tag', methods=['GET'])
+def api_rules_apply_linter_tag():
+    preview = request.args.get('preview', 'true') == 'true'
+    rule = get_rule(request.args.get('name'))
+    tag_raw = request.args.get('tag', rule.get_linter_rule_tag())
+    tag_service = server.tag_service
+
+    tag = server.client.clean_tags([tag_raw])[0]
+
+    files_tagged_now = server.search_by_tags(tags=[tag])
+    files_that_need_tag = server.get_rule_files(rule, refresh=True)
+
+    files_to_untag = [
+        i for i in files_tagged_now if i not in files_that_need_tag]
+
+    files_to_tag = [
+        i for i in files_that_need_tag if i not in files_tagged_now]
+
+    if not preview:
+        # Add
+        if(len(files_to_tag) > 0):
+            print('add...')
+            server.get_client().add_tags(
+                hashes=server.ids2hashes(files_to_tag),
+                service_to_action_to_tags={
+                    server.tag_service: {
+                        TAG_ACTION_ADD_LOCAL: [tag]
+                    }
+                }
+            )
+
+        # Remove
+        if(len(files_to_untag) > 0):
+            print('remove...')
+            server.get_client().add_tags(
+                hashes=server.ids2hashes(files_to_untag),
+                service_to_action_to_tags={
+                    server.tag_service: {
+                        TAG_ACTION_DELETE_LOCAL: [tag]
+                    }
+                }
+            )
+
+    return jsonify({
+        'preview': preview,
+        'tag': tag,
+        'added': len(files_to_tag),
+        'removed': len(files_to_untag),
+        'tag_service': tag_service
+    })
 
 
 @app.route('/api/rules/get_hashes', methods=['GET'])

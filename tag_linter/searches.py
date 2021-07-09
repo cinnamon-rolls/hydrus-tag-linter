@@ -1,4 +1,5 @@
 from typing import Iterable
+from tag_linter.server import Server
 
 import hydrus
 
@@ -26,7 +27,7 @@ class Search:
     def __init__(self):
         pass
 
-    def execute(self, client, inbox, archive):
+    def execute(self, server : Server):
         "Implementations should return an iterable collection of integer file IDs"
         return None
 
@@ -44,7 +45,7 @@ class EmptySearch(Search):
     def __init__(self):
         super().__init__()
 
-    def execute(self, client, inbox, archive):
+    def execute(self, server):
         return []
 
     def as_jsonifiable(self):
@@ -55,8 +56,8 @@ class AllSearch(Search):
     def __init__(self):
         super().__init__()
 
-    def execute(self, client, inbox, archive):
-        return client.search_files(tags=[], inbox=inbox, archive=archive)
+    def execute(self, server):
+        return server.search_by_tag(tags=[])
 
     def as_jsonifiable(self):
         return True
@@ -87,7 +88,7 @@ class OpSearch(Search):
 
             # print('after: ' + str(ret))
 
-        return ret
+        return list(ret)
 
     def as_jsonifiable(self):
         return {

@@ -75,7 +75,18 @@ table td, table th {
 
 /* Icons */
 
+span.icon {
+  padding-left: 20px;
+}
+
 span.icon_page_copy {
   background: url('/static/icons/page_copy.png') no-repeat left center;
-  padding-left: 20px;
+}
+
+span.icon_tag_blue_add {
+  background: url('/static/icons/tag_blue_add.png') no-repeat left center;
+}
+
+span.icon_tag_blue_edit {
+  background: url('/static/icons/tag_blue_edit.png') no-repeat left center;
 }

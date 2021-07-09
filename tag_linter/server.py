@@ -1,26 +1,30 @@
+import tag_linter.rules
 import typing
 import hydrus
-import hydrus.utils
-from tag_linter.rules import Rule, load_rules
-from typing import List
+
+from tag_linter.rule import Rule
+from typing import List, Iterable
 
 NAME = "hydrus tag linter"
 PERMISSIONS = [
-    hydrus.Permission.SearchFiles
+    hydrus.Permission.SearchFiles,
+    hydrus.Permission.AddTags
 ]
 
 
 def get_key(args, permissions):
     "Gets the Hydrus Client API key supplied in the args, or read from input if its not specified"
-    if(args.api_key is not None):
-        return args.api_key
-    else:
-        return hydrus.utils.cli_request_api_key("hydrus tag linter", permissions)
 
 
 def create_hydrus_client(args):
-    # Get the key
-    key = str(get_key(args, PERMISSIONS))
+    import hydrus.utils
+
+    if(args.api_key is not None):
+        key = args.api_key
+    else:
+        key = hydrus.utils.cli_request_api_key(
+            "hydrus tag linter", PERMISSIONS)
+
     if(not key):
         raise ValueError("The API key could not be obtained.")
 
@@ -33,13 +37,30 @@ def create_hydrus_client(args):
 
     return client
 
+# https://stackoverflow.com/a/8290508
+
+
+def batch(iterable: Iterable, batch_size: int = 256):
+    """
+    Breaks a large list into batches of a predetermined size
+    """
+
+    if isinstance(iterable, set):
+        iterable = list(iterable)
+
+    l = len(iterable)
+    for ndx in range(0, l, batch_size):
+        yield iterable[ndx:min(ndx + batch_size, l)]
+
+
 
 class Server:
     def __init__(self, args):
-        self.lint_rules = load_rules(args.rules)
+        self.lint_rules = tag_linter.rules.load_rules(args.rules)
 
         self.archive_enabled = not args.disable_archive
         self.inbox_enabled = not args.disable_inbox
+        self.tag_service = args.tag_service
 
         self.client = create_hydrus_client(args)
 
@@ -50,6 +71,20 @@ class Server:
 
     def is_inbox_enabled(self):
         return self.inbox_enabled
+
+    def search_by_tags(self, tags):
+        if self.inbox_enabled and self.archive_enabled:
+            # neither are disabled
+            return self.client.search_files(tags)
+
+        elif not self.inbox_enabled and not self.archive_enabled:
+            # both were disabled :(
+            print("Warning: both archive and inbox were disabled, so searches will be empty (why did you do this?)")
+            return []
+
+        else:
+            # one or the other was disabled
+            return self.get_client().search_files(self.tags, self.inbox_enabled, self.archive_enabled)
 
     def get_rules(self, sort_reverse=True) -> List[Rule]:
         ret = list(self.lint_rules.values())
@@ -80,11 +115,7 @@ class Server:
     def get_rule_hashes(self, rule: typing.Union[str, Rule], refresh=False):
         if isinstance(rule, str):
             rule = self.get_rule(rule)
-
-        if rule is None:
-            return None
-
-        return rule.get_hashes(self.client, self.inbox_enabled, self.archive_enabled, refresh=refresh)
+        return self.ids2hashes(self.get_rule_files(rule=rule, refresh=refresh))
 
     def get_rule_hashes_as_str(self, rule: typing.Union[str, Rule], refresh=False) -> str:
         if isinstance(rule, str):
@@ -110,6 +141,19 @@ class Server:
                 ret += 1
         return ret
 
+    def ids2hashes(self, file_ids):
+        ret = []
+        batch_size = 256
+
+        batches = batch(file_ids, batch_size)
+
+        for search_batch in batches:
+            res = self.client.file_metadata(file_ids=search_batch)
+            for val in res:
+                ret.append(val.get('hash'))
+
+        return ret
+
     def get_summary(self) -> List[dict]:
         return [{
             'name': "Total issues",
@@ -132,4 +176,7 @@ class Server:
         }, {
             'name': "API URL",
             'value': self.client.api_url
+        }, {
+            'name': "Tag Service",
+            'value': self.tag_service
         }]
