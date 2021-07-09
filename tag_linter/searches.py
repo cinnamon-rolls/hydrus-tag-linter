@@ -1,5 +1,7 @@
 from typing import Iterable
 
+import hydrus
+
 
 def search_op_union(x: set, y):
     return x.union(x, set(y))
@@ -101,8 +103,12 @@ class TagSearch(Search):
         super().__init__()
         self.tags = tags
 
-    def execute(self, client, inbox, archive):
-        return client.search_files(tags=self.tags, inbox=inbox, archive=archive)
+    def execute(self, client : hydrus.BaseClient, inbox, archive):
+        print("searching for " + str(len(self.tags)) + " tags, inbox=" + str(inbox) + ", archive=" + str(archive))
+        if inbox and archive:
+            inbox = False
+            archive = False
+        return client.search_files(self.tags, inbox, archive)
 
     def as_jsonifiable(self):
         if len(self.tags) == 1:
