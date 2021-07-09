@@ -39,10 +39,14 @@ class Rule:
         self.cached_files = None
 
     def as_dict(self) -> dict:
-        return {
+        ret = {
+            'search': self.search.as_jsonifiable(),
             'name': self.name,
             'note': self.note
         }
+        if self.disabled:
+            ret['disabled'] = True
+        return ret
 
     def is_enabled(self):
         return not self.disabled

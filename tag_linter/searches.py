@@ -28,6 +28,13 @@ class Search:
         "Implementations should return an iterable collection of integer file IDs"
         return None
 
+    def as_jsonifiable(self):
+        """
+        Creates some object that can be turned into a JSON object which
+        represents this Search object
+        """
+        raise NotImplementedError()
+
 
 class EmptySearch(Search):
     "Search implementation that returns no files"
@@ -38,6 +45,9 @@ class EmptySearch(Search):
     def execute(self, client, inbox, archive):
         return []
 
+    def as_jsonifiable(self):
+        return []
+
 
 class AllSearch(Search):
     def __init__(self):
@@ -45,15 +55,19 @@ class AllSearch(Search):
 
     def execute(self, client, inbox, archive):
         return client.search_files(tags=[], inbox=inbox, archive=archive)
+    
+    def as_jsonifiable(self):
+        return True
 
 
 class OpSearch(Search):
-    def __init__(self, op, of):
+    def __init__(self, op_name, of):
         super().__init__()
-        self.op = get_search_op(op)
+        self.op_name = op_name
+        self.op = get_search_op(op_name)
         self.of = of
         if(self.op is None):
-            raise ValueError("Unknown op: " + str(op))
+            raise ValueError("Unknown op: " + str(op_name))
         if(not isinstance(of, Iterable)):
             raise ValueError("Expected Iterable, got " + str(of))
 
@@ -73,6 +87,12 @@ class OpSearch(Search):
 
         return ret
 
+    def as_jsonifiable(self):
+        return {
+            'op': self.op_name,
+            'of': [i.as_jsonifiable() for i in self.of]
+        }
+
 
 class TagSearch(Search):
     "Search implementation that searches for a list of tags"
@@ -83,6 +103,11 @@ class TagSearch(Search):
 
     def execute(self, client, inbox, archive):
         return client.search_files(tags=self.tags, inbox=inbox, archive=archive)
+
+    def as_jsonifiable(self):
+        if len(self.tags) == 1:
+            return self.tags[0]
+        return self.tags
 
 
 def load_search(data):
