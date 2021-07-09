@@ -4,6 +4,7 @@ from tag_linter.server import Server
 from flask import Flask, render_template, jsonify, abort, request, make_response
 import sys
 import argparse
+import json
 import hydrus.utils
 import hydrus
 
@@ -84,6 +85,14 @@ def get_rule(rule_name):
     return rule
 
 
+def api_abort(status=400, message=None, err=None):
+    if message is None and err is None:
+        return make_response(status)
+    response = make_response(message, status)
+    response.mimetype = "text/plain"
+    return response
+
+
 @app.route('/', methods=['GET'])
 def app_get_index():
     server.refresh_all()
@@ -137,6 +146,13 @@ def api_get_rule_hashes():
     rule = get_rule(request.args.get('name'))
     refresh = request.args.get('refresh', False)
     return jsonify(server.get_rule_hashes(rule=rule, refresh=refresh))
+
+
+@app.route('/api/hydrus/add_tags/clean_tags', methods=['GET'])
+def api_hydrus_clean_tags():
+    tags_input = request.args.get('tags')
+    tags = json.loads(tags_input)
+    return jsonify(server.client.clean_tags(tags))
 
 
 @app.before_first_request
