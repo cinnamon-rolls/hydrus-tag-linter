@@ -1,12 +1,13 @@
 {
-    "name": "character without artist",
-    "note": "Files with a 'character' tag should also have an 'artist' tag. Exceptions are made for pending character requests, and for files tagged as 'meta:official art' as they may not have a known artist.",
+    "name": "character without creator",
+    "note": "Files with a 'character' tag should also have a 'creator' tag. Exceptions are made for pending character requests, and for files tagged as 'meta:official art' as they may not have a known artist.",
     "search": [
         "character:*",
         "-character:character request",
         "-meta:character request",
-        "-artist:*",
+        "-creator:*",
         "-meta:artist request",
+        "-meta:creator request",
         "-meta:official art"
     ]
 }

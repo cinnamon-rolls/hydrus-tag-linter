@@ -4,7 +4,9 @@
         "op": "union",
         "of": [
             "creator:artist request",
-            "meta:artist request"
+            "creator:creator request",
+            "meta:artist request",
+            "meta:creator request"
         ]
     }
 }
