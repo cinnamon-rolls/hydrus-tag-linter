@@ -55,7 +55,7 @@ class AllSearch(Search):
 
     def execute(self, client, inbox, archive):
         return client.search_files(tags=[], inbox=inbox, archive=archive)
-    
+
     def as_jsonifiable(self):
         return True
 
@@ -120,6 +120,12 @@ def load_search(data):
 
     if isinstance(data, Search):
         return data
+
+    if isinstance(data, bool):
+        if data:
+            return AllSearch()
+        else:
+            return EmptySearch()
 
     if isinstance(data, str):
         return TagSearch([data])

@@ -122,6 +122,13 @@ recursively
 Tags can be negated by putting a `-` in front of the tag's name, and namespaces
 can be searched with wildcards using the `*` character, e.g. `character:*`
 
+When the root element of a search is a boolean value (`true` or `false`), then
+the search will either return all files in the database or no files at all
+respectively.
+
+When the root element of a search is `null`, or is otherwise left undefined,
+then the search will return no files at all (equivalent to `false`)
+
 ## API
 
 If you check the source code, you will notice there is an API that would (in
