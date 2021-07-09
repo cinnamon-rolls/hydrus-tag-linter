@@ -43,6 +43,8 @@ class Server:
 
         self.client = create_hydrus_client(args)
 
+        self.api_verison = self.client.api_version()
+
     def is_archive_enabled(self):
         return self.archive_enabled
 
@@ -118,4 +120,16 @@ class Server:
         }, {
             'name': "Rules without issues",
             "value": self.count_rules_without_issues()
+        }, {
+            'name': "Inbox Enabled?",
+            "value": self.inbox_enabled
+        }, {
+            'name': "Archive Enabled?",
+            'value': self.archive_enabled
+        }, {
+            'name': "API Version",
+            'value': self.api_verison
+        }, {
+            'name': "API URL",
+            'value': self.client.api_url
         }]

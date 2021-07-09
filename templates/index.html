@@ -42,13 +42,17 @@
 
   {% set summary_vals = server.get_summary() %}
   <h2>Summary</h2>
-  <ul>
+  <table>
     {% for summary in summary_vals %}
-      <li>
-        <span>{{ summary.get('name') }}:</span>
-        <code>{{ summary.get('value') }}</code>
-      </li>
+      <tr>
+        <td>
+          <span>{{ summary.get('name') }}</span>
+        </td>
+        <td>
+          <code>{{ summary.get('value') }}</code>
+        </td>
+      </tr>
     {% endfor %}
-  </ul>
+  </table>
 
 {% endblock %}

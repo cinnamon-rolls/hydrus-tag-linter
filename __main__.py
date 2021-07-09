@@ -148,6 +148,11 @@ def api_get_rule_hashes():
     return jsonify(server.get_rule_hashes(rule=rule, refresh=refresh))
 
 
+@app.route('/api/server/get_summary', methods=['GET'])
+def api_server_get_summary():
+    return jsonify(server.get_summary())
+
+
 @app.route('/api/hydrus/add_tags/clean_tags', methods=['GET'])
 def api_hydrus_clean_tags():
     tags_input = request.args.get('tags')
