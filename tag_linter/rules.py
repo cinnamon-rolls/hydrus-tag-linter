@@ -6,7 +6,7 @@ import os
 
 JSON_EXT = ".json"
 
-AUTO_NOTE = " (This rule was automatically generated from a template.)"
+AUTO_NOTE = " (One or more pieces of this rule were automatically generated from a template.)"
 
 
 def construct_one(data) -> Rule:
@@ -21,8 +21,28 @@ def template_default(data) -> List[Rule]:
     return [construct_one(data)]
 
 
+def template_helicopter(data) -> List[Rule]:
+    parent = data.get('parent')
+    add_children = data.get('add_children', [])
+
+    # For the time being, we accept no other source
+    children = add_children
+
+    tags = [parent]
+
+    tags.extend([('-' + i) for i in children])
+
+    return [
+        construct_one({
+            'name': data.get('name', 'heli-parent: ' + parent),
+            'note': data.get('note', "the tag '" + parent + "' should accompany one or more of its children" + AUTO_NOTE),
+            'search': tags
+        })]
+
+
 templates = {
     'default': template_default,
+    'helicopter parent': template_helicopter
 }
 
 
@@ -89,20 +109,22 @@ def load_rules_from_dirs(rules_dirs: Union[str, List[str]]) -> List[Rule]:
 
     ret = []
 
-    for rule_file in rules_dirs:
+    for rule_dir in rules_dirs:
 
-        print("Searching directory: " + rule_file)
+        print("Searching directory: " + rule_dir)
 
-        for subfile in os.listdir(rule_file):
+        for subfile in os.listdir(rule_dir):
 
-            subfile_name = rule_file + "/" + subfile
+            subfile_name = rule_dir + "/" + subfile
 
-            if not os.path.isdir(subfile):
-                if subfile.endswith(JSON_EXT):
-                    ret.extend(load_rules_from_file(subfile_name))
-
-            else:
+            if os.path.isdir(subfile_name):
                 ret.extend(load_rules_from_dirs(subfile_name))
+
+            elif subfile.endswith(JSON_EXT):
+                ret.extend(load_rules_from_file(subfile_name))
+            
+            else:
+                print("Ignoring: " + subfile_name)
 
     return ret
 
