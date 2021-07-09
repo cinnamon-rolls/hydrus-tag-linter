@@ -1,6 +1,8 @@
 body {
-  background-color: #232629;
-  color: #f9f9f9;
+  display: block;
+  text-align: left;
+  background-color: #0D1117;
+  color: #c9d1d9;
   margin: 0;
   font-family: arial, helvetica;
 }
@@ -14,8 +16,15 @@ a:hover {
   text-decoration: underline;
 }
 
+code {
+  font-family:  monospace;
+  font-size: 100%;
+  color: #D7BA7D;
+}
+
 .content {
-  margin: 8px;
+  max-width: 720px;
+  margin: 16px;
 }
 
 /* Makes blocks of hashes look better and have a vertical scroll instead of
@@ -31,8 +40,8 @@ taking up the entire screen */
 /* Navigation */
 
 nav {
-  background-color: #323232;
-  padding: 8px 8px 8px 8px
+  background-color: #161B22;
+  padding: 8px 16px 8px 16px
 }
 
 nav .site-title {
@@ -40,7 +49,6 @@ nav .site-title {
 }
 
 nav ul {
-  background-color: #323232;
   list-style-type: none;
   margin: 8px 0px 0px 0px;
   padding: 0;

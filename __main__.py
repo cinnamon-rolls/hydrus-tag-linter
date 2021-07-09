@@ -151,6 +151,9 @@ def api_rules_apply_linter_tag():
     tag_raw = request.args.get('tag', rule.get_linter_rule_tag())
     tag_service = server.tag_service
 
+    enable_add = request.args.get('add', 'true') == 'true'
+    enable_remove = request.args.get('remove', 'true') == 'true'
+
     tag = server.client.clean_tags([tag_raw])[0]
 
     files_tagged_now = server.search_by_tags(tags=[tag])

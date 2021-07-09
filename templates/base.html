@@ -30,13 +30,15 @@
       </span>
       <ul>
         <li>
-          <a href="/">home</a>
+          <a href="/">Home</a>
         </li>
       </ul>
     </nav>
     <section class="content">
       <h1>
-        <span>{% block contenttitle %}{% endblock %}</span>
+        <span>
+          {% block contenttitle %}{% endblock %}
+        </span>
       </h1>
       {% for message in get_flashed_messages() %}
         <div class="flash">{{ message }}</div>

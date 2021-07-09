@@ -24,7 +24,7 @@
     function applyLinterTagSetup() {
       var btn = document.getElementById("mass_tag_button");
       btn.onclick = async function (e) {
-        var tagName = prompt("Please name the linter rule's tag", "{{ rule.get_linter_rule_tag() }}")
+        var tagName = "{{ rule.get_linter_rule_tag() }}"
 
         if (tagName == null) 
           return;
@@ -40,7 +40,9 @@
           console.log('applying...')
           response = await httpGETJSON(applyLinterTagURL + "&tag=" + encodeURI(tagName) + "&preview=false")
           console.log('response: ' + JSON.stringify(response))
-          window.location.reload()
+          window
+            .location
+            .reload()
         }
       }
     }
@@ -52,15 +54,9 @@
   </script>
 {% endblock %}
 
-{% block pagetitle %}
-  Rule:
-  {{ rule.name }}
-{% endblock %}
+{% block pagetitle %} Rule: {{ rule.name }} {% endblock %}
 
-{% block contenttitle %}
-  Rule:
-  {{ rule.name }}
-{% endblock %}
+{% block contenttitle %} Rule: {{ rule.name }} {% endblock %}
 
 {% block content %}
 
@@ -68,25 +64,38 @@
     <p>{{ rule.note }}</p>
   {% endif %}
 
-  <p>There are
+  <p>
+    There are
     <code>{{ len(server.get_rule_files(rule)) }}</code>
-    files detected by this rule</p>
+    files detected by this rule
+  </p>
 
   <h3>Actions</h3>
 
+  <h4>Sync Rule Tag</h4>
+  <span>
+    This action will automatically add the
+    <code>{{ rule.get_linter_rule_tag()}}</code>
+    tag to all of the noncompliant files, and remove it from files that are
+    currently compliant. This will allow you to search for these files in other
+    applications. Remember to re-sync once you are done making your changes.
+  </span>
   <ul>
     <li>
       <button id='mass_tag_button'>
-        <span class='icon icon_tag_blue_edit'>Apply Linter Rule's Tag...</span>
+        <span class='icon icon_tag_blue_edit'>Sync Rule Tag...</span>
       </button>
     </li>
   </ul>
 
-  <h3>Hashes</h3>
+  <h4>Hashes</h4>
 
-  <p>Here are all the SHA-256 hashes for each noncompliant file. You can paste these hashes into the
+  <p>
+    Here are all the SHA-256 hashes for each noncompliant file. You can paste
+    these hashes into the
     <code>system:hashes</code>
-    search in your Hydrus client.</p>
+    search in your Hydrus client.
+  </p>
 
   <div class='hashes'>
     <button id='copy_hashes_button'>
