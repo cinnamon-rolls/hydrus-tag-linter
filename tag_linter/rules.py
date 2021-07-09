@@ -6,8 +6,6 @@ import os
 
 JSON_EXT = ".json"
 
-AUTO_NOTE = " (One or more pieces of this rule were automatically generated from a template.)"
-
 
 def construct_one(data) -> Rule:
     """
@@ -34,9 +32,10 @@ def template_helicopter(data) -> List[Rule]:
 
     return [
         construct_one({
-            'name': data.get('name', 'heli-parent: ' + parent),
-            'note': data.get('note', "the tag '" + parent + "' should accompany one or more of its children" + AUTO_NOTE),
-            'search': tags
+            'name': data.get('name', 'heli-parent ' + parent),
+            'note': data.get('note', "the tag '" + parent + "' should accompany one or more of its children"),
+            'search': tags,
+            'disabled': data.get('disabled', False)
         })]
 
 
@@ -122,7 +121,7 @@ def load_rules_from_dirs(rules_dirs: Union[str, List[str]]) -> List[Rule]:
 
             elif subfile.endswith(JSON_EXT):
                 ret.extend(load_rules_from_file(subfile_name))
-            
+
             else:
                 print("Ignoring: " + subfile_name)
 
