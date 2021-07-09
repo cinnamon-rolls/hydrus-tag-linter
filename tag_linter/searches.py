@@ -103,12 +103,17 @@ class TagSearch(Search):
         super().__init__()
         self.tags = tags
 
-    def execute(self, client : hydrus.BaseClient, inbox, archive):
-        print("searching for " + str(len(self.tags)) + " tags, inbox=" + str(inbox) + ", archive=" + str(archive))
+    def execute(self, client: hydrus.BaseClient, inbox, archive):
         if inbox and archive:
-            inbox = False
-            archive = False
-        return client.search_files(self.tags, inbox, archive)
+            # neither are disabled
+            return client.search_files(self.tags)
+        elif not inbox and not archive:
+            # both were disabled :(
+            print("Warning: both archive and inbox were disabled, so searches will be empty (why did you do this?)")
+            return []
+        else:
+            # one or the other was disabled
+            return client.search_files(self.tags, inbox, archive)
 
     def as_jsonifiable(self):
         if len(self.tags) == 1:
