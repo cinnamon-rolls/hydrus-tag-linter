@@ -29,7 +29,7 @@
     function applyLinterTagSetup() {
       var btn = document.getElementById("mass_tag_button");
       btn.onclick = async function (e) {
-        var linterRuleTag
+        var linterRuleTag = "{{ rule.get_linter_rule_tag }}"
 
         if (linterRuleTag == null) 
           return;
