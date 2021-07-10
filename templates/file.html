@@ -82,7 +82,7 @@
         var e = document.createElement("video");
         e.className = classNameFullFile;
         e.controls = true;
-        e.appendChild(createSourceElement);
+        e.appendChild(createSourceElement());
         return e
       } else {
         // We don't know how to render that file so we throw up the thumbnail
@@ -117,7 +117,6 @@
     }
 
     window.addEventListener("load", function () {
-      console.log('strategy: {{file.strategy}}')
       // console.log(JSON.stringify(metadata))
       applyFileMetadata(metadata)
     })

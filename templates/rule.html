@@ -1,44 +1,49 @@
 {% extends 'base.html' %}
 
 {% block head_extra %}
-  <script src="{{ url_for('static', filename='js/async_helper.js') }}"></script>
-  <script>
-    var ruleName = "{{ rule.get_name() }}"
-    var ruleNameEnc = encodeURI(ruleName)
-
-    function copyHashesSetup() {
-      function getCopyFunc(elem) {
-        return function (e) {
-          navigator
-            .clipboard
-            .writeText(elem.innerText)
-        }
-      }
-      var btn = document.getElementById("copy_hashes_button");
-      var hashes = document.getElementById("hashes_holder")
-      btn.onclick = getCopyFunc(hashes)
+  <style>
+    #gallery_container {
+      float: left;
+      display: block;
+      max-width: calc(100% - 900px);
     }
+    
+    #side_info {
+      float: left;
+      display: block;
+      max-width: 720px;
+      margin-right: 16px;
+    }
+  </style>
+  <script src="{{ url_for('static', filename='js/async_helper.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/gallery_helper.js') }}"></script>
+  <script>
+    var linterRuleTag = "{{ rule.get_linter_rule_tag() }}"
+    var linterRuleTagURI = encodeURI(linterRuleTag)
 
-    var applyLinterTagURL = "/api/rules/apply_linter_tag?name=" + ruleNameEnc
+    var ruleName = "{{ rule.get_name() }}"
+    var ruleNameURI = encodeURI(ruleName)
+
+    var applyLinterTagURL = "/api/rules/apply_linter_tag?name=" + ruleNameURI
 
     function applyLinterTagSetup() {
       var btn = document.getElementById("mass_tag_button");
       btn.onclick = async function (e) {
-        var tagName = "{{ rule.get_linter_rule_tag() }}"
+        var linterRuleTag
 
-        if (tagName == null) 
+        if (linterRuleTag == null) 
           return;
         
-        console.log("Got tag name: '" + tagName + "'")
+        console.log("Got tag name: '" + linterRuleTag + "'")
 
-        preview = await httpGETJSON(applyLinterTagURL + "&tag=" + encodeURI(tagName) + "&preview=true")
+        preview = await httpGETJSON(applyLinterTagURL + "&tag=" + linterRuleTagURI + "&preview=true")
         console.log("preview: " + JSON.stringify(preview))
 
         var apply = confirm("the tag '" + preview.tag + "' will be added to " + preview.added + " files and removed from " + preview.removed + " on the service '" + preview.tag_service + "'. Is this OK?")
 
         if (apply) {
           console.log('applying...')
-          response = await httpGETJSON(applyLinterTagURL + "&tag=" + encodeURI(tagName) + "&preview=false")
+          response = await httpGETJSON(applyLinterTagURL + "&tag=" + linterRuleTagURI + "&preview=false")
           console.log('response: ' + JSON.stringify(response))
           window
             .location
@@ -47,60 +52,61 @@
       }
     }
 
-    window.addEventListener("load", function () {
-      copyHashesSetup()
+    async function getRuleFiles(rule) {
+      return httpGETJSON('/api/rules/get_files?name=' + ruleNameURI)
+    }
+
+    window.addEventListener("load", async function () {
       applyLinterTagSetup()
+      createGallery(await getRuleFiles())
     })
   </script>
 {% endblock %}
 
-{% block pagetitle %} Rule: {{ rule.name }} {% endblock %}
+{% block pagetitle %}
+  Rule:
+  {{ rule.name }}
+{% endblock %}
 
-{% block contenttitle %} Rule: {{ rule.name }} {% endblock %}
+{% block contenttitle %}{% endblock %}
 
 {% block content %}
 
-  {% if rule.note %}
-    <p>{{ rule.note }}</p>
-  {% endif %}
+  {% set files = server.get_rule_files(rule) %}
+  {% set files_count = len(files) %}
 
-  <p>
-    There are
-    <code>{{ len(server.get_rule_files(rule)) }}</code>
-    files detected by this rule
-  </p>
+  <div id="side_info">
 
-  <h3>Actions</h3>
+    <h2>{{ rule.name }}</h2>
 
-  <h4>Sync Rule Tag</h4>
-  <span>
-    This action will automatically add the
-    <code>{{ rule.get_linter_rule_tag()}}</code>
-    tag to all of the noncompliant files, and remove it from files that are
-    currently compliant. This will allow you to search for these files in other
-    applications. Remember to re-sync once you are done making your changes.
-  </span>
-  <ul>
-    <li>
-      {{ icon_btn(id='mass_tag_button', text="Sync Rule Tag...", icon='tag_blue_edit') }}
-    </li>
-  </ul>
+    {% if rule.note %}
+      <p>{{ rule.note }}</p>
+    {% endif %}
 
-  <h4>Hashes</h4>
+    <p>
+      There are
+      <code>{{ files_count }}</code>
+      files detected by this rule
+    </p>
 
-  <p>
-    Here are all the SHA-256 hashes for each noncompliant file. You can paste
-    these hashes into the
-    <code>system:hashes</code>
-    search in your Hydrus client.
-  </p>
+    <h3>Actions</h3>
 
-  <div class='hashes'> {{ icon_btn(id='copy_hashes_button', icon='page_copy',
-  text='Copy All') }}
-    <br>
-    <code>
-      <pre id='hashes_holder'>{{ server.get_rule_hashes_as_str(rule) }}</pre>
-    </code>
+    <h4>Sync Rule Tag</h4>
+    <span>
+      This action will automatically add the
+      <code>{{ rule.get_linter_rule_tag()}}</code>
+      tag to all of the noncompliant files, and remove it from files that are currently compliant. This will allow you to search for these files in other applications. Remember to re-sync once you are done making your changes.
+    </span>
+    <ul>
+      <li>
+        {{ icon_btn(id='mass_tag_button', text="Sync Rule Tag...", icon='tag_blue_edit') }}
+      </li>
+    </ul>
+  </div>
+
+  <div id="gallery_container">
+    <h2>Files</h2>
+    <div class="gallery" id="gallery"></div>
   </div>
 
 {% endblock %}

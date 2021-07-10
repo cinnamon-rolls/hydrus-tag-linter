@@ -2,12 +2,13 @@
 
 import requests
 from tag_linter.server import Server
-from flask import Flask, render_template, jsonify, abort, request, make_response
+from flask import Flask, render_template, jsonify, abort, request, make_response, send_from_directory
 import sys
 import argparse
 import json
 import hydrus.utils
 import hydrus
+import os
 
 
 def str2bool(v):
@@ -105,21 +106,18 @@ def get_file_metadata(file_id) -> hydrus.FileMetadataResultType:
     return server.get_client().file_metadata(file_ids=[file_id])[0]
 
 
-def get_render_strategy(mime: str):
-    if mime is None:
-        return 'none'
-
-    if mime.startswith('image'):
-        return 'image'
-
-    return 'none'
-
-
 def extract_tags_from_metadata(metadata: dict):
     sntstdt = dict.get('service_names_to_statuses_to_display_tags', {})
     stdt = sntstdt.get(server.tag_service, {})
     display_tags = stdt.get('0', {})
     return display_tags
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, 'static'),
+        'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 @app.route('/', methods=['GET'])
@@ -139,11 +137,8 @@ def app_get_rule(rule_name):
 @app.route('/file/<file_id>', methods=['GET'])
 def app_get_file(file_id):
     metadata = get_file_metadata(file_id)
-    mime = metadata.get('mime')
     return render_template('file.html', file={
         'id': file_id,
-        'mime': mime,
-        'strategy': get_render_strategy(mime),
         'metadata': metadata
     })
 
@@ -266,6 +261,11 @@ def api_get_rule_hashes():
 @app.route('/api/server/get_summary', methods=['GET'])
 def api_server_get_summary():
     return jsonify(server.get_summary())
+
+
+@app.route('/api/file/get_metadata', methods=['GET'])
+def api_file_get_metadata():
+    return jsonify(get_file_metadata(args.get('file_id')))
 
 
 @app.route('/api/hydrus/add_tags/clean_tags', methods=['GET'])
