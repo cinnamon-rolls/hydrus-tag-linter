@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import requests
 from tag_linter.server import Server
 from flask import Flask, render_template, jsonify, abort, request, make_response
 import sys
@@ -96,6 +97,31 @@ def get_rule(rule_name):
     return rule
 
 
+def get_file_metadata(file_id) -> hydrus.FileMetadataResultType:
+    if file_id is None:
+        return None
+    if not isinstance(file_id, int):
+        file_id = int(file_id)
+    return server.get_client().file_metadata(file_ids=[file_id])[0]
+
+
+def get_render_strategy(mime: str):
+    if mime is None:
+        return 'none'
+
+    if mime.startswith('image'):
+        return 'image'
+
+    return 'none'
+
+
+def extract_tags_from_metadata(metadata: dict):
+    sntstdt = dict.get('service_names_to_statuses_to_display_tags', {})
+    stdt = sntstdt.get(server.tag_service, {})
+    display_tags = stdt.get('0', {})
+    return display_tags
+
+
 @app.route('/', methods=['GET'])
 def app_get_index():
     server.refresh_all()
@@ -108,6 +134,37 @@ def app_get_rule(rule_name):
     # this will refresh the rule's cached list of files
     server.get_rule_files(rule, refresh=True)
     return render_template('rule.html', rule=rule)
+
+
+@app.route('/file/<file_id>', methods=['GET'])
+def app_get_file(file_id):
+    metadata = get_file_metadata(file_id)
+    mime = metadata.get('mime')
+    return render_template('file.html', file={
+        'id': file_id,
+        'mime': mime,
+        'strategy': get_render_strategy(mime),
+        'metadata': metadata
+    })
+
+
+@app.route('/files/thumbnail/<file_id>', methods=['GET'])
+def app_get_file_thumbnail(file_id):
+    thumb_res: requests.Response = server.get_client().get_thumbnail(file_id=file_id)
+    my_res = make_response(thumb_res.content)
+    # just hope the browser can figure it out...
+    # it should just be a jpg or png
+    my_res.mimetype = 'image'
+    return my_res
+
+
+@app.route('/files/full/<file_id>', methods=['GET'])
+def app_get_file_full(file_id):
+    metadata = get_file_metadata(file_id)
+    file_res: requests.Response = server.get_client().get_file(file_id=file_id)
+    my_res = make_response(file_res.content)
+    my_res.mimetype = metadata.get('mime')
+    return my_res
 
 
 @app.route('/api/rules/get_rules', methods=['GET'])
@@ -167,7 +224,7 @@ def api_rules_apply_linter_tag():
 
     if not preview:
         # Add
-        if(len(files_to_tag) > 0):
+        if(len(files_to_tag) > 0) and enable_add:
             print('add...')
             server.get_client().add_tags(
                 hashes=server.ids2hashes(files_to_tag),
@@ -179,7 +236,7 @@ def api_rules_apply_linter_tag():
             )
 
         # Remove
-        if(len(files_to_untag) > 0):
+        if(len(files_to_untag) > 0) and enable_remove:
             print('remove...')
             server.get_client().add_tags(
                 hashes=server.ids2hashes(files_to_untag),
@@ -229,7 +286,8 @@ def before_first_request():
 def context_process():
     return {
         'len': len,
-        'server': server
+        'server': server,
+        'json': json
     }
 
 

@@ -8,6 +8,10 @@ class Rule:
         self.disabled = data.get('disabled', False)
         self.cached_files = None
 
+        self.icon_active = data.get('icon_active')
+        self.icon_disabled = data.get('icon_disabled')
+        self.icon_done = data.get('icon_done', 'accept')
+
     def as_dict(self) -> dict:
         ret = {
             'search': self.search.as_jsonifiable(),
@@ -48,7 +52,7 @@ class Rule:
 
     def __repr__(self):
         return self.name
-    
+
     def get_linter_rule_tag(self):
         """
         This is the tag to apply to files that are noncompliant with this rule,

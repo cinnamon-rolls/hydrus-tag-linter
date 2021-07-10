@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+  {{"File #" + file.get('id', '?')}}
+{% endblock %}
+
+{% block contenttitle %}{% endblock %}
+
+{% block head_extra %}
+  <style>
+    .full_file {
+      max-width: 100%;
+      max-height: 100vh;
+    }
+
+    .full_file_sidebar {
+      display: block;
+      margin-right: 1em;
+      font-size: 80%;
+      width: 230px;
+      float: left;
+    }
+
+    .full_file_container {
+      display: block;
+      float: left;
+      width: calc(100% - 300px);
+    }
+
+    .tags_list {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+  </style>
+  <script src="{{ url_for('static', filename='js/async_helper.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/tag_presentation_helper.js') }}"></script>
+  <script>
+    // crazy hydrus metadata injection :)
+    var metadata = JSON.parse("{{json.dumps(file.metadata).replace('\"', '\\\"') |safe}}");
+    var tag_service = "{{server.tag_service}}"
+
+    function elem(e) {
+      return document.getElementById(e);
+    }
+
+    /** creates a text-based element e.g. <p> */
+    function textElem(type, text) {
+      var e = document.createElement(type);
+      e.textContent = text;
+      return e;
+    }
+
+    /** Creates an element to display the file in based on the mimetype */
+    function createEmbedElement(metadata, src) {
+      var mime = metadata.mime;
+      var classNameFullFile = "full_file"
+
+      /** Creates a source element, needed for some cases below */
+      function createSourceElement() {
+        var source = document.createElement("source");
+        source.src = src;
+        source.type = mime;
+        return source;
+      }
+
+      if (mime.startsWith("image")) {
+        // for images, create a simple img element
+        var e = document.createElement("img");
+        e.src = src;
+        e.className = classNameFullFile;
+        return e;
+      } else if (mime.startsWith("audio")) {
+        // audio -> audio element
+        var e = document.createElement("audio");
+        e.className = classNameFullFile;
+        e.controls = true;
+        e.appendChild(createSourceElement());
+        return e
+      } else if (mime.startsWith("video")) {
+        // videos -> video element
+        var e = document.createElement("video");
+        e.className = classNameFullFile;
+        e.controls = true;
+        e.appendChild(createSourceElement);
+        return e
+      } else {
+        // We don't know how to render that file so we throw up the thumbnail
+        var e = document.createElement("div");
+        e.appendChild(textElem("span", "The MIME type of this file is not supported."));
+        e.appendChild(document.createElement("br"));
+        var img = document.createElement("img");
+        img.className = "thumbnail";
+        img.src = "/files/thumbnail/{{file.id}}";
+        e.appendChild(img)
+        return e
+      }
+    }
+
+    function applyFileMetadata(metadata) {
+      var file_id = metadata.file_id;
+      var mime = metadata.mime;
+      var title = "File #" + metadata.file_id;
+      var src = "/files/full/" + file_id;
+
+      elem("file_title").textContent = title;
+      // elem("uploader-name").textContent = metadata.uploader;
+      // elem("uploaded-time").textContent = timeToSring(metadata.uploaded);
+
+      var elemDownload = elem("direct_download");
+      elemDownload.innerHTML = "<span>Direct Download (<code>" + metadata.mime + "</code>)</span>";
+      elemDownload.href = src;
+
+      var embedElement = createEmbedElement(metadata, src);
+      elem("embed_target").appendChild(embedElement);
+
+    }
+
+    window.addEventListener("load", function () {
+      console.log('strategy: {{file.strategy}}')
+      // console.log(JSON.stringify(metadata))
+      applyFileMetadata(metadata)
+    })
+  </script>
+{% endblock %}
+
+{% block content %}
+  <div class="full_file_sidebar">
+    <h3 id="file_title"></h3>
+    <p>
+      <a id="direct_download">Direct Download</a>
+    </p>
+
+    <h4>Tools</h4>
+    <button onclick="addTag()">Quick Add Tag</button><br>
+    <button onclick="removeTag()">Quick Remove Tag</button><br>
+
+    <h4 id="tags_header">Tags ({{server.tag_service}})</h4>
+    <ul id="tags_insert" class="tags_list"></ul>
+
+  </div>
+
+  <div id="embed_target" class="full_file_container"></div>
+
+{% endblock %}

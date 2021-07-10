@@ -27,11 +27,9 @@
             {% endif %}
           </td>
           <td>
-            <span>
-              <a href='/rules/{{ rule.name }}'>
-                {{ rule.name }}
-              </a>
-            </span>
+            <a href='/rules/{{ rule.name }}'>
+              {{ icon_span(text=rule.name, icon=server.get_rule_icon(rule), left=False) }}
+            </a>
           </td>
         </tr>
       {% endfor %}
@@ -40,32 +38,21 @@
     <p>no rules defined :(</p>
   {% endif %}
 
-  {% set summary_vals = server.get_summary() %}
+  {% set summary = server.get_summary() %}
   <h2>Summary</h2>
-  <h3>Progress</h3>
-  <table>
-    {% for summary in summary_vals.mrbones %}
-      <tr>
-        <td>
-          <span>{{ summary.get('name') }}</span>
-        </td>
-        <td>
-          <code>{{ summary.get('value') }}</code>
-        </td>
-      </tr>
-    {% endfor %}
-  </table>
-  <h3>Hydrus</h3>
-  <table>
-    {% for summary in summary_vals.hydrus %}
-      <tr>
-        <td>
-          <span>{{ summary.get('name') }}</span>
-        </td>
-        <td>
-          <code>{{ summary.get('value') }}</code>
-        </td>
-      </tr>
-    {% endfor %}
-  </table>
+  {% for section in summary %}
+    <h3>{{section.name}}</h3>
+    <table>
+      {% for key_val in section.get('value') %}
+        <tr>
+          <td>
+            <span>{{ key_val.get('name') }}</span>
+          </td>
+          <td>
+            <code>{{ key_val.get('value') }}</code>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endfor %}
 {% endblock %}

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block head_extra %}
-  <script src="{{ url_for('static', filename='async_helper.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/async_helper.js') }}"></script>
   <script>
     var ruleName = "{{ rule.get_name() }}"
     var ruleNameEnc = encodeURI(ruleName)
@@ -82,9 +82,7 @@
   </span>
   <ul>
     <li>
-      <button id='mass_tag_button'>
-        <span class='icon icon_tag_blue_edit'>Sync Rule Tag...</span>
-      </button>
+      {{ icon_btn(id='mass_tag_button', text="Sync Rule Tag...", icon='tag_blue_edit') }}
     </li>
   </ul>
 
@@ -97,10 +95,8 @@
     search in your Hydrus client.
   </p>
 
-  <div class='hashes'>
-    <button id='copy_hashes_button'>
-      <span class='icon icon_page_copy'>Copy All</span>
-    </button>
+  <div class='hashes'> {{ icon_btn(id='copy_hashes_button', icon='page_copy',
+  text='Copy All') }}
     <br>
     <code>
       <pre id='hashes_holder'>{{ server.get_rule_hashes_as_str(rule) }}</pre>

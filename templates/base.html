@@ -1,8 +1,17 @@
-{% macro btn(name, text=None, icon=None) -%}
-  <button>
-    {% if icon %}<img src="{{ url_for('static', filename='icons/' + icon + '.png') }}">{% endif %}
-    {% if text %}
-      <span>{{ text }}</span>{% endif %}
+{% macro icon_span(text="", icon=None, left=True) -%}
+  {% if icon %}
+    {% if left %}
+      {% set classVal = "icon_left icon_left_" + icon %}
+    {% else %}
+      {% set classVal = "icon_right icon_right_" + icon %}
+    {% endif %}
+  {% endif %}
+  <span {% if classVal %} class="{{ classVal }}" {% endif %}>{{text}}</span>
+{% endmacro -%}
+
+{% macro icon_btn(id=None, onclick=None, text="", icon=None, left=True) -%}
+  <button id="{{id}}" onclick="{{onclick}}">
+    {{ icon_span(text=text, icon=icon, left=left) }}
   </button>
 {% endmacro -%}
 
@@ -13,7 +22,8 @@
     <title>
       {% block pagetitle %}{% endblock %}
       | Tag Linter</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/icons.css') }}"/>
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.png') }}"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">

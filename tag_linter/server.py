@@ -94,6 +94,8 @@ class Server:
         return ret
 
     def get_rule(self, rule_name: str) -> Rule:
+        if isinstance(rule_name, Rule):
+            return rule_name
         return self.lint_rules.get(rule_name)
 
     def get_rule_names(self) -> List[str]:
@@ -122,6 +124,18 @@ class Server:
 
         text = "\n".join(self.get_rule_hashes(rule=rule, refresh=refresh))
         return text
+
+    def get_rule_icon(self, rule_name):
+        rule = self.get_rule(rule_name)
+        if rule is None:
+            return None
+
+        if not rule.is_enabled():
+            return rule.icon_disabled
+        if len(self.get_rule_files(rule)) > 0:
+            return rule.icon_active
+        else:
+            return rule.icon_done
 
     def refresh_all(self):
         for rule in self.lint_rules.values():
@@ -154,33 +168,38 @@ class Server:
         return ret
 
     def get_summary(self) -> List[dict]:
-        return {
-            "mrbones": [
-                {
-                    'name': "Total issues",
-                    'value': self.count_issues()
-                }, {
-                    'name': "Total rules",
-                    'value': len(self.get_rules())
-                }, {
-                    'name': "Rules without issues",
-                    "value": self.count_rules_without_issues()
-                }],
-            "hydrus": [
-                {
-                    'name': "Inbox Enabled?",
-                    "value": self.inbox_enabled
-                }, {
-                    'name': "Archive Enabled?",
-                    'value': self.archive_enabled
-                }, {
-                    'name': "API Version",
-                    'value': self.api_verison
-                }, {
-                    'name': "API URL",
-                    'value': self.client.api_url
-                }, {
-                    'name': "Tag Service",
-                    'value': self.tag_service
-                }]
-        }
+        return [
+            {
+                'name': 'Progress',
+                "value": [
+                    {
+                        'name': "Total issues",
+                        'value': self.count_issues()
+                    }, {
+                        'name': "Total rules",
+                        'value': len(self.get_rules())
+                    }, {
+                        'name': "Rules without issues",
+                        "value": self.count_rules_without_issues()
+                    }],
+            }, {
+                'name': 'Hydrus',
+                "value": [
+                    {
+                        'name': "Inbox Enabled?",
+                        "value": self.inbox_enabled
+                    }, {
+                        'name': "Archive Enabled?",
+                        'value': self.archive_enabled
+                    }, {
+                        'name': "API Version",
+                        'value': self.api_verison
+                    }, {
+                        'name': "API URL",
+                        'value': self.client.api_url
+                    }, {
+                        'name': "Tag Service",
+                        'value': self.tag_service
+                    }]
+            }
+        ]

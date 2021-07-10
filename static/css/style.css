@@ -23,7 +23,6 @@ code {
 }
 
 .content {
-  max-width: 720px;
   margin: 16px;
 }
 
@@ -81,20 +80,21 @@ table td, table th {
   border: 1px solid #636363
 }
 
+/* Files */
+
+.thumbnail {
+  display: inline-block;
+  text-align: center;
+  vertical-align: middle;
+  margin: 2px 2px;
+}
+
 /* Icons */
 
-span.icon {
+.icon_left {
   padding-left: 20px;
 }
 
-span.icon_page_copy {
-  background: url('/static/icons/page_copy.png') no-repeat left center;
-}
-
-span.icon_tag_blue_add {
-  background: url('/static/icons/tag_blue_add.png') no-repeat left center;
-}
-
-span.icon_tag_blue_edit {
-  background: url('/static/icons/tag_blue_edit.png') no-repeat left center;
+.icon_right {
+  padding-right: 20px;
 }
