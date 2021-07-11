@@ -1,9 +1,7 @@
-import tag_linter.rules
 import typing
 import hydrus
 
-from tag_linter.rule import Rule
-from typing import List, Iterable
+import typing as T
 
 NAME = "hydrus tag linter"
 PERMISSIONS = [
@@ -12,11 +10,7 @@ PERMISSIONS = [
 ]
 
 
-def get_key(args, permissions):
-    "Gets the Hydrus Client API key supplied in the args, or read from input if its not specified"
-
-
-def create_hydrus_client(args):
+def create_hydrus_client(args) -> hydrus.BaseClient:
     import hydrus.utils
 
     if(args.api_key is not None):
@@ -37,59 +31,54 @@ def create_hydrus_client(args):
 
     return client
 
-# https://stackoverflow.com/a/8290508
-
-
-def batch(iterable: Iterable, batch_size: int = 256):
-    """
-    Breaks a large list into batches of a predetermined size
-    """
-
-    if isinstance(iterable, set):
-        iterable = list(iterable)
-
-    l = len(iterable)
-    for ndx in range(0, l, batch_size):
-        yield iterable[ndx:min(ndx + batch_size, l)]
-
 
 class Server:
-    def __init__(self, args):
-        self.rules = tag_linter.rules.load_rules(args.rules)
+    def __init__(self):
+        print("Server: __init__")
+
+    def accept_user_args(self, args):
+        """Please do not call this unless you are in server.py, and you probably
+        aren't in server.py"""
+        from tag_linter.rules import load_rules
+        self.rules = load_rules(args.rules)
 
         self.archive_enabled = not args.disable_archive
         self.inbox_enabled = not args.disable_inbox
+
+        if not self.archive_enabled and not self.inbox_enabled:
+            print("Warning: both archive and inbox were disabled, so searches will be empty (why did you do this?)")
+
         self.tag_service = args.tag_service
 
         self.client = create_hydrus_client(args)
 
         self.api_verison = self.client.api_version()
 
-    def is_archive_enabled(self):
+    def get_client(self) -> hydrus.BaseClient:
+        return self.client
+
+    def is_archive_enabled(self) -> bool:
         return self.archive_enabled
 
-    def is_inbox_enabled(self):
+    def is_inbox_enabled(self) -> bool:
         return self.inbox_enabled
 
     def search_by_tags(self, tags):
         if self.inbox_enabled and self.archive_enabled:
             # neither are disabled
             return self.get_client().search_files(tags)
-
         elif not self.inbox_enabled and not self.archive_enabled:
             # both were disabled :(
-            print("Warning: both archive and inbox were disabled, so searches will be empty (why did you do this?)")
             return []
-
         else:
             # one or the other was disabled
             return self.get_client().search_files(tags, self.inbox_enabled, self.archive_enabled)
 
-    def get_rules(self, sort_reverse=True) -> List[Rule]:
+    def get_rules(self, sort_reverse=True):
         ret = list(self.rules.values())
 
         def keyFunc(a):
-            fs = self.get_rule_files(a)
+            fs = a.get_files()
             if fs is None:
                 raise ValueError("Rule '" + str(a) + "' returns None")
             return len(fs)
@@ -100,77 +89,48 @@ class Server:
         )
         return ret
 
-    def get_rule(self, rule_name: str) -> Rule:
+    def get_rule(self, rule_name):
+        from tag_linter.rule import Rule
         if isinstance(rule_name, Rule):
             return rule_name
         return self.rules.get(rule_name)
 
-    def get_rule_names(self) -> List[str]:
+    def get_rule_names(self) -> T.List[str]:
         return list(self.rules.keys())
-
-    def get_client(self) -> hydrus.BaseClient:
-        return self.client
-
-    def get_rule_files(self, rule: typing.Union[str, Rule], refresh=False):
-        if isinstance(rule, str):
-            rule = self.get_rule(rule)
-        return rule.get_files(self, refresh)
-
-    def get_rule_hashes(self, rule: typing.Union[str, Rule], refresh=False):
-        if isinstance(rule, str):
-            rule = self.get_rule(rule)
-        return self.ids2hashes(self.get_rule_files(rule=rule, refresh=refresh))
-
-    def get_rule_hashes_as_str(self, rule: typing.Union[str, Rule], refresh=False) -> str:
-        if isinstance(rule, str):
-            rule = self.get_rule(rule)
-
-        text = "\n".join(self.get_rule_hashes(rule=rule, refresh=refresh))
-        return text
-
-    def get_rule_icon(self, rule_name):
-        rule = self.get_rule(rule_name)
-        if rule is None:
-            return None
-
-        if not rule.is_enabled():
-            return rule.icon_disabled
-        if len(self.get_rule_files(rule)) > 0:
-            return rule.icon_active
-        else:
-            return rule.icon_done
 
     def refresh_all(self):
         for rule in self.rules.values():
-            self.get_rule_files(rule=rule, refresh=True)
+            rule.get_files(refresh=True)
 
     def count_issues(self, refresh=False):
         ret = 0
         for rule in self.rules.values():
-            ret += len(self.get_rule_files(rule=rule, refresh=refresh))
+            ret += len(rule.get_files(refresh=refresh))
         return ret
 
     def count_rules_without_issues(self, refresh=False):
         ret = 0
         for rule in self.rules.values():
-            if len(self.get_rule_files(rule=rule, refresh=refresh)) == 0:
+            if len(rule.get_files(refresh=refresh)) == 0:
                 ret += 1
         return ret
 
-    def ids2hashes(self, file_ids):
-        ret = []
-        batch_size = 256
+    def get_file_metadata(self, file_id: T.Union[T.List[int], int]) -> hydrus.FileMetadataResultType:
+        if file_id is None:
+            raise ValueError('file_id is None')
 
-        batches = batch(file_ids, batch_size)
+        if isinstance(file_id, str):
+            file_id = int(file_id)
 
-        for search_batch in batches:
-            res = self.client.file_metadata(file_ids=search_batch)
-            for val in res:
-                ret.append(val.get('hash'))
+        if isinstance(file_id, int):
+            return self.get_client().file_metadata(file_ids=[file_id])[0]
 
-        return ret
+        if isinstance(file_id, list):
+            return self.get_client().file_metadata(file_ids=file_id)
 
-    def get_summary(self) -> List[dict]:
+        raise ValueError('unexpected input: ' + str(file_id))
+
+    def get_summary(self) -> T.List[dict]:
         return [
             {
                 'name': 'Progress',
@@ -206,3 +166,16 @@ class Server:
                     }]
             }
         ]
+
+
+# The one and only server instance, please do not make more :)
+# Use this magic line:
+# from tag_linter.server import instance as server
+instance = Server()
+
+
+def accept_user_args(args):
+    """Gives the user's command line arguments to a new server instance. Please
+    please PLEASE only call this once."""
+    global instance
+    instance.accept_user_args(args)

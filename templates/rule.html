@@ -72,7 +72,7 @@
 
 {% block content %}
 
-  {% set files = server.get_rule_files(rule) %}
+  {% set files = rule.get_files() %}
   {% set files_count = len(files) %}
 
   <div id="side_info">

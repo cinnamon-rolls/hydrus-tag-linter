@@ -1,3 +1,7 @@
+from tag_linter.server import instance as server
+from tag_linter.hydrus_util import ids2hashes
+
+
 class Rule:
     def __init__(self, data: dict):
         from tag_linter.searches import load_search
@@ -25,7 +29,7 @@ class Rule:
     def is_enabled(self):
         return not self.disabled
 
-    def get_files(self, server, refresh: bool = False):
+    def get_files(self, refresh: bool = False):
         if(not self.is_enabled()):
             return []
 
@@ -34,11 +38,26 @@ class Rule:
         elif self.cached_files is not None:
             return self.cached_files
 
-        print("get files: " + self.name)
+        print("get_files: " + self.name)
 
         ret = self.search.execute(server)
         self.cached_files = ret
         return ret
+
+    def get_hashes(self, refresh=False):
+        return ids2hashes(self.get_files(refresh=refresh))
+
+    def get_hashes_as_str(self, refresh=False) -> str:
+        text = "\n".join(self.get_hashes(refresh=refresh))
+        return text
+
+    def get_icon(self, refresh=False):
+        if not self.is_enabled():
+            return self.icon_disabled
+        if len(self.get_files(refresh=refresh)) > 0:
+            return self.icon_active
+        else:
+            return self.icon_done
 
     def get_name(self):
         return self.name if self.name is not None else "Unnamed Rule"

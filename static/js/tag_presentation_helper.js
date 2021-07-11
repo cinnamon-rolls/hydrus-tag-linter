@@ -7,7 +7,7 @@ var tagPresentation = {
     "": "#006FFA", // no namespaced
     character: "#00AA00",
     creator: "#AA0000",
-    meta: "#000000",
+    meta: "#AAAAAA",
     person: "#008000",
     series: "#AA00AA",
     studio: "#800000",
