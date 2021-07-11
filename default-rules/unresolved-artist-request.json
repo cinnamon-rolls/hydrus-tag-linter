@@ -5,6 +5,7 @@
         "of": [
             "creator:artist request",
             "creator:creator request",
+            "creator:[email protected]",
             "meta:artist request",
             "meta:creator request"
         ]
