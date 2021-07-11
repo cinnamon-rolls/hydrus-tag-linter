@@ -29,7 +29,7 @@ function getNamespaceColor(namespace) {
 function getTagColor(tag) {
   var parts = tag.split(":", 2);
   if (parts.length < 2) {
-    return tagPresentation[""];
+    return tagPresentation.namespaces[""];
   } else {
     return getNamespaceColor(parts[0]);
   }
