@@ -25,19 +25,18 @@ class Rule:
     def is_enabled(self):
         return not self.disabled
 
-    def get_files(self, client, inbox, archive, refresh: bool = False):
+    def get_files(self, server, refresh: bool = False):
         if(not self.is_enabled()):
             return []
 
         if refresh == True:
             self.cached_files = None
-
-        if self.cached_files is not None:
+        elif self.cached_files is not None:
             return self.cached_files
 
         print("get files: " + self.name)
 
-        ret = self.search.execute(client, inbox, archive)
+        ret = self.search.execute(server)
         self.cached_files = ret
         return ret
 

@@ -3,7 +3,7 @@ function createThumbnail(id) {
 
   var anchor = document.createElement("a");
   anchor.style += "font-size: 0;";
-  anchor.href = "/file/" + id_uri;
+  anchor.href = "/file?file=" + id_uri;
 
   var container = document.createElement("div");
   container.className += " thumbnail";

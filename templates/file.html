@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block pagetitle %}
-  {{"File #" + file.get('id', '?')}}
+  {{"File Viewer"}}
 {% endblock %}
 
 {% block contenttitle %}{% endblock %}
@@ -29,18 +29,14 @@
       width: calc(100% - 300px);
     }
 
-    .tags_list {
-      list-style-type: none;
-      padding: 0;
+    .tag_list {
+      padding: 0 0 0 16px;
       margin: 0;
     }
   </style>
   <script src="{{ url_for('static', filename='js/async_helper.js') }}"></script>
   <script src="{{ url_for('static', filename='js/tag_presentation_helper.js') }}"></script>
   <script>
-    var fileID = "{{file.id}}"
-    var fileIDURI = encodeURI("{{file.id}}")
-
     var tagService = "{{server.tag_service}}"
 
     /** creates a text-based element e.g. <p> */
@@ -53,6 +49,11 @@
     /** Creates an element to display the file in based on the mimetype */
     function createEmbedElement(metadata, src) {
       var mime = metadata.mime;
+
+      // i do URI encoding out of paranoia
+      var fileID = metadata.file_id
+      var fileIDURI = encodeURI(fileID + "")
+
       var classNameFullFile = "full_file"
 
       /** Creates a source element, needed for some cases below */
@@ -90,7 +91,7 @@
         e.appendChild(document.createElement("br"));
         var img = document.createElement("img");
         img.className = "thumbnail";
-        img.src = "/files/thumbnail/{{file.id}}";
+        img.src = "/files/thumbnail/" + fileIDURI;
         e.appendChild(img)
         return e
       }
@@ -113,7 +114,7 @@
     async function applyTags(metadata) {
       var tagsContainer = document.getElementById("tags_container")
       tagsContainer.innerHTML = ""
-      tagsContainer.appendChild(createTagList(getTags(tagService, metadata)))
+      tagsContainer.appendChild(createTagList(getDisplayTags(tagService, metadata)))
     }
 
     async function applyFileMetadata(metadata) {
@@ -141,9 +142,15 @@
       await applyTags(metadata)
     }
 
+    async function setFile(fileID) {
+      httpGETJSON('/api/file/get_metadata?file_id=' + encodeURI(fileID)).then(applyFileMetadata)
+    }
+
     window.addEventListener("load", function () {
-      // console.log(JSON.stringify(metadata))
-      httpGETJSON('/api/file/get_metadata?file_id=' + fileIDURI).then(applyFileMetadata)
+      var params = new URLSearchParams(window.location.search);
+      var file = params.get("file");
+      setFile(file)
+
     })
   </script>
 {% endblock %}

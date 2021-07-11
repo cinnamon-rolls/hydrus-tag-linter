@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
+from json.decoder import JSONDecodeError
 import requests
+import tag_linter.searches as searches
 from tag_linter.server import Server
 from flask import Flask, render_template, jsonify, abort, request, make_response, send_from_directory
 import sys
@@ -134,13 +136,9 @@ def app_get_rule(rule_name):
     return render_template('rule.html', rule=rule)
 
 
-@app.route('/file/<file_id>', methods=['GET'])
-def app_get_file(file_id):
-    metadata = get_file_metadata(file_id)
-    return render_template('file.html', file={
-        'id': file_id,
-        'metadata': metadata
-    })
+@app.route('/file', methods=['GET'])
+def app_get_file():
+    return render_template('file.html')
 
 
 @app.route('/files/thumbnail/<file_id>', methods=['GET'])
@@ -160,6 +158,11 @@ def app_get_file_full(file_id):
     my_res = make_response(file_res.content)
     my_res.mimetype = metadata.get('mime')
     return my_res
+
+
+@app.route('/search', methods=['GET'])
+def app_search_by_tag():
+    return render_template('search.html')
 
 
 @app.route('/api/rules/get_rules', methods=['GET'])
@@ -266,6 +269,17 @@ def api_server_get_summary():
 @app.route('/api/file/get_metadata', methods=['GET'])
 def api_file_get_metadata():
     return jsonify(get_file_metadata(request.args.get('file_id')))
+
+
+@app.route('/api/search/get_files', methods=['GET'])
+def api_search_get_files():
+    input_raw = request.args.get('search')
+    try:
+        input = json.loads(input_raw)
+    except JSONDecodeError:
+        abort(400, "invalid json: '" + input_raw + "'")
+    search = searches.load_search(input)
+    return jsonify(search.execute(server))
 
 
 @app.route('/api/hydrus/add_tags/clean_tags', methods=['GET'])

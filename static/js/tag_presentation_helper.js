@@ -38,6 +38,9 @@ function createTagAnchor(tag) {
   var e = document.createElement("a")
   e.innerText = tag
   e.style = "color:" + getTagColor(tag) + ";"
+  e.className += "tag_anchor"
+  var search = encodeURI("\"" + tag + "\"")
+  e.href = "/search?search=" + search
   return e
 }
 

@@ -55,7 +55,7 @@ def batch(iterable: Iterable, batch_size: int = 256):
 
 class Server:
     def __init__(self, args):
-        self.lint_rules = tag_linter.rules.load_rules(args.rules)
+        self.rules = tag_linter.rules.load_rules(args.rules)
 
         self.archive_enabled = not args.disable_archive
         self.inbox_enabled = not args.disable_inbox
@@ -74,7 +74,7 @@ class Server:
     def search_by_tags(self, tags):
         if self.inbox_enabled and self.archive_enabled:
             # neither are disabled
-            return self.client.search_files(tags)
+            return self.get_client().search_files(tags)
 
         elif not self.inbox_enabled and not self.archive_enabled:
             # both were disabled :(
@@ -83,12 +83,19 @@ class Server:
 
         else:
             # one or the other was disabled
-            return self.get_client().search_files(self.tags, self.inbox_enabled, self.archive_enabled)
+            return self.get_client().search_files(tags, self.inbox_enabled, self.archive_enabled)
 
     def get_rules(self, sort_reverse=True) -> List[Rule]:
-        ret = list(self.lint_rules.values())
+        ret = list(self.rules.values())
+
+        def keyFunc(a):
+            fs = self.get_rule_files(a)
+            if fs is None:
+                raise ValueError("Rule '" + str(a) + "' returns None")
+            return len(fs)
+
         ret.sort(
-            key=lambda a: len(self.get_rule_files(a)),
+            key=keyFunc,
             reverse=sort_reverse
         )
         return ret
@@ -96,10 +103,10 @@ class Server:
     def get_rule(self, rule_name: str) -> Rule:
         if isinstance(rule_name, Rule):
             return rule_name
-        return self.lint_rules.get(rule_name)
+        return self.rules.get(rule_name)
 
     def get_rule_names(self) -> List[str]:
-        return list(self.lint_rules.keys())
+        return list(self.rules.keys())
 
     def get_client(self) -> hydrus.BaseClient:
         return self.client
@@ -107,11 +114,7 @@ class Server:
     def get_rule_files(self, rule: typing.Union[str, Rule], refresh=False):
         if isinstance(rule, str):
             rule = self.get_rule(rule)
-
-        if rule is None:
-            return None
-
-        return rule.get_files(self.client, self.inbox_enabled, self.archive_enabled, refresh)
+        return rule.get_files(self, refresh)
 
     def get_rule_hashes(self, rule: typing.Union[str, Rule], refresh=False):
         if isinstance(rule, str):
@@ -138,18 +141,18 @@ class Server:
             return rule.icon_done
 
     def refresh_all(self):
-        for rule in self.lint_rules.values():
+        for rule in self.rules.values():
             self.get_rule_files(rule=rule, refresh=True)
 
     def count_issues(self, refresh=False):
         ret = 0
-        for rule in self.lint_rules.values():
+        for rule in self.rules.values():
             ret += len(self.get_rule_files(rule=rule, refresh=refresh))
         return ret
 
     def count_rules_without_issues(self, refresh=False):
         ret = 0
-        for rule in self.lint_rules.values():
+        for rule in self.rules.values():
             if len(self.get_rule_files(rule=rule, refresh=refresh)) == 0:
                 ret += 1
         return ret

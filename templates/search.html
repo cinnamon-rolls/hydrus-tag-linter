@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block head_extra %}
+  <script src="{{ url_for('static', filename='js/async_helper.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/gallery_helper.js') }}"></script>
+  <script>
+    async function getSearchFiles(search) {
+      console.log(search)
+      return httpGETJSON('/api/search/get_files?search=' + encodeURI(search))
+    }
+
+    window.addEventListener("load", async function () {
+      var params = new URLSearchParams(window.location.search);
+      var search = params.get("search");
+
+      createGallery(await getSearchFiles(search))
+    })
+  </script>
+{% endblock %}
+
+{% block pagetitle %}
+  Search
+{% endblock %}
+
+{% block contenttitle %}
+  Search
+{% endblock %}
+
+{% block content %}
+
+  <div id="gallery_container">
+    <div class="gallery" id="gallery"></div>
+  </div>
+
+{% endblock %}

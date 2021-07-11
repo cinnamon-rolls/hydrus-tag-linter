@@ -27,9 +27,9 @@ class Search:
     def __init__(self):
         pass
 
-    def execute(self, server : Server):
+    def execute(self, server: Server):
         "Implementations should return an iterable collection of integer file IDs"
-        return None
+        raise NotImplementedError()
 
     def as_jsonifiable(self):
         """
@@ -57,7 +57,7 @@ class AllSearch(Search):
         super().__init__()
 
     def execute(self, server):
-        return server.search_by_tag(tags=[])
+        return server.search_by_tags(tags=[])
 
     def as_jsonifiable(self):
         return True
@@ -71,14 +71,18 @@ class OpSearch(Search):
         self.of = of
         if(self.op is None):
             raise ValueError("Unknown op: " + str(op_name))
-        if(not isinstance(of, Iterable)):
+        if(not isinstance(of, Iterable) or of is None):
             raise ValueError("Expected Iterable, got " + str(of))
 
-    def execute(self, client, inbox, archive):
-        ret = set(self.of[0].execute(client, inbox, archive))
+    def execute(self, server):
+        initial_values = self.of[0].execute(server)
+        if initial_values is None:
+            return []
+
+        ret = set(initial_values)
 
         for i in range(1, len(self.of)):
-            other_search = self.of[i].execute(client, inbox, archive)
+            other_search = self.of[i].execute(server)
 
             # print('before 1: ' + str(ret))
             # print('before 2: ' + str(other_search))
@@ -104,17 +108,10 @@ class TagSearch(Search):
         super().__init__()
         self.tags = tags
 
-    def execute(self, client: hydrus.BaseClient, inbox, archive):
-        if inbox and archive:
-            # neither are disabled
-            return client.search_files(self.tags)
-        elif not inbox and not archive:
-            # both were disabled :(
-            print("Warning: both archive and inbox were disabled, so searches will be empty (why did you do this?)")
-            return []
-        else:
-            # one or the other was disabled
-            return client.search_files(self.tags, inbox, archive)
+    def execute(self, server):
+        search = server.search_by_tags(self.tags)
+        # print(str(search))
+        return search
 
     def as_jsonifiable(self):
         if len(self.tags) == 1:
