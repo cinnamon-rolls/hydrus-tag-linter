@@ -12,7 +12,7 @@ async function httpGET(url) {
       }
     };
     xmlHttp.open("GET", url, true);
-    console.log('GET', url)
+    console.log("GET", url);
     xmlHttp.send(); // no body for GET
   });
 }

@@ -1,10 +1,18 @@
+function copy(obj) {
+  var ret = {};
+  for (var key in obj) {
+    ret[key] = obj[key];
+  }
+  return ret;
+}
+
 function createThumbnail(id, options = {}) {
-  id_uri = encodeURI(id)
+  id_uri = encodeURI(id);
 
   href = "/file?file=" + id_uri;
 
-  if(options.ruleName) {
-    href += "&rule=" + encodeURI(options.ruleName)
+  if (options.ruleName) {
+    href += "&rule=" + encodeURI(options.ruleName);
   }
 
   var anchor = document.createElement("a");

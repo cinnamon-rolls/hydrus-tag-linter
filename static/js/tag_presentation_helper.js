@@ -4,14 +4,15 @@
 var tagPresentation = {
   default: "#72A0C1", // undefined namespace
   namespaces: {
-    "": "#006FFA", // no namespaced
+    "": "#006FFA", // no namespace
     character: "#00AA00",
     creator: "#AA0000",
     meta: "#AAAAAA",
     person: "#008000",
     series: "#AA00AA",
     studio: "#800000",
-    system: "#996515"
+    system: "#996515",
+    "linter rule": "#AA8000"
   }
 };
 
@@ -19,7 +20,7 @@ var tagPresentation = {
 function getNamespaceColor(namespace) {
   var ret = tagPresentation.namespaces[namespace];
   if (ret == null) {
-    ret = tagPresentation.namespaces[""];
+    ret = tagPresentation.default;
   }
   return ret;
 }
@@ -28,36 +29,36 @@ function getNamespaceColor(namespace) {
 function getTagColor(tag) {
   var parts = tag.split(":", 2);
   if (parts.length < 2) {
-    return tagPresentation.default;
+    return tagPresentation[""];
   } else {
     return getNamespaceColor(parts[0]);
   }
 }
 
 function createTagAnchor(tag) {
-  var e = document.createElement("a")
-  e.innerText = tag
-  e.style = "color:" + getTagColor(tag) + ";"
-  e.className += "tag_anchor"
-  var search = encodeURI("\"" + tag + "\"")
-  e.href = "/search?search=" + search
-  return e
+  var e = document.createElement("a");
+  e.innerText = tag;
+  e.style = "color:" + getTagColor(tag) + ";";
+  e.className += "tag_anchor";
+  var search = encodeURI('"' + tag + '"');
+  e.href = "/search?search=" + search;
+  return e;
 }
 
 function createTagListItem(tag) {
-  var li = document.createElement("li")
-  li.appendChild(createTagAnchor(tag))
-  return li
+  var li = document.createElement("li");
+  li.appendChild(createTagAnchor(tag));
+  return li;
 }
 
 function createTagList(tags) {
-  tags.sort(compareTags)
-  var ul = document.createElement("ul")
-  ul.className += "tag_list"
-  for(var i = 0; i < tags.length; i++) {
-    ul.appendChild(createTagListItem(tags[i]))
+  tags.sort(compareTags);
+  var ul = document.createElement("ul");
+  ul.className += "tag_list";
+  for (var i = 0; i < tags.length; i++) {
+    ul.appendChild(createTagListItem(tags[i]));
   }
-  return ul
+  return ul;
 }
 
 /** Sorts tags based on namespace and then text */
@@ -65,12 +66,12 @@ function compareTags(tag1, tag2) {
   var b1 = tag1.includes(":");
   var b2 = tag2.includes(":");
   if (b1 && !b2) {
-      return -1;
+    return -1;
   } else if (!b1 && b2) {
-      return 1;
+    return 1;
   } else if (b1 && b2) {
-      return tag1.split(":", 2)[0].localeCompare(tag2.split(":", 2)[0])
+    return tag1.split(":", 2)[0].localeCompare(tag2.split(":", 2)[0]);
   } else {
-      return tag1.localeCompare(tag2);
+    return tag1.localeCompare(tag2);
   }
 }

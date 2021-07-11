@@ -29,7 +29,6 @@
       width: calc(100% - 300px);
     }
 
-    .action_list,
     .tag_list {
       padding: 0 0 0 16px;
       margin: 0;
@@ -39,6 +38,27 @@
   <script src="{{ url_for('static', filename='js/tag_presentation_helper.js') }}"></script>
   <script>
     var tagService = "{{server.tag_service}}"
+
+    // we store the actions here for reference later. we will populate them
+    // at a later time too.
+    var fileActions = {}
+
+    function onAction(actionName) {
+      console.log(fileActions)
+      action = fileActions[actionName];
+      if (action == null) {
+        alert(actionName + " cannot be completed because it has no archetype.");
+        return;
+      }
+
+      var archetype = action.archetype;
+      if (archetype == null) {
+        alert(actionName + " does not have an archetype, doing nothing");
+        return;
+      }
+
+      alert(actionName + " has an unknown/unsupported archetype: '" + archetype + "'")
+    }
 
     /** creates a text-based element e.g. <p> */
     function textElem(type, text) {
@@ -118,6 +138,39 @@
       tagsContainer.appendChild(createTagList(getDisplayTagsFromMetadata(tagService, metadata)))
     }
 
+    function createActionButton(action) {
+      var span = document.createElement('span');
+      span.innerText = action.name;
+      span.className += "icon_left icon_left_" + action.icon;
+
+      var e = document.createElement('button');
+      e.className = "anchorbutton";
+      e.appendChild(span)
+      e.onclick = () => onAction(action.name);
+      return e;
+    }
+
+    async function setActions(actions) {
+      if (actions == null) 
+        actions = [];
+      
+      var actionsContainer = document.getElementById("actions_container");
+      actionsContainer.innerHTML = ""
+
+      var defaultActions = await httpGETJSON('/api/server/get_global_file_actions');
+      actions.concat(defaultActions);
+
+      fileActions = {}
+
+      for (var i = 0; i < defaultActions.length; i++) {
+        action = defaultActions[i];
+        elem = createActionButton(action);
+        actionsContainer.appendChild(elem);
+        fileActions[action.name] = action
+        actionsContainer.append(document.createElement("br"))
+      }
+    }
+
     async function setRule(ruleName) {
       var ruleHeader = document.getElementById("rule_header");
       var ruleContainer = document.getElementById("rule_container");
@@ -139,6 +192,8 @@
       ruleLinkElem.innerText = "(Rule Page)";
       ruleLinkElem.href = "/rules/" + encodeURI(ruleName)
       ruleContainer.appendChild(ruleLinkElem);
+
+      await setActions(ruleData.actions);
 
       console.log(ruleData)
     }
@@ -183,6 +238,8 @@
 
       if (rule != null) {
         setRule(rule)
+      } else {
+        setActions(null)
       }
     })
   </script>

@@ -25,6 +25,8 @@
 .icon_right_delete{background: url('/static/icons/delete.png') no-repeat right center;}
 .icon_left_tag_yellow{background: url('/static/icons/tag_yellow.png') no-repeat left center;}
 .icon_right_tag_yellow{background: url('/static/icons/tag_yellow.png') no-repeat right center;}
+.icon_left_bin_closed{background: url('/static/icons/bin_closed.png') no-repeat left center;}
+.icon_right_bin_closed{background: url('/static/icons/bin_closed.png') no-repeat right center;}
 .icon_left_accept{background: url('/static/icons/accept.png') no-repeat left center;}
 .icon_right_accept{background: url('/static/icons/accept.png') no-repeat right center;}
 .icon_left_tag_blue{background: url('/static/icons/tag_blue.png') no-repeat left center;}
@@ -33,3 +35,5 @@
 .icon_right_tag_red{background: url('/static/icons/tag_red.png') no-repeat right center;}
 .icon_left_arrow_refresh{background: url('/static/icons/arrow_refresh.png') no-repeat left center;}
 .icon_right_arrow_refresh{background: url('/static/icons/arrow_refresh.png') no-repeat right center;}
+.icon_left_email{background: url('/static/icons/email.png') no-repeat left center;}
+.icon_right_email{background: url('/static/icons/email.png') no-repeat right center;}

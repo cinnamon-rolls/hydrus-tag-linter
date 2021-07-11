@@ -34,8 +34,18 @@ FILE_GLOBAL_ACTIONS = [
         'archetype': 'quick_delete_tag'
     }),
     Action({
-        'icon': 'delete',
+        'icon': 'bin_closed',
         'name': 'Move to Trash',
         'archetype': 'move_to_trash'
+    }),
+    Action({
+        'icon': 'email',
+        'name': 'Move to Inbox',
+        'archetype': 'move_to_inbox'
+    }),
+    Action({
+        'icon': 'database_add',
+        'name': 'Move to Archive',
+        'archetype': 'move_to_archive'
     })
 ]

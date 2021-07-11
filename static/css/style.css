@@ -12,6 +12,7 @@ a {
   text-decoration: none;
 }
 
+.anchorbutton:hover,
 a:hover {
   text-decoration: underline;
 }
@@ -26,14 +27,13 @@ code {
   margin: 16px;
 }
 
-/* Makes blocks of hashes look better and have a vertical scroll instead of
-taking up the entire screen */
-.hashes code {
-  font-size: 8px;
-  display: inline-block;
-  max-height: 100px;
-  overflow-y: scroll;
-  width: auto;
+.anchorbutton {
+  /* https://stackoverflow.com/questions/1367409/how-to-make-button-look-like-a-link */
+  background: none!important;
+  border: none;
+  padding: 0!important;
+  color: #58a6ff;
+  cursor: pointer;
 }
 
 /* Navigation */
