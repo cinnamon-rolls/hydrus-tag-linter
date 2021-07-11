@@ -93,6 +93,12 @@ table td, table th {
   background-color: #404048;
 }
 
+.tag_list {
+  list-style-type: none;
+  margin: 8px 0px 0px 0px;
+  padding: 0;
+}
+
 .thumbnail:hover {
   border: #dfe3e6 solid 1px;
   background-color: #708090;

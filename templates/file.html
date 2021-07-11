@@ -19,6 +19,8 @@
       font-size: 80%;
       width: 230px;
       float: left;
+      overflow: auto;
+      max-height: calc(100% - 75);
     }
 
     .full_file_container {
@@ -36,13 +38,10 @@
   <script src="{{ url_for('static', filename='js/async_helper.js') }}"></script>
   <script src="{{ url_for('static', filename='js/tag_presentation_helper.js') }}"></script>
   <script>
-    // crazy hydrus metadata injection :)
-    var metadata = JSON.parse("{{json.dumps(file.metadata).replace('\"', '\\\"') |safe}}");
-    var tag_service = "{{server.tag_service}}"
+    var fileID = "{{file.id}}"
+    var fileIDURI = encodeURI("{{file.id}}")
 
-    function elem(e) {
-      return document.getElementById(e);
-    }
+    var tagService = "{{server.tag_service}}"
 
     /** creates a text-based element e.g. <p> */
     function textElem(type, text) {
@@ -97,45 +96,69 @@
       }
     }
 
-    function applyFileMetadata(metadata) {
-      var file_id = metadata.file_id;
-      var mime = metadata.mime;
-      var title = "File #" + metadata.file_id;
-      var src = "/files/full/" + file_id;
+    function getDisplayTags(service, metadata) {
+      sntstdt = metadata['service_names_to_statuses_to_display_tags'];
+      stdt = sntstdt[service];
+      display_tags = stdt['0']
+      return display_tags
+    }
 
-      elem("file_title").textContent = title;
+    function getTags(service, metadata) {
+      sntstt = metadata['service_names_to_statuses_to_tags'];
+      stt = sntstt[service];
+      tags = stt['0']
+      return tags
+    }
+
+    async function applyTags(metadata) {
+      var tagsContainer = document.getElementById("tags_container")
+      tagsContainer.innerHTML = ""
+      tagsContainer.appendChild(createTagList(getTags(tagService, metadata)))
+    }
+
+    async function applyFileMetadata(metadata) {
+
+      var fileID = metadata.file_id;
+      var mime = metadata.mime;
+      var src = "/files/full/" + fileID;
+
+      document
+        .getElementById("embed_target")
+        .appendChild(createEmbedElement(metadata, src));
+
+      var title = "File #" + metadata.file_id;
+
+      document
+        .getElementById("file_title")
+        .textContent = title;
       // elem("uploader-name").textContent = metadata.uploader;
       // elem("uploaded-time").textContent = timeToSring(metadata.uploaded);
 
-      var elemDownload = elem("direct_download");
+      var elemDownload = document.getElementById("direct_download");
       elemDownload.innerHTML = "<span>Direct Download (<code>" + metadata.mime + "</code>)</span>";
       elemDownload.href = src;
 
-      var embedElement = createEmbedElement(metadata, src);
-      elem("embed_target").appendChild(embedElement);
-
+      await applyTags(metadata)
     }
 
     window.addEventListener("load", function () {
       // console.log(JSON.stringify(metadata))
-      applyFileMetadata(metadata)
+      httpGETJSON('/api/file/get_metadata?file_id=' + fileIDURI).then(applyFileMetadata)
     })
   </script>
 {% endblock %}
 
 {% block content %}
   <div class="full_file_sidebar">
-    <h3 id="file_title"></h3>
+    <h2 id="file_title"></h2>
     <p>
       <a id="direct_download">Direct Download</a>
     </p>
 
-    <h4>Tools</h4>
-    <button onclick="addTag()">Quick Add Tag</button><br>
-    <button onclick="removeTag()">Quick Remove Tag</button><br>
+    <!-- <h3>Tools</h3> <button onclick="addTag()">Quick Add Tag</button><br> <button onclick="removeTag()">Quick Remove Tag</button><br> -->
 
-    <h4 id="tags_header">Tags ({{server.tag_service}})</h4>
-    <ul id="tags_insert" class="tags_list"></ul>
+    <h3 id="tags_header">Display Tags ({{server.tag_service}})</h3>
+    <div id="tags_container"></div>
 
   </div>
 

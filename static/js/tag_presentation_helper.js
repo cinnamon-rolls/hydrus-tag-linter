@@ -34,9 +34,40 @@ function getTagColor(tag) {
   }
 }
 
-function createTagElement(tag) {
-  var e = document.createElement("span")
+function createTagAnchor(tag) {
+  var e = document.createElement("a")
   e.innerText = tag
-  e.style += "color=" + getTagColor(tag) + ";"
+  e.style = "color:" + getTagColor(tag) + ";"
   return e
+}
+
+function createTagListItem(tag) {
+  var li = document.createElement("li")
+  li.appendChild(createTagAnchor(tag))
+  return li
+}
+
+function createTagList(tags) {
+  tags.sort(compareTags)
+  var ul = document.createElement("ul")
+  ul.className += "tag_list"
+  for(var i = 0; i < tags.length; i++) {
+    ul.appendChild(createTagListItem(tags[i]))
+  }
+  return ul
+}
+
+/** Sorts tags based on namespace and then text */
+function compareTags(tag1, tag2) {
+  var b1 = tag1.includes(":");
+  var b2 = tag2.includes(":");
+  if (b1 && !b2) {
+      return -1;
+  } else if (!b1 && b2) {
+      return 1;
+  } else if (b1 && b2) {
+      return tag1.split(":", 2)[0].localeCompare(tag2.split(":", 2)[0])
+  } else {
+      return tag1.localeCompare(tag2);
+  }
 }

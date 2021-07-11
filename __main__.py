@@ -265,7 +265,7 @@ def api_server_get_summary():
 
 @app.route('/api/file/get_metadata', methods=['GET'])
 def api_file_get_metadata():
-    return jsonify(get_file_metadata(args.get('file_id')))
+    return jsonify(get_file_metadata(request.args.get('file_id')))
 
 
 @app.route('/api/hydrus/add_tags/clean_tags', methods=['GET'])
