@@ -29,6 +29,7 @@
       width: calc(100% - 300px);
     }
 
+    .action_list,
     .tag_list {
       padding: 0 0 0 16px;
       margin: 0;
@@ -97,14 +98,14 @@
       }
     }
 
-    function getDisplayTags(service, metadata) {
+    function getDisplayTagsFromMetadata(service, metadata) {
       sntstdt = metadata['service_names_to_statuses_to_display_tags'];
       stdt = sntstdt[service];
       display_tags = stdt['0']
       return display_tags
     }
 
-    function getTags(service, metadata) {
+    function getTagsFromMetadata(service, metadata) {
       sntstt = metadata['service_names_to_statuses_to_tags'];
       stt = sntstt[service];
       tags = stt['0']
@@ -114,7 +115,32 @@
     async function applyTags(metadata) {
       var tagsContainer = document.getElementById("tags_container")
       tagsContainer.innerHTML = ""
-      tagsContainer.appendChild(createTagList(getDisplayTags(tagService, metadata)))
+      tagsContainer.appendChild(createTagList(getDisplayTagsFromMetadata(tagService, metadata)))
+    }
+
+    async function setRule(ruleName) {
+      var ruleHeader = document.getElementById("rule_header");
+      var ruleContainer = document.getElementById("rule_container");
+
+      ruleHeader.innerText = "Rule: " + ruleName
+      ruleHeader.style = ""
+
+      var ruleData = await httpGETJSON('/api/rules/get_rule?name=' + encodeURI(ruleName))
+
+      ruleContainer.innerHTML = ""
+
+      if (ruleData.note) {
+        var ruleNoteElem = document.createElement("p");
+        ruleNoteElem.innerText = ruleData.note;
+        ruleContainer.appendChild(ruleNoteElem);
+      }
+
+      var ruleLinkElem = document.createElement("a");
+      ruleLinkElem.innerText = "(Rule Page)";
+      ruleLinkElem.href = "/rules/" + encodeURI(ruleName)
+      ruleContainer.appendChild(ruleLinkElem);
+
+      console.log(ruleData)
     }
 
     async function applyFileMetadata(metadata) {
@@ -149,8 +175,15 @@
     window.addEventListener("load", function () {
       var params = new URLSearchParams(window.location.search);
       var file = params.get("file");
-      setFile(file)
+      var rule = params.get("rule")
 
+      if (file != null) {
+        setFile(file)
+      }
+
+      if (rule != null) {
+        setRule(rule)
+      }
     })
   </script>
 {% endblock %}
@@ -164,9 +197,14 @@
 
     <!-- <h3>Tools</h3> <button onclick="addTag()">Quick Add Tag</button><br> <button onclick="removeTag()">Quick Remove Tag</button><br> -->
 
+    <h3 id="actions_header">Actions</h3>
+    <div id="actions_container"></div>
+
     <h3 id="tags_header">Display Tags ({{server.tag_service}})</h3>
     <div id="tags_container"></div>
 
+    <h3 id="rule_header" style="display: none;">Rule Info</h3>
+    <div id="rule_container"></div>
   </div>
 
   <div id="embed_target" class="full_file_container"></div>

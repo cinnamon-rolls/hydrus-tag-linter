@@ -1,9 +1,15 @@
-function createThumbnail(id) {
-  id_uri = encodeURI(id, "");
+function createThumbnail(id, options = {}) {
+  id_uri = encodeURI(id)
+
+  href = "/file?file=" + id_uri;
+
+  if(options.ruleName) {
+    href += "&rule=" + encodeURI(options.ruleName)
+  }
 
   var anchor = document.createElement("a");
   anchor.style += "font-size: 0;";
-  anchor.href = "/file?file=" + id_uri;
+  anchor.href = href;
 
   var container = document.createElement("div");
   container.className += " thumbnail";
@@ -17,7 +23,11 @@ function createThumbnail(id) {
   return anchor;
 }
 
-function createGallery(files, galleryElemID = "gallery", page = 1, filesPerPage = 24) {
+function createGallery(files, options = {}) {
+  galleryElemID = options.galleryElemID || "gallery";
+  page = options.page || 1;
+  filesPerPage = options.filesPerPage || 24;
+
   console.log("Setting up gallery starting at page " + page + " with " + filesPerPage + " files per page");
 
   var target = document.getElementById(galleryElemID);
@@ -43,7 +53,7 @@ function createGallery(files, galleryElemID = "gallery", page = 1, filesPerPage 
 
   var filesAdded = 0;
   for (var i = startIndex; i < files.length && filesAdded < filesPerPage; i++) {
-    var thumbnail = createThumbnail(files[i]);
+    var thumbnail = createThumbnail(files[i], options);
     thumbnails.appendChild(thumbnail);
 
     filesAdded++;

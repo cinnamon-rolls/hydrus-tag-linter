@@ -58,7 +58,9 @@
 
     window.addEventListener("load", async function () {
       applyLinterTagSetup()
-      createGallery(await getRuleFiles())
+      createGallery(await getRuleFiles(), {
+        ruleName: ruleName
+      })
     })
   </script>
 {% endblock %}

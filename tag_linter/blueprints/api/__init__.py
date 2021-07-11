@@ -4,6 +4,7 @@ from flask import Blueprint, jsonify, request, abort, make_response
 from tag_linter.server import instance as server
 import json
 import tag_linter.searches
+import tag_linter.actions
 
 blueprint = Blueprint('api', __name__)
 
@@ -98,6 +99,17 @@ def api_rules_apply_linter_tag():
         'removed': len(files_to_untag),
         'tag_service': tag_service
     })
+
+
+@blueprint.route('/api/rules/get_actions', methods=['GET'])
+def api_rules_get_actions():
+    rule = get_rule(request.args.get('name'))
+    return jsonify(rule.get_actions())
+
+
+@blueprint.route('/api/server/get_global_file_actions', methods=['GET'])
+def api_server_get_global_file_actions():
+    return jsonify([i.as_dict() for i in tag_linter.actions.FILE_GLOBAL_ACTIONS])
 
 
 @blueprint.route('/api/server/get_summary', methods=['GET'])

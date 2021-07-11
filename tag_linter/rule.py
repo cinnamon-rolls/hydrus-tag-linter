@@ -1,5 +1,6 @@
 from tag_linter.server import instance as server
 from tag_linter.hydrus_util import ids2hashes
+from tag_linter.actions import load_action
 
 
 class Rule:
@@ -16,11 +17,14 @@ class Rule:
         self.icon_disabled = data.get('icon_disabled')
         self.icon_done = data.get('icon_done', 'accept')
 
+        self.actions = [load_action(i) for i in data.get('actions', [])]
+
     def as_dict(self) -> dict:
         ret = {
             'search': self.search.as_jsonifiable(),
             'name': self.name,
-            'note': self.note
+            'note': self.note,
+            'actions': [i.as_dict() for i in self.actions]
         }
         if self.disabled:
             ret['disabled'] = True
@@ -58,6 +62,9 @@ class Rule:
             return self.icon_active
         else:
             return self.icon_done
+
+    def get_actions(self):
+        return self.actions
 
     def get_name(self):
         return self.name if self.name is not None else "Unnamed Rule"
