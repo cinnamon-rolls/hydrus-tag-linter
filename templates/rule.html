@@ -14,6 +14,21 @@
       max-width: 520px;
       margin-right: 16px;
     }
+
+    @media screen and (max-width: 1000px) {
+      #gallery_container {
+        float: none;
+        display: block;
+        max-width: 100%;
+      }
+  
+      #side_info {
+        float: none;
+        display: block;
+        max-width: 100%;
+        margin-right: 0px;
+      }
+    }
   </style>
   <script src="{{ url_for('static', filename='js/async_helper.js') }}"></script>
   <script src="{{ url_for('static', filename='js/gallery_helper.js') }}"></script>

@@ -40,8 +40,12 @@ function createTagAnchor(tag) {
   e.innerText = tag;
   e.style = "color:" + getTagColor(tag) + ";";
   e.className += "tag_anchor";
-  var search = encodeURI('"' + tag + '"');
-  e.href = "/search?search=" + search;
+  if (tag.startsWith("linter rule:")) {
+    e.href = "/rules/" + encodeURI(tag.substring("linter rule:".length));
+  } else {
+    var search = encodeURI('"' + tag + '"');
+    e.href = "/search?search=" + search;
+  }
   return e;
 }
 

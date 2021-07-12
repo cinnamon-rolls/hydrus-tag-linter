@@ -4,7 +4,11 @@ class Action:
         self.icon = data.get('icon')
         self.archetype = data.get('archetype')
         self.hints = data.get('hints', {})
+        self.shortcut = data.get('shortcut')
+
         self.hidden = data.get('hidden', False)
+        self.hiddenIfInbox = data.get('hiddenIfInbox', False)
+        self.hiddenIfArchive = data.get('hiddenIfArchive', False)
 
     def as_dict(self) -> dict:
         return {
@@ -12,7 +16,11 @@ class Action:
             'icon': self.icon,
             'archetype': self.archetype,
             'hints': self.hints,
-            'hidden': self.hidden
+            'shortcut': self.shortcut,
+
+            'hidden': self.hidden,
+            'hiddenIfInbox': self.hiddenIfInbox,
+            'hiddenIfArchive': self.hiddenIfArchive
         }
 
 
@@ -41,11 +49,13 @@ FILE_GLOBAL_ACTIONS = [
     Action({
         'icon': 'email',
         'name': 'Move to Inbox',
-        'archetype': 'move_to_inbox'
+        'archetype': 'move_to_inbox',
+        'hiddenIfInbox': True
     }),
     Action({
         'icon': 'database_add',
         'name': 'Move to Archive',
-        'archetype': 'move_to_archive'
+        'archetype': 'move_to_archive',
+        'hiddenIfArchive': True
     })
 ]

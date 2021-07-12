@@ -33,6 +33,22 @@
       padding: 0 0 0 16px;
       margin: 0;
     }
+
+    @media screen and (max-width: 1000px) {
+      .full_file_sidebar {
+        display: block;
+        float: none;
+        width: 100%;
+        margin-bottom: 16px;
+        font-size: 100%;
+      }
+
+      .full_file_container {
+        display: block;
+        float: none;
+        width: 100%;
+      }
+    }
   </style>
   <script src="{{ url_for('static', filename='js/async_helper.js') }}"></script>
   <script src="{{ url_for('static', filename='js/tag_presentation_helper.js') }}"></script>
@@ -42,6 +58,7 @@
     // we store the actions here for reference later. we will populate them
     // at a later time too.
     var fileActions = {}
+    var shortcutsToActionNames = {}
 
     function onAction(actionName) {
       console.log(fileActions)
@@ -58,6 +75,13 @@
       }
 
       alert(actionName + " has an unknown/unsupported archetype: '" + archetype + "'")
+    }
+
+    function onShortcut(shortcut) {
+      actionName = shortcutsToActionNames[shortcut];
+      if (actionName != null) {
+        onAction(actionName);
+      }
     }
 
     /** creates a text-based element e.g. <p> */
@@ -161,6 +185,7 @@
       actions.concat(defaultActions);
 
       fileActions = {}
+      shortcutsToActionNames = {}
 
       for (var i = 0; i < defaultActions.length; i++) {
         action = defaultActions[i];
