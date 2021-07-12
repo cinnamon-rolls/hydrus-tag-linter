@@ -22,6 +22,24 @@ def get_rule(rule_name):
     return rule
 
 
+def parse_json_arg(args, arg_name):
+    raw = args.get(arg_name)
+    if raw is None:
+        return None
+    try:
+        return json.loads(raw)
+    except JSONDecodeError:
+        abort("bad json for '" + arg_name + "': " + raw)
+
+
+def coerce_list(value):
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        return [value]
+    return value
+
+
 @blueprint.route('/api/rules/get_rules', methods=['GET'])
 def api_get_rules():
     ret = list(map(lambda x: x.as_dict(), server.get_rules()))
@@ -120,6 +138,31 @@ def api_server_get_summary():
 @blueprint.route('/api/file/get_metadata', methods=['GET'])
 def api_file_get_metadata():
     return jsonify(server.get_file_metadata(request.args.get('file_id')))
+
+
+@blueprint.route('/api/file/change_tags', methods=['GET'])
+def api_file_add_tags():
+    file_ids = coerce_list(parse_json_arg(request.args, 'file_ids'))
+    add_tags = coerce_list(parse_json_arg(request.args, 'add_tags'))
+    rm_tags = coerce_list(parse_json_arg(request.args, 'rm_tags'))
+
+    hashes = ids2hashes(file_ids)
+
+    if len(hashes) > 0 and (len(add_tags) > 0 or len(rm_tags) > 0):
+        print(str(hashes))
+        print(str(add_tags))
+        print(str(rm_tags))
+        server.get_client().add_tags(
+            hashes=hashes,
+            service_to_action_to_tags={
+                server.tag_service: {
+                    TAG_ACTION_ADD_LOCAL: add_tags,
+                    TAG_ACTION_DELETE_LOCAL: rm_tags
+                }
+            }
+        )
+
+    return jsonify({})
 
 
 @blueprint.route('/api/search/get_files', methods=['GET'])

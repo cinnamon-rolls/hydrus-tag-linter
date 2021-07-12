@@ -20,13 +20,18 @@ def ids2hashes(file_ids):
     Converts an arbitrary amount of file IDs into hashes as strings
     """
     from tag_linter.server import instance as server
+    client = server.get_client()
+
+    if not isinstance(file_ids, list):
+        return [client.file_metadata(file_ids=[file_ids])[0].get('hash')]
+
     ret = []
     batch_size = 256
 
     batches = batch(file_ids, batch_size)
 
     for search_batch in batches:
-        res = server.get_client().file_metadata(file_ids=search_batch)
+        res = client.file_metadata(file_ids=search_batch)
         for val in res:
             ret.append(val.get('hash'))
 

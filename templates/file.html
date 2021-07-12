@@ -60,6 +60,27 @@
     var fileActions = {}
     var shortcutsToActionNames = {}
 
+    var rememberedFileID = null
+
+    var archetypeFuncs = {
+      'quick_add_tag': function () {
+        var tag = prompt("Please enter a tag to add to the file. The tag will be added to '" + tagService + "'")
+        if (tag != null && tag != "") {
+          httpGETJSON('/api/file/change_tags?file_ids=' + encodeURI(rememberedFileID) + "&add_tags=" + encodeURI(JSON.stringify([tag])))
+            .then(refreshTags)
+            .catch(x => alert("Failed: " + x));
+        }
+      },
+      'quick_delete_tag': function () {
+        var tag = prompt("Please enter a tag to remove from the file. The tag will be removed from '" + tagService + "'")
+        if (tag != null && tag != "") {
+          httpGETJSON('/api/file/change_tags?file_ids=' + encodeURI(rememberedFileID) + "&rm_tags=" + encodeURI(JSON.stringify([tag])))
+            .then(refreshTags)
+            .catch(x => alert("Failed: " + x));
+        }
+      }
+    }
+
     function onAction(actionName) {
       console.log(fileActions)
       action = fileActions[actionName];
@@ -71,6 +92,13 @@
       var archetype = action.archetype;
       if (archetype == null) {
         alert(actionName + " does not have an archetype, doing nothing");
+        return;
+      }
+
+      var func = archetypeFuncs[archetype];
+
+      if (func != null) {
+        func();
         return;
       }
 
@@ -156,10 +184,14 @@
       return tags
     }
 
-    async function applyTags(metadata) {
+    async function setTagsFromMetadata(metadata) {
       var tagsContainer = document.getElementById("tags_container")
       tagsContainer.innerHTML = ""
       tagsContainer.appendChild(createTagList(getDisplayTagsFromMetadata(tagService, metadata)))
+    }
+
+    async function refreshTags(metadata) {
+      redownloadMetadata().then(setTagsFromMetadata)
     }
 
     function createActionButton(action) {
@@ -223,8 +255,7 @@
       console.log(ruleData)
     }
 
-    async function applyFileMetadata(metadata) {
-
+    async function setMetadata(metadata) {
       var fileID = metadata.file_id;
       var mime = metadata.mime;
       var src = "/files/full/" + fileID;
@@ -245,11 +276,17 @@
       elemDownload.innerHTML = "<span>Direct Download (<code>" + metadata.mime + "</code>)</span>";
       elemDownload.href = src;
 
-      await applyTags(metadata)
+      await setTagsFromMetadata(metadata)
     }
 
-    async function setFile(fileID) {
-      httpGETJSON('/api/file/get_metadata?file_id=' + encodeURI(fileID)).then(applyFileMetadata)
+    async function setFileID(fileID) {
+      rememberedFileID = fileID
+      await redownloadMetadata().then(setMetadata)
+    }
+
+    async function redownloadMetadata() {
+      metadata = await httpGETJSON('/api/file/get_metadata?file_id=' + encodeURI(rememberedFileID))
+      return metadata
     }
 
     window.addEventListener("load", function () {
@@ -258,7 +295,7 @@
       var rule = params.get("rule")
 
       if (file != null) {
-        setFile(file)
+        setFileID(file)
       }
 
       if (rule != null) {
