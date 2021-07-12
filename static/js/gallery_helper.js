@@ -74,8 +74,10 @@ function createGallery(files, options = {}) {
   var pages = files.length / filesPerPage;
 
   function getPaginationClick(pageIndex) {
+    var newOptions = copy(options);
+    newOptions.page = pageIndex + 1;
     return function () {
-      createGallery(files, galleryElemID, pageIndex + 1, filesPerPage);
+      createGallery(files, newOptions);
     };
   }
 
