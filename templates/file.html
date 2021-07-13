@@ -92,7 +92,7 @@
       }
     }
 
-    document.onkeydown = function (e) {
+    document.onkeydown = async function (e) {
       e = e || window.event;
       if (e.ctrlKey && e.keyCode == 90) {
         alert("undo not implemented (yet?)")
@@ -111,7 +111,7 @@
       shortcutName += e.key;
       shortcutName = shortcutName.toLowerCase();
       // console.log(shortcutName);
-      return !onAction(shortcutsToActionNames[shortcutName]);
+      return await !onAction(shortcutsToActionNames[shortcutName]);
     };
 
     async function changePageState(changes = {}) {
@@ -328,7 +328,7 @@
     }
 
     /** Returns true if there is a matching action */
-    function onAction(actionName) {
+    async function onAction(actionName) {
       if (actionName == null) {
         return false;
       }
@@ -354,6 +354,11 @@
 
       if (func != null) {
         func(action.hints);
+
+        if(action.resolves) {
+          moveInPlaylist(1);
+        }
+
         return true;
       }
 
@@ -361,10 +366,10 @@
       return true;
     }
 
-    function onShortcut(shortcut) {
+    async function onShortcut(shortcut) {
       actionName = shortcutsToActionNames[shortcut];
       if (actionName != null) {
-        onAction(actionName);
+        return await onAction(actionName);
       }
     }
 
@@ -437,7 +442,9 @@
       var e = document.createElement('button');
       e.className = "anchorbutton";
       e.appendChild(span);
-      e.onclick = () => onAction(action.name);
+      e.onclick = async function () {
+        await onAction(action.name);
+      }
       return e;
     }
 

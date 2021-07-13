@@ -15,6 +15,7 @@ class Action:
         self.archetype = data.get("archetype")
         self.hints = data.get("hints", {})
         self.shortcut = data.get("shortcut")
+        self.resolves = data.get("resolves")
 
         self.hidden = data.get("hidden", False)
         self.hiddenIfInbox = data.get("hiddenIfInbox", False)
@@ -28,6 +29,7 @@ class Action:
             "archetype": self.archetype,
             "hints": self.hints,
             "shortcut": self.shortcut,
+            "resolves": self.resolves,
 
             "hidden": self.hidden,
             "hiddenIfInbox": self.hiddenIfInbox,
@@ -51,26 +53,31 @@ def load_action(data):
 FILE_GLOBAL_ACTIONS = [
     Action({
         "name": "Quick Tag (Add)",
-        "archetype": "quick_add_tag"
+        "archetype": "quick_add_tag",
+        "shortcut": "="
     }),
     Action({
         "name": "Quick Tag (Delete)",
-        "archetype": "quick_delete_tag"
+        "archetype": "quick_delete_tag",
+        "shortcut": "-"
     }),
     Action({
         "name": "Move to Trash",
         "archetype": "move_to_trash",
-        "hiddenIfTrash": True
+        "hiddenIfTrash": True,
+        "shortcut": "delete"
     }),
     Action({
         "name": "Move to Inbox",
         "archetype": "move_to_inbox",
-        "hiddenIfInbox": True
+        "hiddenIfInbox": True,
+        "shortcut": "shift+f7"
     }),
     Action({
         "name": "Move to Archive",
         "archetype": "move_to_archive",
-        "hiddenIfArchive": True
+        "hiddenIfArchive": True,
+        "shortcut": "f7"
     }),
     Action({
         "name": "Move Right",
