@@ -51,14 +51,14 @@
         
         console.log("Got tag name: '" + linterRuleTag + "'")
 
-        preview = await httpGETJSON(applyLinterTagURL + "&tag=" + linterRuleTagURI + "&preview=true")
+        preview = await httpGetJson(applyLinterTagURL + "&tag=" + linterRuleTagURI + "&preview=true")
         console.log("preview: " + JSON.stringify(preview))
 
         var apply = confirm("the tag '" + preview.tag + "' will be added to " + preview.added + " files and removed from " + preview.removed + " on the service '" + preview.tag_service + "'. Is this OK?")
 
         if (apply) {
           console.log('applying...')
-          response = await httpGETJSON(applyLinterTagURL + "&tag=" + linterRuleTagURI + "&preview=false")
+          response = await httpGetJson(applyLinterTagURL + "&tag=" + linterRuleTagURI + "&preview=false")
           console.log('response: ' + JSON.stringify(response))
           window
             .location
@@ -68,7 +68,7 @@
     }
 
     async function getRuleFiles(rule) {
-      return httpGETJSON('/api/rules/get_files?name=' + ruleNameURI)
+      return httpGetJson('/api/rules/get_files?name=' + ruleNameURI)
     }
 
     window.addEventListener("load", async function () {

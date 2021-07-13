@@ -6,7 +6,7 @@
   <script>
     async function getSearchFiles(search) {
       console.log(search)
-      return httpGETJSON('/api/search/get_files?search=' + encodeURI(search))
+      return httpGetJson('/api/search/get_files?search=' + encodeURI(search))
     }
 
     window.addEventListener("load", async function () {

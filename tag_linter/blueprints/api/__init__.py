@@ -140,18 +140,24 @@ def api_file_get_metadata():
     return jsonify(server.get_file_metadata(request.args.get('file_id')))
 
 
-@blueprint.route('/api/file/change_tags', methods=['GET'])
+@blueprint.route('/api/file/change_tags', methods=['GET', 'POST'])
 def api_file_add_tags():
-    file_ids = coerce_list(parse_json_arg(request.args, 'file_ids'))
-    add_tags = coerce_list(parse_json_arg(request.args, 'add_tags'))
-    rm_tags = coerce_list(parse_json_arg(request.args, 'rm_tags'))
+    if request.method == 'GET':
+        file_ids = coerce_list(parse_json_arg(request.args, 'file_ids'))
+        add_tags = coerce_list(parse_json_arg(request.args, 'add_tags'))
+        rm_tags = coerce_list(parse_json_arg(request.args, 'rm_tags'))
+    elif request.method == 'POST':
+        body = request.get_json(force=True)
+        file_ids = coerce_list(body.get('file_ids'))
+        add_tags = coerce_list(body.get('add_tags'))
+        rm_tags = coerce_list(body.get('rm_tags'))
 
     hashes = ids2hashes(file_ids)
+    #print(str(hashes))
+    #print(str(add_tags))
+    #print(str(rm_tags))
 
     if len(hashes) > 0 and (len(add_tags) > 0 or len(rm_tags) > 0):
-        print(str(hashes))
-        print(str(add_tags))
-        print(str(rm_tags))
         server.get_client().add_tags(
             hashes=hashes,
             service_to_action_to_tags={
