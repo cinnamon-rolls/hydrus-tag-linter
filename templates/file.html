@@ -372,13 +372,15 @@
       ];
 
       if (func != null) {
-        func(action.hints).then(x => {
-          if (action.resolves) {
-            moveInPlaylist(1);
-          }
-        }).catch(err => {
-          alert("Execution of '" + actionName + "' failed: " + err);
-        });
+        func(action.hints)
+          .then(x => {
+            if (action.resolves) {
+              moveInPlaylist(1);
+            }
+          })
+          .catch(err => {
+            alert("Execution of '" + actionName + "' failed: " + err);
+          });
 
         return true;
       }
@@ -471,7 +473,11 @@
 
     function createActionButton(action) {
       var span = document.createElement('span');
-      span.innerText = action.name;
+      var innerText = action.name;
+      if (action.shortcut != null) {
+        innerText += " (" + action.shortcut + ")";
+      }
+      span.innerText = innerText;
       span.className += "icon_left icon_left_" + action.icon;
 
       var e = document.createElement('button');
