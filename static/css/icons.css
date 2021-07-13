@@ -5,6 +5,8 @@
 .icon_right_page_copy{background: url('/static/icons/page_copy.png') no-repeat right center;}
 .icon_left_tag_blue_add{background: url('/static/icons/tag_blue_add.png') no-repeat left center;}
 .icon_right_tag_blue_add{background: url('/static/icons/tag_blue_add.png') no-repeat right center;}
+.icon_left_asterisk_yellow{background: url('/static/icons/asterisk_yellow.png') no-repeat left center;}
+.icon_right_asterisk_yellow{background: url('/static/icons/asterisk_yellow.png') no-repeat right center;}
 .icon_left_database_delete{background: url('/static/icons/database_delete.png') no-repeat left center;}
 .icon_right_database_delete{background: url('/static/icons/database_delete.png') no-repeat right center;}
 .icon_left_tag_blue_delete{background: url('/static/icons/tag_blue_delete.png') no-repeat left center;}

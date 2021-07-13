@@ -21,30 +21,30 @@
         display: block;
         max-width: 100%;
       }
-  
+
       #side_info {
         float: none;
         display: block;
         max-width: 100%;
-        margin-right: 0px;
+        margin-right: 0;
       }
     }
   </style>
   <script src="{{ url_for('static', filename='js/async_helper.js') }}"></script>
   <script src="{{ url_for('static', filename='js/gallery_helper.js') }}"></script>
   <script>
-    var linterRuleTag = "{{ rule.get_linter_rule_tag() }}"
+    var linterRuleTag = "{{ rule.get_noncompliance_tag() }}"
     var linterRuleTagURI = encodeURI(linterRuleTag)
 
     var ruleName = "{{ rule.get_name() }}"
     var ruleNameURI = encodeURI(ruleName)
 
-    var applyLinterTagURL = "/api/rules/apply_linter_tag?name=" + ruleNameURI
+    var applyLinterTagURL = "/api/rules/apply_noncompliance_tag?name=" + ruleNameURI
 
     function applyLinterTagSetup() {
       var btn = document.getElementById("mass_tag_button");
       btn.onclick = async function (e) {
-        var linterRuleTag = "{{ rule.get_linter_rule_tag }}"
+        var linterRuleTag = "{{ rule.get_noncompliance_tag() }}"
 
         if (linterRuleTag == null) 
           return;
@@ -59,10 +59,9 @@
         if (apply) {
           console.log('applying...')
           response = await httpGetJson(applyLinterTagURL + "&tag=" + linterRuleTagURI + "&preview=false")
+            .then(x => "Sync succesful")
+            .catch(x => "Failed: " + x);
           console.log('response: ' + JSON.stringify(response))
-          window
-            .location
-            .reload()
         }
       }
     }
@@ -71,10 +70,20 @@
       return httpGetJson('/api/rules/get_files?name=' + ruleNameURI)
     }
 
+    async function getRuleExemptions(rule) {
+      return httpGetJson('/api/rules/get_exemptions?name=' + ruleNameURI)
+    }
+
     window.addEventListener("load", async function () {
       applyLinterTagSetup()
       createGallery(await getRuleFiles(), {
+        galleryElemID: "noncompliance_gallery",
         ruleName: ruleName
+      })
+      createGallery(await getRuleExemptions(), {
+        galleryElemID: "exempt_gallery",
+        ruleName: ruleName,
+        exemptions: true
       })
     })
   </script>
@@ -111,7 +120,7 @@
     <h4>Sync Rule Tag</h4>
     <span>
       This action will automatically add the
-      <code>{{ rule.get_linter_rule_tag()}}</code>
+      <code>{{ rule.get_noncompliance_tag()}}</code>
       tag to all of the noncompliant files, and remove it from files that are currently compliant. This will allow you to search for these files in other applications. Remember to re-sync once you are done making your changes.
     </span>
     <ul>
@@ -121,9 +130,14 @@
     </ul>
   </div>
 
-  <div id="gallery_container">
+  <div id="noncompliance_gallery_container">
     <h2>Files</h2>
-    <div class="gallery" id="gallery"></div>
+    <div class="gallery" id="noncompliance_gallery"></div>
+  </div>
+
+  <div id="exempt_gallery_container">
+    <h2>Exemptions</h2>
+    <div class="gallery" id="exempt_gallery"></div>
   </div>
 
 {% endblock %}

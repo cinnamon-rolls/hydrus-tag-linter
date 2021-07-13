@@ -4,7 +4,9 @@ DEFAULT_ICONS_FOR_ARCHETYPE = {
     "move_to_trash": "bin_closed",
     "move_to_inbox": "email",
     "move_to_archive": "database_add",
-    "change_tags": "tag_blue"
+    "change_tags": "tag_blue",
+    "mark_as_exempt": "asterisk_yellow",
+    "unmark_as_exempt": "asterisk_yellow"
 }
 
 
@@ -21,6 +23,10 @@ class Action:
         self.hiddenIfInbox = data.get("hiddenIfInbox", False)
         self.hiddenIfArchive = data.get("hiddenIfArchive", False)
         self.hiddenIfTrash = data.get("hiddenIfTrash", False)
+        self.hiddenIfRule = data.get("hiddenIfRule", False)
+        self.hiddenIfNoRule = data.get("hiddenIfNoRule", False)
+        self.hiddenIfExempt = data.get("hiddenIfExempt", False)
+        self.hiddenIfNotExempt = data.get("hiddenIfNotExempt", False)
 
     def as_dict(self) -> dict:
         return {
@@ -34,7 +40,11 @@ class Action:
             "hidden": self.hidden,
             "hiddenIfInbox": self.hiddenIfInbox,
             "hiddenIfArchive": self.hiddenIfArchive,
-            "hiddenIfTrash": self.hiddenIfTrash
+            "hiddenIfTrash": self.hiddenIfTrash,
+            "hiddenIfRule": self.hiddenIfRule,
+            "hiddenIfNoRule": self.hiddenIfNoRule,
+            "hiddenIfExempt": self.hiddenIfExempt,
+            "hiddenIfNotExempt": self.hiddenIfNotExempt
         }
 
     def get_icon(self):
@@ -78,6 +88,20 @@ FILE_GLOBAL_ACTIONS = [
         "archetype": "move_to_archive",
         "hiddenIfArchive": True,
         "shortcut": "a"
+    }),
+    Action({
+        "name": "Mark as Exempt",
+        "archetype": "mark_as_exempt",
+        "shortcut": "x",
+        "hiddenIfNoRule": True,
+        "hiddenIfExempt": True
+    }),
+    Action({
+        "name": "Remove Exemption",
+        "archetype": "unmark_as_exempt",
+        "shortcut": "shift+x",
+        "hiddenIfNoRule": True,
+        "hiddenIfNotExempt": True
     }),
     Action({
         "name": "Move Right",

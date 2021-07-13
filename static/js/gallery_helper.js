@@ -14,6 +14,9 @@ function createThumbnail(id, options = {}) {
   if (options.ruleName) {
     href += "&rule=" + encodeURI(options.ruleName);
   }
+  if (options.exemptions) {
+    href += "&exemptions=true";
+  }
 
   var anchor = document.createElement("a");
   anchor.style += "font-size: 0;";

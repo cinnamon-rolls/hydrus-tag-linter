@@ -38,11 +38,17 @@ def api_get_rule_files():
     return jsonify(rule.get_files(refresh=refresh))
 
 
-@blueprint.route('/rules/apply_linter_tag', methods=['GET'])
-def api_rules_apply_linter_tag():
+@blueprint.route('/rules/get_exemptions', methods=['GET'])
+def api_get_rule_exemptions():
+    rule = get_rule(request.args.get('name'))
+    return jsonify(rule.get_exempt_files())
+
+
+@blueprint.route('/rules/apply_noncompliance_tag', methods=['GET'])
+def api_rules_apply_noncompliance_tag():
     preview = request.args.get('preview', 'true') == 'true'
     rule = get_rule(request.args.get('name'))
-    tag_raw = request.args.get('tag', rule.get_linter_rule_tag())
+    tag_raw = request.args.get('tag', rule.get_noncompliance_tag())
     tag_service = server.tag_service
 
     enable_add = request.args.get('add', 'true') == 'true'

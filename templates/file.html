@@ -101,6 +101,24 @@
       'move': async function (hints) {
         movement = hints.movement || 1;
         await moveInPlaylist(movement);
+      },
+
+      'mark_as_exempt': async function () {
+        var rule = getCurrentRule();
+        if (rule != null) {
+          await changeTags([rule.exempt_tag], null);
+        } else {
+          alert("cannot mark as an exception because there is no rule in the current context");
+        }
+      },
+
+      'unmark_as_exempt': async function () {
+        var rule = getCurrentRule();
+        if (rule != null) {
+          await changeTags(null, [rule.exempt_tag]);
+        } else {
+          alert("cannot unmark as an exception because there is no rule in the current context");
+        }
       }
     }
 
@@ -165,7 +183,11 @@
 
         // redownload playlist
         if (currentRule != null) {
-          playlist = await httpGetJson('/api/rules/get_files?name=' + currentRule.name);
+          if (changes.useRuleExemptions) {
+            playlist = await httpGetJson('/api/rules/get_exemptions?name=' + currentRule.name);
+          } else {
+            playlist = await httpGetJson('/api/rules/get_files?name=' + currentRule.name);
+          }
         }
       }
 
@@ -189,7 +211,7 @@
 
       // console.log(changes, {fileIDChanged, metadataChanged, ruleChanged});
       return await Promise
-        .allSettled(pendingActions)
+        .all(pendingActions)
         .then(console.log("Render done"));
     }
 
@@ -298,14 +320,21 @@
           shortcut = action
             .shortcut
             .toLowerCase();
-          console.log("Adding shortcut: " + shortcut + " -> " + action.name);
           shortcutsToActionNames[shortcut] = action.name;
         }
 
+        var rule = getCurrentRule();
         var hidden = action.hidden;
         hidden = hidden || (action.hiddenIfInbox && location == 'inbox');
         hidden = hidden || (action.hiddenIfArchive && location == 'archive');
         hidden = hidden || (action.hiddenIfTrash && location == 'trash');
+
+        hidden = hidden || (action.hiddenIfNoRule && rule == null);
+        hidden = hidden || (action.hiddenIfRule && rule != null);
+
+        var exempt = rule != null && getCurrentFileHasTag(rule.exempt_tag);
+        hidden = hidden || (action.hiddenIfExempt && exempt);
+        hidden = hidden || (action.hiddenIfNotExempt && !exempt)
 
         if (hidden) {
           console.log('not rendering action: ' + action.name);
@@ -457,6 +486,14 @@
       return metadata['service_names_to_statuses_to_tags'][service]['0'];
     }
 
+    function getCurrentFileHasTag(tag, tagService) {
+      if (tagService == null) {
+        tagService = getTagService();
+      }
+
+      return getTagsFromMetadata(tagService, getCurrentMetadata()).indexOf(tag) != -1;
+    }
+
     function getLocationFromMetadata(metadata) {
       if (metadata != null) {
         if (metadata.is_trashed) {
@@ -493,8 +530,9 @@
       var params = new URLSearchParams(window.location.search);
       var file = params.get("file");
       var rule = params.get("rule");
+      var useRuleExemptions = params.get("exemptions") == 'true';
 
-      await changePageState({fileID: file, ruleName: rule});
+      await changePageState({fileID: file, ruleName: rule, useRuleExemptions: useRuleExemptions});
     })
   </script>
 {% endblock %}

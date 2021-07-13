@@ -24,7 +24,10 @@ class Rule:
             'search': self.search.as_jsonifiable(),
             'name': self.name,
             'note': self.note,
-            'actions': [i.as_dict() for i in self.actions]
+            'actions': [i.as_dict() for i in self.actions],
+            'icon': self.get_icon(),
+            'noncompliance_tag': self.get_noncompliance_tag(),
+            'exempt_tag': self.get_exempt_tag()
         }
         if self.disabled:
             ret['disabled'] = True
@@ -45,8 +48,15 @@ class Rule:
         print("get_files: " + self.name)
 
         ret = self.search.execute(server)
+
+        exempt = self.get_exempt_files()
+        ret = [i for i in ret if i not in exempt]
+
         self.cached_files = ret
         return ret
+
+    def get_exempt_files(self):
+        return server.search_by_tags([self.get_exempt_tag()])
 
     def get_hashes(self, refresh=False):
         return ids2hashes(self.get_files(refresh=refresh))
@@ -78,9 +88,12 @@ class Rule:
     def __repr__(self):
         return self.name
 
-    def get_linter_rule_tag(self):
+    def get_noncompliance_tag(self):
         """
         This is the tag to apply to files that are noncompliant with this rule,
         and to remove from files that are not
         """
         return "linter rule:" + self.get_name()
+
+    def get_exempt_tag(self):
+        return "linter exempt:" + self.get_name()

@@ -93,7 +93,7 @@ class Server:
         from tag_linter.rule import Rule
         if isinstance(rule_name, Rule):
             return rule_name
-        return self.rules.get(rule_name)
+        return self.rules.get(rule_name.strip().lower())
 
     def get_rule_names(self) -> T.List[str]:
         return list(self.rules.keys())

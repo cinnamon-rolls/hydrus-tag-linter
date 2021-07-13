@@ -1,5 +1,10 @@
 // depends on async_helper.js
 
+var rule_namespaces = [
+  "linter rule:",
+  "linter exempt:"
+]
+
 // future versions maybe download automagically from client api
 var tagPresentation = {
   default: "#72A0C1", // undefined namespace
@@ -12,7 +17,8 @@ var tagPresentation = {
     series: "#AA00AA",
     studio: "#800000",
     system: "#996515",
-    "linter rule": "#AA8000"
+    "linter rule": "#AA8000",
+    "linter exempt": "#AA8000"
   }
 };
 
@@ -40,8 +46,16 @@ function createTagAnchor(tag) {
   e.innerText = tag;
   e.style = "color:" + getTagColor(tag) + ";";
   e.className += "tag_anchor";
-  if (tag.startsWith("linter rule:")) {
-    e.href = "/rules/" + encodeURI(tag.substring("linter rule:".length));
+  
+  var match = null;
+  for(var i = 0; i < rule_namespaces.length && match == null; i++) {
+    if(tag.startsWith(rule_namespaces[i])) {
+      match = rule_namespaces[i];
+    }
+  }
+
+  if (match != null) {
+    e.href = "/rules/" + encodeURI(tag.substring(match.length));
   } else {
     var search = encodeURI('"' + tag + '"');
     e.href = "/search?search=" + search;
