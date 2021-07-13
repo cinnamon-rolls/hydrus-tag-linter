@@ -65,19 +65,19 @@ FILE_GLOBAL_ACTIONS = [
         "name": "Move to Trash",
         "archetype": "move_to_trash",
         "hiddenIfTrash": True,
-        "shortcut": "delete"
+        "shortcut": "d"
     }),
     Action({
         "name": "Move to Inbox",
         "archetype": "move_to_inbox",
         "hiddenIfInbox": True,
-        "shortcut": "shift+f7"
+        "shortcut": "shift+a"
     }),
     Action({
         "name": "Move to Archive",
         "archetype": "move_to_archive",
         "hiddenIfArchive": True,
-        "shortcut": "f7"
+        "shortcut": "a"
     }),
     Action({
         "name": "Move Right",

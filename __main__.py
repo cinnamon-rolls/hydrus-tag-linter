@@ -11,7 +11,7 @@ import tag_linter.blueprints.api
 
 app = Flask(__name__)
 
-app.register_blueprint(tag_linter.blueprints.api.blueprint)
+app.register_blueprint(tag_linter.blueprints.api.blueprint, url_prefix='/api')
 
 
 def extract_tags_from_metadata(metadata: dict):

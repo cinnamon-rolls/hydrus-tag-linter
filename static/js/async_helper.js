@@ -12,6 +12,7 @@ async function httpGet(url) {
       }
     };
     xmlHttp.open("GET", url, true);
+    xmlHttp.onerror = reject;
     console.log("GET", url);
     xmlHttp.send(); // no body for GET
   });
@@ -35,6 +36,7 @@ async function httpPostJson(url, body) {
       }
     };
     xmlHttp.open("POST", url, true);
+    xmlHttp.onerror = reject;
     xmlHttp.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     console.log("POST", url);
     xmlHttp.send(JSON.stringify(body));

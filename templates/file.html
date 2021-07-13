@@ -34,7 +34,7 @@
       margin: 0;
     }
 
-    @media screen and (max-width: 1000px) {
+    @media screen and (max-width: 721px) {
       .full_file_sidebar {
         display: block;
         float: none;
@@ -67,6 +67,18 @@
 
     var archetypeFuncs = {
       'noop': async function () {},
+
+      'move_to_trash': async function () {
+        await httpPostJson('/api/files/move_to_trash', {"file_ids": getCurrentFileID()}).then(redownloadFileMetadata)
+      },
+
+      'move_to_inbox': async function () {
+        await httpPostJson('/api/files/move_to_inbox', {"file_ids": getCurrentFileID()}).then(redownloadFileMetadata)
+      },
+
+      'move_to_archive': async function () {
+        await httpPostJson('/api/files/move_to_archive', {"file_ids": getCurrentFileID()}).then(redownloadFileMetadata)
+      },
 
       'quick_add_tag': async function () {
         var tag = prompt("Please enter a tag to add to the file. The tag will be added to '" + getTagService() + "'")
@@ -125,7 +137,7 @@
       }
 
       if (fileIDChanged || changes.updateMetadata) {
-        currentMetadata = await httpGetJson('/api/file/get_metadata?file_id=' + encodeURI(currentFileID));
+        currentMetadata = await httpGetJson('/api/files/get_metadata?file_id=' + encodeURI(currentFileID));
         metadataChanged = true;
       }
 
@@ -276,6 +288,8 @@
 
       var defaultActions = await httpGetJson('/api/server/get_global_file_actions');
 
+      var location = getLocationFromMetadata(getCurrentMetadata());
+
       function maybeRender(action) {
 
         fileActions[action.name] = action;
@@ -288,7 +302,12 @@
           shortcutsToActionNames[shortcut] = action.name;
         }
 
-        if (action.hidden) {
+        var hidden = action.hidden;
+        hidden = hidden || (action.hiddenIfInbox && location == 'inbox');
+        hidden = hidden || (action.hiddenIfArchive && location == 'archive');
+        hidden = hidden || (action.hiddenIfTrash && location == 'trash');
+
+        if (hidden) {
           console.log('not rendering action: ' + action.name);
           return;
         }
@@ -318,7 +337,7 @@
     }
 
     async function changeTags(addTags, rmTags) {
-      return await httpPostJson('/api/file/change_tags', {
+      return await httpPostJson('/api/files/change_tags', {
         'file_ids': parseInt(getCurrentFileID() + ""),
         'add_tags': addTags,
         'rm_tags': rmTags
@@ -353,11 +372,13 @@
       ];
 
       if (func != null) {
-        func(action.hints);
-
-        if(action.resolves) {
-          moveInPlaylist(1);
-        }
+        func(action.hints).then(x => {
+          if (action.resolves) {
+            moveInPlaylist(1);
+          }
+        }).catch(err => {
+          alert("Execution of '" + actionName + "' failed: " + err);
+        });
 
         return true;
       }
@@ -432,6 +453,20 @@
 
     function getTagsFromMetadata(service, metadata) {
       return metadata['service_names_to_statuses_to_tags'][service]['0'];
+    }
+
+    function getLocationFromMetadata(metadata) {
+      if (metadata != null) {
+        if (metadata.is_trashed) {
+          return 'trash';
+        }
+        if (metadata.is_inbox) {
+          return 'inbox';
+        } else {
+          return 'archive';
+        }
+      }
+      return 'unknown';
     }
 
     function createActionButton(action) {

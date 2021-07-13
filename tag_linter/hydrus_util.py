@@ -1,4 +1,5 @@
 import typing as T
+from tag_linter.server import instance as server
 
 
 def batch(iterable: T.Iterable, batch_size: int = 256) -> list:
@@ -36,3 +37,35 @@ def ids2hashes(file_ids):
             ret.append(val.get('hash'))
 
     return ret
+
+
+# The hydrus api library that I'm using doesn't implement everything that I wish it did :(
+
+_DELETE_FILES_ROUTE = "/add_files/delete_files"
+_UNDELETE_FILES_ROUTE = "/add_files/undelete_files"
+_ARCHIVE_FILES_ROUTE = "/add_files/archive_files"
+_UNARCHIVE_FILES_ROUTE = "/add_files/unarchive_files"
+
+
+def delete_files(file_ids):
+    server.get_client()._api_request("POST", _DELETE_FILES_ROUTE, json={
+        'hashes': ids2hashes(file_ids)
+    })
+
+
+def undelete_files(file_ids):
+    server.get_client()._api_request("POST", _UNDELETE_FILES_ROUTE, json={
+        'hashes': ids2hashes(file_ids)
+    })
+
+
+def archive_files(file_ids):
+    server.get_client()._api_request("POST", _ARCHIVE_FILES_ROUTE, json={
+        'hashes': ids2hashes(file_ids)
+    })
+
+
+def unarchive_files(file_ids):
+    server.get_client()._api_request("POST", _UNARCHIVE_FILES_ROUTE, json={
+        'hashes': ids2hashes(file_ids)
+    })
