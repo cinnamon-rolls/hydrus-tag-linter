@@ -13,7 +13,53 @@
       var params = new URLSearchParams(window.location.search);
       var search = params.get("search");
 
-      createGallery(await getSearchFiles(search))
+      var searchInput = document.getElementById('search_input');
+
+      var searchByTags = document.getElementById('search_by_tags');
+      var searchByJSON = document.getElementById('search_by_json');
+
+      if (search != null) {
+        searchResult = await getSearchFiles(search)
+          .then(x => createGallery(x))
+          .catch(x => alert("Search failed: " + x));
+
+        searchInput.value = search;
+        searchByJSON.checked = "checked";
+      } else {
+        searchByTags.checked = "checked";
+      }
+
+      document
+        .getElementById('submit_button')
+        .onclick = function () {
+
+          var search = null;
+
+          if (searchByJSON.checked) {
+            search = document
+              .getElementById("search_input")
+              .value
+        
+            try{
+              JSON.parse(search);
+            }catch(e) {
+              alert("Invalid JSON");
+              return;
+            }
+
+          } else {
+            search = document
+              .getElementById("search_input")
+              .value
+              .trim()
+              .toLowerCase()
+              .split('\n')
+              .filter(x => x != "");
+            search = JSON.stringify(search);
+          }
+
+          window.location.href = "/search?search=" + encodeURIComponent(search);
+        }
     })
   </script>
 {% endblock %}
@@ -28,7 +74,19 @@
 
 {% block content %}
 
+  <div>
+    <input type="radio" id="search_by_tags" name="search_mode">
+    <label for="search_by_tags">Search by tags (separated by newlines)</label><br>
+
+    <input type="radio" id="search_by_json" name="search_mode">
+    <label for="search_by_json">Search by JSON (<a href="https://github.com/cinnamon-rolls/hydrus-tag-linter/wiki/Searches">documentation</a>)</label><br>
+
+    <textarea type="text" id="search_input"></textarea><br>
+    <button id="submit_button">Submit</button>
+  </div>
+
   <div id="gallery_container">
+    <h2>Files</h2>
     <div class="gallery" id="gallery"></div>
   </div>
 
