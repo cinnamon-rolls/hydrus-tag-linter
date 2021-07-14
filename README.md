@@ -31,12 +31,7 @@ change using the command line arguments. Anyone who can connect to this server
 will have indirect access to your Hydrus Client. It is strongly recommended that
 you run this on `localhost` only, or change the command line arguments.
 
-Adding the `--ssl_adhoc` argument will automatically create a self-signed HTTPS
-certificate, which is "good enough" for beginners. However, every time you
-connect, a warning will appear about insecurity (because it is a self-signed
-certificate, you can ignore that warning). For a better solution, research
-setting up a reverse proxy. **By default** the server will run in HTTP mode, and
-you can safely ignore this paragraph if you are OK with that.
+See [this page on the wiki](https://github.com/cinnamon-rolls/hydrus-tag-linter/wiki/DIY-Security) for some simple security improvements
 
 You can use the `--help` argument to get a list of command line arguments
 
