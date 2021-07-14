@@ -2,8 +2,7 @@
 
 {% block head_extra %}
   <style>
-    #exempt_gallery_container,
-    #noncompliance_gallery_container {
+    #all_galleries_container {
       float: left;
       display: block;
       max-width: calc(100% - 550px);
@@ -14,12 +13,12 @@
       display: block;
       max-width: 520px;
       margin-right: 16px;
+      min-height: 100%;
     }
 
     @media screen and (max-width: 1000px) {
 
-      #exempt_gallery_container,
-      #noncompliance_gallery_container {
+      #all_galleries_container {
         float: none;
         display: block;
         max-width: 100%;
@@ -79,7 +78,7 @@
 
     window.addEventListener("load", async function () {
       applyLinterTagSetup()
-      
+
       console.log("creating galleries for rule '" + ruleName + "', uri '" + ruleNameURI)
 
       createGallery(await getRuleFiles(), {
@@ -136,14 +135,16 @@
     </ul>
   </div>
 
-  <div id="noncompliance_gallery_container">
-    <h2>Files</h2>
-    <div class="gallery" id="noncompliance_gallery"></div>
-  </div>
+  <div id="all_galleries_container">
+    <div id="noncompliance_gallery_container">
+      <h2>Files</h2>
+      <div class="gallery" id="noncompliance_gallery"></div>
+    </div>
 
-  <div id="exempt_gallery_container">
-    <h2>Exemptions</h2>
-    <div class="gallery" id="exempt_gallery"></div>
+    <div id="exempt_gallery_container">
+      <h2>Exemptions</h2>
+      <div class="gallery" id="exempt_gallery"></div>
+    </div>
   </div>
 
 {% endblock %}
