@@ -1,19 +1,12 @@
 # Hydrus Tag Linter
 
 This is a Python application written for the [Hydrus Network
-Client](https://github.com/hydrusnetwork/hydrus). The purpose of the program is
-to help you keep your tags consistent in your database by checking your files
-and their tags against user-defined rules. Some default rules are provided in
-the `default-rule` directory, but you are encouraged to write your own for your
-specific needs.
+Client](https://github.com/hydrusnetwork/hydrus).
 
-Once launched, a server will be running which you can connect to using your
-internet browser. The default URL is `http://localhost:45868/`, which you can
-change using the command line arguments.
-
-**Note:** anyone who can connect to this server will have indirect access to
-your Hydrus Client. It is strongly recommended that you run this on `localhost`
-only, unless you know what you're doing.
+The purpose of the program is to help you keep your tags consistent in your
+database by checking your files and their tags against user-defined rules. Some
+default rules are provided in the `default-rule` directory, but you are
+encouraged to write your own for your specific needs.
 
 The workflow I intend is...
 
@@ -21,7 +14,8 @@ The workflow I intend is...
 2. Use your problem solving skills and the provided tools to fix it
 3. [Repeat](https://github.com/hydrusnetwork/hydrus/blob/master/static/boned.jpg)
 
-For more documentation, check the [Wiki](https://github.com/cinnamon-rolls/hydrus-tag-linter/wiki)
+For more documentation, check the
+[Wiki](https://github.com/cinnamon-rolls/hydrus-tag-linter/wiki)
 
 ## Running
 
@@ -31,9 +25,23 @@ I have included a script named `example_run.sh` which has all the arguments you
 need to get started. Open it up, paste in your access key, and then run it.
 Note: the `example_run.sh` file may change between versions.
 
+Once launched, a server will be running which you can connect to using your
+internet browser. The default URL is `http://localhost:45868/`, which you can
+change using the command line arguments. Anyone who can connect to this server
+will have indirect access to your Hydrus Client. It is strongly recommended that
+you run this on `localhost` only, or change the command line arguments.
+
+Adding the `--ssl_adhoc` argument will automatically create a self-signed HTTPS
+certificate, which is "good enough" for beginners. However, every time you
+connect, a warning will appear about insecurity (because it is a self-signed
+certificate, you can ignore that warning). For a better solution, research
+setting up a reverse proxy. **By default** the server will run in HTTP mode, and
+you can safely ignore this paragraph if you are OK with that.
+
 You can use the `--help` argument to get a list of command line arguments
 
-More information is available at the wiki.
+More information is available at the
+[Wiki](https://github.com/cinnamon-rolls/hydrus-tag-linter/wiki)
 
 ## Credits
 

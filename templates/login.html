@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block head_extra %}
+  <script src="{{ url_for('static', filename='js/async_helper.js') }}"></script>
+  <script>
+    window.addEventListener("load", async function () {
+      document
+        .getElementById('submit')
+        .onclick = async function () {
+          await httpPostJson('/login', {
+            password: document
+              .getElementById('password')
+              .value
+          })
+            .then(x => window.location = "/")
+            .catch(x => alert(x))
+          }
+      })
+  </script>
+{% endblock %}
+
+{% block pagetitle %}
+  Login
+{% endblock %}
+
+{% block contenttitle %}
+  Login
+{% endblock %}
+
+{% block content %}
+
+  <div>
+    <label for="password">Please enter the password:</label>
+    <input type="password" id="password"/><br>
+    <button id="submit">Submit</button>
+  </div>
+
+{% endblock %}

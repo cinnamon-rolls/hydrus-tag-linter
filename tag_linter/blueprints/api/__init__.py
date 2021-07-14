@@ -1,6 +1,6 @@
 from tag_linter.hydrus_util import ids2hashes
 from json.decoder import JSONDecodeError
-from flask import Blueprint, jsonify, request, abort, make_response
+from flask import Blueprint, jsonify, request, abort
 from tag_linter.server import instance as server
 from tag_linter.blueprints.api.common import *
 import json

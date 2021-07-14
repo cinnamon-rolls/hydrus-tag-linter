@@ -73,8 +73,25 @@ def add_args(argp: argparse.ArgumentParser):
         help="Defines the port to run the HTTP server on"
     )
 
+    argp.add_argument(
+        "--ssl_adhoc",
+        const=True, nargs='?', type=str2bool, default=False,
+        help="Automatically creates a self-signed HTTPS certificate, good for at-home setups"
+    )
+
+    argp.add_argument(
+        "--password",
+        default=None,
+        help="Requires people to enter a password before they get access to anything"
+    )
+
 
 def get_argp() -> argparse.ArgumentParser:
     argp = argparse.ArgumentParser()
     add_args(argp)
     return argp
+
+
+def parse_args():
+    argp = get_argp()
+    return argp.parse_args()

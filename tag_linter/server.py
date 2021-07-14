@@ -54,6 +54,8 @@ class Server:
 
         self.api_verison = self.client.api_version()
 
+        self.password = args.password
+
     def get_client(self) -> hydrus.BaseClient:
         return self.client
 
@@ -166,6 +168,13 @@ class Server:
                     }]
             }
         ]
+    
+    def is_password_protected(self):
+        return self.password is not None
+    
+    def check_password(self, input) -> bool:
+        "Return True if there is no password or if the given password matches"
+        return self.password is None or self.password == input
 
 
 # The one and only server instance, please do not make more :)
