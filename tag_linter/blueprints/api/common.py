@@ -12,6 +12,7 @@ def get_rule(rule_name):
         abort(400, "rule name not specified")
     rule = server.get_rule(rule_name)
     if rule is None:
+        print("no rule definition found for '" + rule_name + "'")
         abort(400, "rule not found: '" + rule_name + "'")
     return rule
 

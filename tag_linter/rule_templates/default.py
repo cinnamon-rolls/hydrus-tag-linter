@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List
 from tag_linter.rule import Rule
 
 

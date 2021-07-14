@@ -70,15 +70,18 @@
     }
 
     async function getRuleFiles(rule) {
-      return httpGetJson('/api/rules/get_files?name=' + ruleNameURI)
+      return httpGetJson('/api/rules/get_files?name=' + ruleNameURI).catch(x => alert("failed to fetch files: " + x))
     }
 
     async function getRuleExemptions(rule) {
-      return httpGetJson('/api/rules/get_exemptions?name=' + ruleNameURI)
+      return httpGetJson('/api/rules/get_exemptions?name=' + ruleNameURI).catch(x => alert("failed to fetch files: " + x))
     }
 
     window.addEventListener("load", async function () {
       applyLinterTagSetup()
+      
+      console.log("creating galleries for rule '" + ruleName + "', uri '" + ruleNameURI)
+
       createGallery(await getRuleFiles(), {
         galleryElemID: "noncompliance_gallery",
         ruleName: ruleName
