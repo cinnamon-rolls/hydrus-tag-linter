@@ -93,6 +93,7 @@ FILE_GLOBAL_ACTIONS = [
         "name": "Mark as Exempt",
         "archetype": "mark_as_exempt",
         "shortcut": "x",
+        "resolves": True,
         "hiddenIfNoRule": True,
         "hiddenIfExempt": True
     }),
