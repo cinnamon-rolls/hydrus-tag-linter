@@ -53,6 +53,16 @@
   <script src="{{ url_for('static', filename='js/async_helper.js') }}"></script>
   <script src="{{ url_for('static', filename='js/tag_presentation_helper.js') }}"></script>
   <script>
+    // shortcuts to assign to actions with the 'auto' shortcut
+    var autoShortcuts = [
+      'q',
+      'w',
+      'e',
+      '1',
+      '2',
+      '3'
+    ]
+
     // we store the actions here for reference later. we will populate them
     // at a later time too.
     var fileActions = {};
@@ -317,10 +327,23 @@
         fileActions[action.name] = action;
 
         if (action.shortcut != null) {
-          shortcut = action
+          var shortcut = action
             .shortcut
+            .trim()
             .toLowerCase();
+
+          if (shortcut == 'auto') {
+            shortcut = null;
+            for (var i = 0; i < autoShortcuts.length && shortcut == null; i++) {
+              autoShortcut = autoShortcuts[i];
+              if (shortcutsToActionNames[autoShortcut] == null) {
+                shortcut = autoShortcut;
+              }
+            }
+          }
+
           shortcutsToActionNames[shortcut] = action.name;
+          action.shortcut = shortcut;
         }
 
         var rule = getCurrentRule();
@@ -355,9 +378,9 @@
       if (rule != null) {
         var ruleActions = rule.actions;
         if (ruleActions != null && ruleActions.length > 0) {
-          // if (defaultActions != null && defaultActions.length > 0) {
-          // add a divider?
-          // }
+          if (defaultActions != null && defaultActions.length > 0) {
+            actionsContainer.append(document.createElement('br'))
+          }
           for (var i = 0; i < ruleActions.length; i++) {
             maybeRender(ruleActions[i]);
           }

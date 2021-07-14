@@ -2,7 +2,8 @@
 
 {% block head_extra %}
   <style>
-    #gallery_container {
+    #exempt_gallery_container,
+    #noncompliance_gallery_container {
       float: left;
       display: block;
       max-width: calc(100% - 550px);
@@ -16,7 +17,9 @@
     }
 
     @media screen and (max-width: 1000px) {
-      #gallery_container {
+
+      #exempt_gallery_container,
+      #noncompliance_gallery_container {
         float: none;
         display: block;
         max-width: 100%;
