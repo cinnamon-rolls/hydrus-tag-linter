@@ -1,0 +1,13 @@
+.anchorbutton {
+  /* https://stackoverflow.com/questions/1367409/how-to-make-button-look-like-a-link */
+  background: none !important;
+  border: none;
+  padding: 0 !important;
+  color: #58a6ff;
+  cursor: pointer;
+  font-size: 100%;
+}
+
+.anchorbutton:hover {
+  text-decoration: underline;
+}
