@@ -83,19 +83,12 @@ class Server:
             # one or the other was disabled
             return self.get_client().search_files(tags, self.inbox_enabled, self.archive_enabled)
 
-    def get_rules(self, sort_reverse=True):
-        ret = list(self.rules.values())
+    def get_rules(self):
+        return list(self.rules.values())
 
-        def keyFunc(a):
-            fs = a.get_files()
-            if fs is None:
-                raise ValueError("Rule '" + str(a) + "' returns None")
-            return len(fs)
-
-        ret.sort(
-            key=keyFunc,
-            reverse=sort_reverse
-        )
+    def get_rule_names(self) -> T.List[str]:
+        ret = list(self.rules.keys())
+        ret.sort()
         return ret
 
     def get_rule(self, rule_name):
@@ -103,9 +96,6 @@ class Server:
         if isinstance(rule_name, Rule):
             return rule_name
         return self.rules.get(rule_name.strip().lower())
-
-    def get_rule_names(self) -> T.List[str]:
-        return list(self.rules.keys())
 
     def get_file_metadata(self, file_ids: T.Union[T.List[int], int]) -> hydrus.FileMetadataResultType:
         if file_ids is None:
