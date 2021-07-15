@@ -1,4 +1,5 @@
 import React from "react";
+import { fetchJson } from "./apiHelper";
 
 class PageHome extends React.Component {
   constructor(props) {
@@ -15,9 +16,9 @@ class PageHome extends React.Component {
   }
 
   async refreshSummary() {
-    return fetch("/api/server/get_summary")
-      .then((resp) => resp.json())
-      .then((summary) => this.setState({ summary }));
+    return fetchJson("server/get_summary").then((summary) =>
+      this.setState({ summary })
+    );
   }
 
   render() {
@@ -25,19 +26,21 @@ class PageHome extends React.Component {
       <div>
         <h2>Summary</h2>
         {this.getSummary().map((section) => (
-          <div>
+          <React.Fragment key={section.name + ".fragment"}>
             <h3>{section.name}</h3>
             <table>
-              {section.value.map((data) => (
-                <tr>
-                  <td>{data.name}</td>
-                  <td>
-                    <code>{data.value + ""}</code>
-                  </td>
-                </tr>
-              ))}
+              <tbody>
+                {section.value.map((data) => (
+                  <tr key={data.name}>
+                    <td>{data.name}</td>
+                    <td>
+                      <code>{data.value + ""}</code>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
-          </div>
+          </React.Fragment>
         ))}
       </div>
     );

@@ -6,12 +6,10 @@ class Navigation extends React.Component {
   state = {
     targets: [
       {
-        id: "target-home",
         name: "Home",
         page: "home",
       },
       {
-        id: "target-search",
         name: "Search",
         page: "search",
       },
@@ -21,12 +19,14 @@ class Navigation extends React.Component {
   render() {
     return (
       <nav>
-        <span class="site_title">Tag Linter</span>
+        <span className="site_title">Tag Linter</span>
         <ul className="navigation_entry_list">
           {this.state.targets.map((target) => (
-            <li className="navigation_entry">
+            <li
+              className="navigation_entry"
+              key={target.key || "nav-entry-" + target.page}
+            >
               <AnchorButton
-                key={target.id}
                 onClick={() => this.props.setPageFunc(target.page)}
                 buttonText={target.name}
               ></AnchorButton>

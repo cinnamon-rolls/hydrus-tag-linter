@@ -37,7 +37,7 @@ class App extends React.Component {
     return (
       <div className="App">
         <Navigation setPageFunc={this.setPage} />
-        <section class="content">{this.renderPage()}</section>
+        <section className="content">{this.renderPage()}</section>
       </div>
     );
   }
