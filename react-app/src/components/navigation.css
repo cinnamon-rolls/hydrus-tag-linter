@@ -1,0 +1,19 @@
+.navigation_entry {
+  margin-right: 8px;
+  display: inline;
+}
+
+nav {
+  background-color: #161b22;
+  padding: 8px 16px 8px 16px;
+}
+
+.site_title {
+  font-size: 2em;
+}
+
+.navigation_entry_list {
+  list-style-type: none;
+  margin: 8px 0px 0px 0px;
+  padding: 0;
+}

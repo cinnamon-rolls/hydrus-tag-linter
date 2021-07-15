@@ -1,8 +1,9 @@
 import React from "react";
+import "./navigation.css";
 
 class NavigationEntry extends React.Component {
   render() {
-    return <li>{this.props.name}</li>;
+    return <li className="navigation_entry">{this.props.name}</li>;
   }
 }
 
@@ -16,15 +17,15 @@ class Navigation extends React.Component {
       {
         id: "target-search",
         name: "Search",
-      }
+      },
     ],
   };
 
   render() {
     return (
       <nav>
-        <span class="site-title">Tag Linter</span>
-        <ul>
+        <span class="site_title">Tag Linter</span>
+        <ul className="navigation_entry_list">
           {this.state.targets.map((target) => (
             <NavigationEntry key={target.id} name={target.name} />
           ))}

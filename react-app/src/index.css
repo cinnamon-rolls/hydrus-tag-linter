@@ -36,27 +36,6 @@ code {
   cursor: pointer;
 }
 
-/* Navigation */
-
-nav {
-  background-color: #161b22;
-  padding: 8px 16px 8px 16px;
-}
-
-nav .site-title {
-  font-size: 2em;
-}
-
-nav ul {
-  list-style-type: none;
-  margin: 8px 0px 0px 0px;
-  padding: 0;
-}
-
-nav ul li {
-  display: inline;
-}
-
 /* Tables */
 
 table {
