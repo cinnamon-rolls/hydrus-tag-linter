@@ -12,10 +12,6 @@ function getUrl(path) {
 async function fetchJson(path) {
   var url = getUrl(path);
   return fetch(url)
-    .then((x) => {
-      console.log("GET from '" + url + "'", x);
-      return x;
-    })
     .then((x) => x.json())
     .catch((x) => {
       console.log("Error parsing JSON from '" + url + "'", x);
@@ -23,7 +19,27 @@ async function fetchJson(path) {
     });
 }
 
+async function getServerInfo() {
+  return fetchJson("server/get_info");
+}
+
+async function getRuleNames() {
+  return fetchJson("rules/get_all_names");
+}
+
+async function getRuleInfo(name) {
+  return await fetchJson("rules/get_info?name=" + name);
+}
+
+async function getRuleFiles(name) {
+  return await fetchJson("rules/get_files?name=" + name);
+}
+
 module.exports = {
   getUrl,
   fetchJson,
+  getServerInfo,
+  getRuleNames,
+  getRuleInfo,
+  getRuleFiles,
 };

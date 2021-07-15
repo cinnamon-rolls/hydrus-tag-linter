@@ -18,7 +18,7 @@ def app_get_rule(rule_name):
     rule = server.get_rule(rule_name)
     if rule is None:
         abort(404, "Rule not found: '" + rule_name + "'")
-    rule.get_files(refresh=True)
+    rule.get_files()
     return render_template('rule.html', rule=rule)
 
 

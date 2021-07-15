@@ -52,9 +52,16 @@ class Server:
 
         self.client = create_hydrus_client(args)
 
-        self.api_verison = self.client.api_version()
-
         self.password = args.password
+
+    def get_info(self) -> dict:
+        return {
+            "inbox_enabled": self.is_inbox_enabled(),
+            "archive_enabled": self.is_archive_enabled(),
+            "hydrus_api_version": self.client.api_version(),
+            "hydrus_api_url": self.client.api_url,
+            "hydrus_tag_service": self.tag_service
+        }
 
     def get_client(self) -> hydrus.BaseClient:
         return self.client
@@ -100,78 +107,23 @@ class Server:
     def get_rule_names(self) -> T.List[str]:
         return list(self.rules.keys())
 
-    def refresh_all(self):
-        for rule in self.rules.values():
-            rule.get_files(refresh=True)
+    def get_file_metadata(self, file_ids: T.Union[T.List[int], int]) -> hydrus.FileMetadataResultType:
+        if file_ids is None:
+            return None
 
-    def count_issues(self, refresh=False):
-        ret = 0
-        for rule in self.rules.values():
-            ret += len(rule.get_files(refresh=refresh))
-        return ret
+        if isinstance(file_ids, str):
+            file_ids = [int(file_ids)]
+        elif isinstance(file_ids, int):
+            file_ids = [file_ids]
 
-    def count_rules_without_issues(self, refresh=False):
-        ret = 0
-        for rule in self.rules.values():
-            if len(rule.get_files(refresh=refresh)) == 0:
-                ret += 1
-        return ret
+        if isinstance(file_ids, list):
+            return self.get_client().file_metadata(file_ids=file_ids)
 
-    def get_file_metadata(self, file_id: T.Union[T.List[int], int]) -> hydrus.FileMetadataResultType:
-        if file_id is None:
-            raise ValueError('file_id is None')
+        raise ValueError('unexpected input: ' + str(file_ids))
 
-        if isinstance(file_id, str):
-            file_id = int(file_id)
-
-        if isinstance(file_id, int):
-            return self.get_client().file_metadata(file_ids=[file_id])[0]
-
-        if isinstance(file_id, list):
-            return self.get_client().file_metadata(file_ids=file_id)
-
-        raise ValueError('unexpected input: ' + str(file_id))
-
-    def get_summary(self) -> T.List[dict]:
-        return [
-            {
-                'name': 'Progress',
-                "value": [
-                    {
-                        'name': "Total issues",
-                        'value': self.count_issues()
-                    }, {
-                        'name': "Total rules",
-                        'value': len(self.get_rules())
-                    }, {
-                        'name': "Rules without issues",
-                        "value": self.count_rules_without_issues()
-                    }],
-            }, {
-                'name': 'Hydrus',
-                "value": [
-                    {
-                        'name': "Inbox Enabled?",
-                        "value": self.inbox_enabled
-                    }, {
-                        'name': "Archive Enabled?",
-                        'value': self.archive_enabled
-                    }, {
-                        'name': "API Version",
-                        'value': self.api_verison
-                    }, {
-                        'name': "API URL",
-                        'value': self.client.api_url
-                    }, {
-                        'name': "Tag Service",
-                        'value': self.tag_service
-                    }]
-            }
-        ]
-    
     def is_password_protected(self):
         return self.password is not None
-    
+
     def check_password(self, input) -> bool:
         "Return True if there is no password or if the given password matches"
         return self.password is None or self.password == input
