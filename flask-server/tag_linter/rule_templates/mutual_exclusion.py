@@ -37,9 +37,12 @@ def template_mutual_exclusion(data) -> List[Rule]:
         }
     })
 
+    note = data.get('note', "The tags " + ", ".join(tags) +
+                    " are mutually exclusive, so only one should be present")
+
     return template_default({
         'name': data.get('name', defaultName),
-        'note': "The tags " + ", ".join(tags) + " are mutually exclusive, so only one should be present",
+        'note': note,
         'search': tags,
         'actions': actions
     })

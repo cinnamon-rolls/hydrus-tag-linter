@@ -1,28 +1,16 @@
-# python
-# https://github.com/github/gitignore/blob/master/Python.gitignore
 __pycache__/
-*.py[cod]
-*$py.class
-
-# python environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
 
 # vscode
 # https://github.com/github/gitignore/blob/master/Global/VisualStudioCode.gitignore
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
 *.code-workspace
 # Local History for Visual Studio Code
 .history/
+
+
+### Build releases :)
+build/*
+build_key.txt
 
 
 ### For user convenience
