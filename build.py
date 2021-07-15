@@ -71,7 +71,7 @@ def run():
 
     go_back = cd('build')
     shell(['python3', '__main__.py',
-           '-r', '../my-rules', 'default-rules', 'test-rules',
+           '-r', '../my-rules', 'my-rules', 'default-rules',
            '-k', key])
     cd(go_back)
 
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         help="Rebuilds the project into the build folder")
 
     argp.add_argument(
-        "--run", default=True,
+        "--run", default=False,
         help="Runs the flask server once built")
 
     args = argp.parse_args()

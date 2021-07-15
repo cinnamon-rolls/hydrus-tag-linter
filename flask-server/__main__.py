@@ -10,7 +10,9 @@ import os
 import tag_linter.blueprints.api
 import tag_linter.blueprints.user
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_url_path="/")
 
 # If this were a 'real' app you wouldn't see this, but this is a DIY project
 # meant for just one person, and any security is a joke to begin with :)
