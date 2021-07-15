@@ -1,4 +1,5 @@
 import React from "react";
+import AnchorButton from "./anchorButton";
 import { getServerInfo } from "./apiHelper";
 import Loading from "./loading";
 
@@ -78,7 +79,21 @@ class PageHome extends React.Component {
   }
 
   renderRuleName(ruleName) {
-    return <span>{ruleName}</span>;
+    var info = this.props.appBinds.getRuleInfo(ruleName);
+    var icon = null;
+
+    if (info != null) {
+      icon = info.icon;
+    }
+
+    return (
+      <AnchorButton
+        icon={icon}
+        iconLeft="false"
+        onClick={() => this.props.appBinds.viewRule({ ruleName })}
+        buttonText={ruleName}
+      ></AnchorButton>
+    );
   }
 
   renderRules() {

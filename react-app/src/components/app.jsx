@@ -5,6 +5,8 @@ import Navigation from "./navigation";
 import PageHome from "./pageHome";
 import PageSearch from "./pageSearch";
 import PageNotFound from "./pageNotFound";
+import PageFile from "./pageFile";
+import PageRule from "./pageRule";
 import { getRuleNames, getRuleFiles, getRuleInfo } from "./apiHelper";
 
 class App extends React.Component {
@@ -90,9 +92,13 @@ class App extends React.Component {
     return {
       setPage: this.setPage,
       refreshRuleNames: () => this.refreshRuleNames(),
+      refreshRule: (x) => this.refreshRule(x),
       getRuleNames: () => this.state.ruleNames,
-      getRuleInfo: (name) => this.state.ruleInfos[name],
-      getRuleFiles: (name) => this.state.ruleFiles[name],
+      getRuleInfo: (x) => this.state.ruleInfos[x],
+      getRuleFiles: (x) => this.state.ruleFiles[x],
+      viewRule: (x) => {
+        this.setPage("rule");
+      },
     };
   }
 
@@ -102,6 +108,10 @@ class App extends React.Component {
         return <PageHome appBinds={this.getAppBinds()} />;
       case "search":
         return <PageSearch appBinds={this.getAppBinds()} />;
+      case "rule":
+        return <PageRule appBinds={this.getAppBinds()} />;
+      case "file":
+        return <PageFile appBinds={this.getAppBinds()} />;
       default:
         return <PageNotFound appBinds={this.getAppBinds()} />;
     }
