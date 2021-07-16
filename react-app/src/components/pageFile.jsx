@@ -1,5 +1,6 @@
 import React from "react";
 import FileEmbed from "./fileEmbed";
+import FileTags from "./fileTags";
 import { getFileUrl } from "./apiHelper";
 
 import "./pageFile.css";
@@ -46,14 +47,14 @@ class PageFile extends React.Component {
             </a>
           </p>
 
-          <h3 id="actions_header">Actions</h3>
-          <div id="actions_container"></div>
+          <h3>Actions</h3>
+          <div>{/* actions go here */}</div>
+
+          <h3>Tags</h3>
+          <FileTags metadata={metadata} />
         </div>
 
-        <FileEmbed
-          appBinds={this.props.appBinds}
-          fileID={this.props.fileID}
-        ></FileEmbed>
+        <FileEmbed appBinds={this.props.appBinds} fileID={this.props.fileID} />
       </React.Fragment>
     );
   }

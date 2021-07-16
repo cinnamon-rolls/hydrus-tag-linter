@@ -2,7 +2,7 @@ import React from "react";
 
 import "./anchorButton.css";
 
-import "../icons.css"
+import "../icons.css";
 
 class AnchorButton extends React.Component {
   render() {
@@ -20,7 +20,9 @@ class AnchorButton extends React.Component {
 
     return (
       <button className="anchorbutton" onClick={this.props.onClick}>
-        <span className={spanClassName}>{this.props.buttonText}</span>
+        <span style={this.props.spanStyle} className={spanClassName}>
+          {this.props.buttonText}
+        </span>
         {this.props.children}
       </button>
     );
