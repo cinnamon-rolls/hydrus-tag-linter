@@ -21,9 +21,19 @@ For more documentation, check the
 
 Dependencies: `flask`, `hydrus-api`
 
+### Linux Users
+
 I have included a script named `example_run.sh` which has all the arguments you
 need to get started. Open it up, paste in your access key, and then run it.
 Note: the `example_run.sh` file may change between versions.
+
+### Windows Users
+
+I am not very experienced with windows, but this command _seems to work_ (change the arguments as needed)
+
+```
+py.exe -3 __main__.py --api_url "http://127.0.0.1:45870/"  -H "localhost" -P "45868" -r "my-rules" "default-rules" -k "(paste your key into these quotes)"
+```
 
 Once launched, a server will be running which you can connect to using your
 internet browser. The default URL is `http://localhost:45868/`, which you can

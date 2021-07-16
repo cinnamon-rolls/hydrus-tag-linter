@@ -1,0 +1,13 @@
+.pagination {
+  text-align: center;
+  padding: 2em 0 1em 0;
+  display: block;
+  font-size: 100%;
+}
+
+.pagination_entry {
+  border: 1px solid #404048;
+  margin: 0 3px;
+  padding: 2px 6px;
+  font-family: monospace;
+}

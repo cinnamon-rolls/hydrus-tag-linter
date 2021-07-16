@@ -6,7 +6,7 @@ import "../icons.css";
 
 class AnchorButton extends React.Component {
   render() {
-    var spanClassName = "";
+    var spanClassName = this.props.spanClassName || "";
 
     if (this.props.icon != null) {
       var left = (this.props.iconLeft || "true") === "true";

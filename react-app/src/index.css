@@ -51,22 +51,6 @@ table th {
   border: 1px solid #636363;
 }
 
-/* Gallery Pagination */
-
-.pagination {
-  text-align: center;
-  font-family: monospace;
-  font-size: 1em;
-  padding: 2em 0 1em 0;
-  display: block;
-}
-
-.pagination button {
-  border: 1px solid #404048;
-  margin: 0 3px;
-  padding: 2px 6px;
-}
-
 /* Icons */
 
 .icon_left {
