@@ -14,7 +14,6 @@ class FileEmbed extends React.Component {
   async fetchMetadata() {
     var appBinds = this.props.appBinds;
     var metadata = await appBinds.getFileMetadata(this.props.fileID);
-    console.log("metadata", metadata);
     this.setState({ metadata });
   }
 
