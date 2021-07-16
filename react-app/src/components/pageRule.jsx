@@ -7,13 +7,15 @@ class PageRule extends React.Component {
     var appBinds = this.props.appBinds;
 
     var ruleName = this.props.ruleName;
-    var ruleInfo = appBinds.getRuleInfo(ruleName);
-    var ruleFiles = appBinds.getRuleFiles(ruleName);
-    var ruleFileCount = ruleFiles != null ? ruleFiles.length : "?";
 
     if (this.props.ruleName == null) {
       return <p>Rule not found :(</p>;
     }
+
+    var ruleInfo = appBinds.getApi().getRuleInfo(ruleName);
+    var ruleFiles = appBinds.getApi().getRuleFiles(ruleName);
+    var ruleFileCount = ruleFiles != null ? ruleFiles.length : "?";
+
     return (
       <React.Fragment>
         <div id="side_info">
@@ -27,7 +29,10 @@ class PageRule extends React.Component {
         <div id="all_galleries_container">
           <div id="noncompliance_gallery_container">
             <h2>Files</h2>
-            <Gallery appBinds={appBinds} filesCallback={() => appBinds.getRuleFiles(ruleName)} />
+            <Gallery
+              appBinds={appBinds}
+              filesCallback={() => appBinds.getRuleFiles(ruleName)}
+            />
           </div>
 
           <div id="exempt_gallery_container">

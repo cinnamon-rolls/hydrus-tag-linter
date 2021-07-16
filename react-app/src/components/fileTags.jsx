@@ -18,7 +18,54 @@ var defaultTagPresentation = {
   },
 };
 
+function getTagServicesFromServiceData(serviceData) {
+  console.log(serviceData)
+  if (serviceData == null) {
+    return [];
+  }
+
+  var types = ["local_tags", "tag_repositories", "all_known_tags"];
+  var ret = [];
+
+  for (var type of types) {
+    ret.push(serviceData)
+    for (var obj of serviceData[type] || []) {
+      obj["type"] = type;
+      ret.push(obj);
+    }
+  }
+
+  return ret;
+}
+
 class FileTags extends React.Component {
+  constructor(props) {
+    super(props);
+
+    if (typeof props.getServiceData !== "function") {
+      throw Error("expected function 'getServiceData'");
+    }
+
+    this.state = {
+      tagService: this.props.tagService,
+      tagsOverride: null,
+    };
+  }
+
+  getServiceData() {
+    return this.props.getServiceData();
+  }
+
+  getTagServices() {
+    return getTagServicesFromServiceData(this.getServiceData());
+  }
+
+  getTags() {
+    if (this.state.tagsOverride != null) {
+      return this.state.tagsOverride;
+    }
+  }
+
   render() {
     var metadata = this.props.metadata;
 
@@ -26,7 +73,10 @@ class FileTags extends React.Component {
       return <Loading />;
     }
 
-    return this.renderTagUl(["hi", "hello:hello", "creator:your mo"]);
+    var services = this.getTagServices();
+
+    return <p>{JSON.stringify(services)}</p>;
+    // return this.renderTagUl(["hi", "hello:hello", "creator:your mo"]);
   }
 
   renderTagAnchor(tag) {

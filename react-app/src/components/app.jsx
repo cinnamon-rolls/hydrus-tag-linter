@@ -1,5 +1,6 @@
 // import "./App.css";
 import React from "react";
+
 import Navigation from "./navigation";
 
 import PageHome from "./pageHome";
@@ -7,19 +8,34 @@ import PageSearch from "./pageSearch";
 import PageNotFound from "./pageNotFound";
 import PageFile from "./pageFile";
 import PageRule from "./pageRule";
-import {
-  getRuleNames,
-  getRuleFiles,
-  getRuleInfo,
-  getFileMetadata,
-} from "./apiHelper";
+
+import * as api from "./apiHelper";
+
+function renderPage(pageName) {
+  switch (pageName) {
+    case "home":
+      return <PageHome />;
+    case "search":
+      return <PageSearch />;
+    case "rule":
+      return <PageRule ruleName={this.state.thingInspected} />;
+    case "file":
+      return <PageFile fileID={this.state.thingInspected} />;
+    default:
+      return <PageNotFound />;
+  }
+}
 
 class App extends React.Component {
   constructor(props) {
     super(props);
+
     this.state = {
-      page: "home",
-      thingInspected: null,
+      pageView: {
+        page: "home",
+        ruleName: null,
+        fileId: null,
+      },
       ruleNames: [],
       ruleInfos: {},
       ruleFiles: {},
@@ -33,7 +49,7 @@ class App extends React.Component {
   async refreshRuleNames() {
     // var lastRuleNames = [...this.state.ruleNames];
 
-    var ruleNames = await getRuleNames();
+    var ruleNames = await api.getRuleNames();
     this.setState({ ruleNames });
 
     // var removeRuleNames = lastRuleNames.map((x) => ruleNames.indexOf(x) !== -1);
@@ -74,7 +90,7 @@ class App extends React.Component {
     if (ruleName == null) {
       return;
     }
-    var inject = await getRuleInfo(ruleName);
+    var inject = await api.getRuleInfo(ruleName);
     this.setState((prev) => {
       var clone = Object.assign({}, prev.ruleInfos);
       clone[ruleName] = inject;
@@ -86,7 +102,7 @@ class App extends React.Component {
     if (ruleName == null) {
       return;
     }
-    var inject = await getRuleFiles(ruleName);
+    var inject = await api.getRuleFiles(ruleName);
     this.setState((prev) => {
       var clone = Object.assign({}, prev.ruleFiles);
       clone[ruleName] = inject;
@@ -96,13 +112,13 @@ class App extends React.Component {
 
   getAppBinds() {
     return {
+      getApi: () => api,
       setPage: this.setPage,
       refreshRuleNames: () => this.refreshRuleNames(),
       refreshRule: (x) => this.refreshRule(x),
       getRuleNames: () => this.state.ruleNames,
       getRuleInfo: (x) => this.state.ruleInfos[x],
       getRuleFiles: (x) => this.state.ruleFiles[x],
-      getFileMetadata: (x) => getFileMetadata(x),
       viewRule: (x) => {
         this.setState({ thingInspected: x });
         this.setPage("rule");
@@ -112,31 +128,6 @@ class App extends React.Component {
         this.setPage("file");
       },
     };
-  }
-
-  renderPage() {
-    switch (this.state.page) {
-      case "home":
-        return <PageHome appBinds={this.getAppBinds()} />;
-      case "search":
-        return <PageSearch appBinds={this.getAppBinds()} />;
-      case "rule":
-        return (
-          <PageRule
-            appBinds={this.getAppBinds()}
-            ruleName={this.state.thingInspected}
-          />
-        );
-      case "file":
-        return (
-          <PageFile
-            appBinds={this.getAppBinds()}
-            fileID={this.state.thingInspected}
-          />
-        );
-      default:
-        return <PageNotFound appBinds={this.getAppBinds()} />;
-    }
   }
 
   setPage = (newPage) => {
@@ -154,7 +145,7 @@ class App extends React.Component {
     return (
       <div className="App">
         <Navigation setPageFunc={this.setPage} />
-        <section className="content">{this.renderPage()}</section>
+        <section className="content">{renderPage()}</section>
       </div>
     );
   }

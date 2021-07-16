@@ -8,6 +8,7 @@ import "./pageFile.css";
 class PageFile extends React.Component {
   constructor(props) {
     super(props);
+
     this.state = {
       metadata: null,
     };
@@ -18,7 +19,9 @@ class PageFile extends React.Component {
   }
 
   async downloadMetadata() {
-    var metadata = await this.props.appBinds.getFileMetadata(this.props.fileID);
+    var metadata = await this.props.appBinds
+      .getApi()
+      .getFileMetadata(this.props.fileID);
     this.setState({ metadata });
   }
 
@@ -27,6 +30,7 @@ class PageFile extends React.Component {
 
     var metadata = this.state.metadata || {};
     var mime = metadata.mime || "?";
+    var hash = metadata.hash || "?";
 
     var fileTitle = "File #" + fileID;
 
@@ -51,7 +55,17 @@ class PageFile extends React.Component {
           <div>{/* actions go here */}</div>
 
           <h3>Tags</h3>
-          <FileTags metadata={metadata} />
+          <FileTags
+            getServiceData={this.props.appBinds.getApi().getServices}
+            metadata={metadata}
+          />
+
+          <h3>Metadata</h3>
+          <p>
+            <span>Hash:</span>
+            <br />
+            <code>{hash}</code>
+          </p>
         </div>
 
         <FileEmbed appBinds={this.props.appBinds} fileID={this.props.fileID} />

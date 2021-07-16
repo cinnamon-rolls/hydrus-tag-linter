@@ -9,8 +9,13 @@
   font-size: 80%;
   width: 230px;
   float: left;
-  overflow: auto;
   max-height: calc(100% - 75);
+}
+
+.full_file_sidebar ul,
+.full_file_sidebar p,
+.full_file_sidebar code {
+  overflow-x: scroll;
 }
 
 .full_file_container {

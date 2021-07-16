@@ -46,6 +46,8 @@ _UNDELETE_FILES_ROUTE = "/add_files/undelete_files"
 _ARCHIVE_FILES_ROUTE = "/add_files/archive_files"
 _UNARCHIVE_FILES_ROUTE = "/add_files/unarchive_files"
 
+_GET_SERVICES_ROUTE = "/get_services"
+
 
 def delete_files(file_ids):
     server.get_client()._api_request("POST", _DELETE_FILES_ROUTE, json={
@@ -69,3 +71,7 @@ def unarchive_files(file_ids):
     server.get_client()._api_request("POST", _UNARCHIVE_FILES_ROUTE, json={
         'hashes': ids2hashes(file_ids)
     })
+
+
+def get_services():
+    return server.get_client()._api_request("GET", _GET_SERVICES_ROUTE).json()

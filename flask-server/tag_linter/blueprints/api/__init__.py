@@ -1,6 +1,7 @@
 from json.decoder import JSONDecodeError
 from flask import Blueprint, jsonify, request, abort
 from tag_linter.server import instance as server
+from tag_linter.hydrus_util import get_services
 import json
 import tag_linter.searches
 import tag_linter.actions
@@ -41,3 +42,8 @@ def api_hydrus_clean_tags():
     tags_input = request.args.get('tags')
     tags = json.loads(tags_input)
     return jsonify(server.client.clean_tags(tags))
+
+
+@blueprint.route("/services/get_services", methods=['GET'])
+def api_services_get_services():
+    return jsonify(get_services())
