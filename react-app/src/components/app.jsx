@@ -14,6 +14,7 @@ class App extends React.Component {
     super(props);
     this.state = {
       page: "home",
+      ruleInspected: null,
       ruleNames: [],
       ruleInfos: {},
       ruleFiles: {},
@@ -97,6 +98,7 @@ class App extends React.Component {
       getRuleInfo: (x) => this.state.ruleInfos[x],
       getRuleFiles: (x) => this.state.ruleFiles[x],
       viewRule: (x) => {
+        this.setState({ ruleInspected: x });
         this.setPage("rule");
       },
     };
@@ -109,7 +111,12 @@ class App extends React.Component {
       case "search":
         return <PageSearch appBinds={this.getAppBinds()} />;
       case "rule":
-        return <PageRule appBinds={this.getAppBinds()} />;
+        return (
+          <PageRule
+            appBinds={this.getAppBinds()}
+            ruleName={this.state.ruleInspected}
+          />
+        );
       case "file":
         return <PageFile appBinds={this.getAppBinds()} />;
       default:

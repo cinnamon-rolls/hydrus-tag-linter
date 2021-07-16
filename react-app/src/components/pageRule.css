@@ -1,0 +1,28 @@
+#all_galleries_container {
+  float: left;
+  display: block;
+  max-width: calc(100% - 550px);
+}
+
+#side_info {
+  float: left;
+  display: block;
+  max-width: 520px;
+  margin-right: 16px;
+  min-height: 100%;
+}
+
+@media screen and (max-width: 1000px) {
+  #all_galleries_container {
+    float: none;
+    display: block;
+    max-width: 100%;
+  }
+
+  #side_info {
+    float: none;
+    display: block;
+    max-width: 100%;
+    margin-right: 0;
+  }
+}

@@ -90,7 +90,7 @@ class PageHome extends React.Component {
       <AnchorButton
         icon={icon}
         iconLeft="false"
-        onClick={() => this.props.appBinds.viewRule({ ruleName })}
+        onClick={() => this.props.appBinds.viewRule(ruleName)}
         buttonText={ruleName}
       ></AnchorButton>
     );

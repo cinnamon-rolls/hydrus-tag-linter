@@ -1,4 +1,4 @@
-var baseURL = process.env.REACT_APP_API_BASE_URL || "/api/";
+var baseURL = process.env.REACT_APP_API_BASE_URL || "/";
 
 console.log("API Base URL: " + baseURL);
 
@@ -20,19 +20,23 @@ async function fetchJson(path) {
 }
 
 async function getServerInfo() {
-  return fetchJson("server/get_info");
+  return fetchJson("api/server/get_info");
 }
 
 async function getRuleNames() {
-  return fetchJson("rules/get_all_names");
+  return fetchJson("api/rules/get_all_names");
 }
 
 async function getRuleInfo(name) {
-  return await fetchJson("rules/get_info?name=" + name);
+  return await fetchJson("api/rules/get_info?name=" + name);
 }
 
 async function getRuleFiles(name) {
-  return await fetchJson("rules/get_files?name=" + name);
+  return await fetchJson("api/rules/get_files?name=" + name);
+}
+
+function getThumbnailUrl(fileID) {
+  return getUrl("files/thumbnail/" + fileID)
 }
 
 module.exports = {
@@ -42,4 +46,5 @@ module.exports = {
   getRuleNames,
   getRuleInfo,
   getRuleFiles,
+  getThumbnailUrl
 };
