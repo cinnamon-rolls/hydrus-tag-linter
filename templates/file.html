@@ -510,7 +510,14 @@
     }
 
     function getTagsFromMetadata(service, metadata) {
-      return metadata['service_names_to_statuses_to_tags'][service]['0'];
+      if (metadata == null) {
+        return [];
+      }
+
+      var sntstt = metadata['service_names_to_statuses_to_tags'] || {};
+      var statuses_to_tags = sntstt[service] || {}
+      var ret = statuses_to_tags['0'] || [];
+      return ret;
     }
 
     function getCurrentFileHasTag(tag, tagService) {
@@ -519,6 +526,7 @@
       }
 
       return getTagsFromMetadata(tagService, getCurrentMetadata()).indexOf(tag) != -1;
+
     }
 
     function getLocationFromMetadata(metadata) {
