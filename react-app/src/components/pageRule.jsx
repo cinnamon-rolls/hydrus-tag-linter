@@ -27,7 +27,7 @@ class PageRule extends React.Component {
         <div id="all_galleries_container">
           <div id="noncompliance_gallery_container">
             <h2>Files</h2>
-            <Gallery filesCallback={() => appBinds.getRuleFiles(ruleName)} />
+            <Gallery appBinds={appBinds} filesCallback={() => appBinds.getRuleFiles(ruleName)} />
           </div>
 
           <div id="exempt_gallery_container">

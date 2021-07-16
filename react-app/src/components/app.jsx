@@ -7,14 +7,19 @@ import PageSearch from "./pageSearch";
 import PageNotFound from "./pageNotFound";
 import PageFile from "./pageFile";
 import PageRule from "./pageRule";
-import { getRuleNames, getRuleFiles, getRuleInfo } from "./apiHelper";
+import {
+  getRuleNames,
+  getRuleFiles,
+  getRuleInfo,
+  getFileMetadata,
+} from "./apiHelper";
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       page: "home",
-      ruleInspected: null,
+      thingInspected: null,
       ruleNames: [],
       ruleInfos: {},
       ruleFiles: {},
@@ -97,9 +102,14 @@ class App extends React.Component {
       getRuleNames: () => this.state.ruleNames,
       getRuleInfo: (x) => this.state.ruleInfos[x],
       getRuleFiles: (x) => this.state.ruleFiles[x],
+      getFileMetadata: (x) => getFileMetadata(x),
       viewRule: (x) => {
-        this.setState({ ruleInspected: x });
+        this.setState({ thingInspected: x });
         this.setPage("rule");
+      },
+      viewFile: (x) => {
+        this.setState({ thingInspected: x });
+        this.setPage("file");
       },
     };
   }
@@ -114,11 +124,16 @@ class App extends React.Component {
         return (
           <PageRule
             appBinds={this.getAppBinds()}
-            ruleName={this.state.ruleInspected}
+            ruleName={this.state.thingInspected}
           />
         );
       case "file":
-        return <PageFile appBinds={this.getAppBinds()} />;
+        return (
+          <PageFile
+            appBinds={this.getAppBinds()}
+            fileID={this.state.thingInspected}
+          />
+        );
       default:
         return <PageNotFound appBinds={this.getAppBinds()} />;
     }

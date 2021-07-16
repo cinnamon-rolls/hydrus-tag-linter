@@ -101,15 +101,22 @@ class Server:
         if file_ids is None:
             return None
 
+        extractOnlyOne = False
+
         if isinstance(file_ids, str):
             file_ids = [int(file_ids)]
-        elif isinstance(file_ids, int):
+            extractOnlyOne = True
+
+        if isinstance(file_ids, int):
             file_ids = [file_ids]
+            extractOnlyOne = True
 
-        if isinstance(file_ids, list):
-            return self.get_client().file_metadata(file_ids=file_ids)
+        ret = self.get_client().file_metadata(file_ids=file_ids)
 
-        raise ValueError('unexpected input: ' + str(file_ids))
+        if extractOnlyOne:
+            ret = ret[0]
+
+        return ret
 
     def is_password_protected(self):
         return self.password is not None

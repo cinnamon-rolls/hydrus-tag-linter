@@ -35,8 +35,16 @@ async function getRuleFiles(name) {
   return await fetchJson("api/rules/get_files?name=" + name);
 }
 
+async function getFileMetadata(fileIDs) {
+  return await fetchJson("api/files/get_metadata?file_id=" + fileIDs);
+}
+
 function getThumbnailUrl(fileID) {
-  return getUrl("files/thumbnail/" + fileID)
+  return getUrl("files/thumbnail/" + fileID);
+}
+
+function getFileUrl(fileID) {
+  return getUrl("files/full/" + fileID);
 }
 
 module.exports = {
@@ -46,5 +54,7 @@ module.exports = {
   getRuleNames,
   getRuleInfo,
   getRuleFiles,
-  getThumbnailUrl
+  getFileMetadata,
+  getThumbnailUrl,
+  getFileUrl,
 };

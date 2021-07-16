@@ -1,8 +1,18 @@
 import React from "react";
+import FileEmbed from "./fileEmbed";
+
+import "./pageFile.css";
 
 class PageFile extends React.Component {
   render() {
-    return <span>WIP (File)</span>;
+    return (
+      <React.Fragment>
+        <FileEmbed
+          appBinds={this.props.appBinds}
+          fileID={this.props.fileID}
+        ></FileEmbed>
+      </React.Fragment>
+    );
   }
 }
 

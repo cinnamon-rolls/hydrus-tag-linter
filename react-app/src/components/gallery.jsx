@@ -24,7 +24,11 @@ class Gallery extends React.Component {
     return (
       <div className="gallery">
         {fileIDs.map((fileID) => (
-          <Thumbnail fileID={fileID}></Thumbnail>
+          <Thumbnail
+            key={"thumbnail-" + fileID}
+            appBinds={this.props.appBinds}
+            fileID={fileID}
+          ></Thumbnail>
         ))}
       </div>
     );

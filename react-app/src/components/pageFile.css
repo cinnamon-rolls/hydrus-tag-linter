@@ -1,0 +1,45 @@
+.full_file {
+  max-width: 100%;
+  max-height: 100vh;
+}
+
+.full_file_sidebar {
+  display: block;
+  margin-right: 1em;
+  font-size: 80%;
+  width: 230px;
+  float: left;
+  overflow: auto;
+  max-height: calc(100% - 75);
+}
+
+.full_file_container {
+  display: block;
+  float: left;
+  width: calc(100% - 300px);
+}
+
+.tag_list {
+  padding: 0 0 0 16px;
+  margin: 0;
+}
+
+#actions_container .anchorbutton {
+  text-align: left;
+}
+
+@media screen and (max-width: 721px) {
+  .full_file_sidebar {
+    display: block;
+    float: none;
+    width: 100%;
+    margin-bottom: 16px;
+    font-size: 100%;
+  }
+
+  .full_file_container {
+    display: block;
+    float: none;
+    width: 100%;
+  }
+}
