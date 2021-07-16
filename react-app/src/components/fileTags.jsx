@@ -2,7 +2,6 @@ import React from "react";
 import Loading from "./loading";
 import AnchorButton from "./anchorButton";
 
-// future versions maybe download automagically from client api
 var defaultTagPresentation = {
   default: "#72A0C1", // undefined namespace
   namespaces: {
@@ -50,6 +49,8 @@ class FileTags extends React.Component {
   }
 
   getTagPresentation() {
+    // future versions maybe download automagically from client api
+    // in any case, this is not supported yet by Hydrus
     return defaultTagPresentation;
   }
 

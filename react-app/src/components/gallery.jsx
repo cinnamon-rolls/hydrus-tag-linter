@@ -30,15 +30,17 @@ class Gallery extends React.Component {
 
   renderPaginationButton(currentPage, page, textOverride) {
     var text = textOverride || page + "";
+    var key = "pagination-" + page + "-" + textOverride;
     if (currentPage === page) {
       return (
-        <span className="pagination_entry">
+        <span key={key} className="pagination_entry">
           <b>{text}</b>
         </span>
       );
     } else {
       return (
         <AnchorButton
+          key={key}
           onClick={() => this.setPage(page)}
           spanClassName="pagination_entry"
           buttonText={text}
