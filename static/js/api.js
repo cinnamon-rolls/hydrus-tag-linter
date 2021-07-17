@@ -1,5 +1,5 @@
 import { httpGetJson } from "./http_helper.js";
-import ApiCache from "./apiCache.js";
+import ApiCache from "./ApiCache.js";
 
 const FILE_METADATA_CACHE = new ApiCache(
   async (fileId) =>

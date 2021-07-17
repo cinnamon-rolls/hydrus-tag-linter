@@ -7,10 +7,10 @@ export default class ApiCache {
     this.memory = {};
     this.memoryTime = {};
 
-    if (typeof fetchFunc != "function") {
+    if (typeof fetchFunc !== "function") {
       throw new Error("Expected a nonnull async fetch function");
     }
-    if (typeof timeInMemory != "number") {
+    if (typeof timeInMemory !== "number") {
       throw new Error("Expected timeInMemory as a number in milliseconds");
     }
   }

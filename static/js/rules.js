@@ -1,4 +1,4 @@
-import ApiCache from "./apiCache.js";
+import ApiCache from "./ApiCache.js";
 import { httpGetJson } from "./http_helper.js";
 
 const RULE_INFO_CACHE = new ApiCache(async (name) =>

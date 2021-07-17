@@ -1,7 +1,8 @@
+import ElementKeeper from "./Component.js";
+
 var rule_namespaces = ["linter rule:", "linter exempt:"];
 
-// future versions maybe download automagically from client api
-var tagPresentation = {
+const DEFAULT_TAG_PRESENTATION = {
   default: "#72A0C1", // undefined namespace
   namespaces: {
     "": "#006FFA", // no namespace
@@ -17,11 +18,16 @@ var tagPresentation = {
   },
 };
 
+function getTagPresentation() {
+  // in the future this might be an API call
+  return DEFAULT_TAG_PRESENTATION;
+}
+
 /** Given a namespace name as a string, get the color in css */
 function getNamespaceColor(namespace) {
-  var ret = tagPresentation.namespaces[namespace];
+  var ret = getTagPresentation().namespaces[namespace];
   if (ret == null) {
-    ret = tagPresentation.default;
+    ret = getTagPresentation().default;
   }
   return ret;
 }
@@ -30,13 +36,13 @@ function getNamespaceColor(namespace) {
 function getTagColor(tag) {
   var parts = tag.split(":", 2);
   if (parts.length < 2) {
-    return tagPresentation.namespaces[""];
+    return getTagPresentation().namespaces[""];
   } else {
     return getNamespaceColor(parts[0]);
   }
 }
 
-function createTagAnchor(tag) {
+function renderTagAnchor(tag) {
   var e = document.createElement("a");
   e.innerText = tag;
   e.style = "color:" + getTagColor(tag) + ";";
@@ -58,23 +64,10 @@ function createTagAnchor(tag) {
   return e;
 }
 
-function createTagListItem(tag) {
+function renderTagListItem(tag) {
   var li = document.createElement("li");
-  li.appendChild(createTagAnchor(tag));
+  li.appendChild(renderTagAnchor(tag));
   return li;
-}
-
-function createTagList(tags) {
-  if (tags == null) {
-    tags = [];
-  }
-  tags.sort(compareTags);
-  var ul = document.createElement("ul");
-  ul.className += "tag_list";
-  for (var i = 0; i < tags.length; i++) {
-    ul.appendChild(createTagListItem(tags[i]));
-  }
-  return ul;
 }
 
 /** Sorts tags based on namespace and then text */
@@ -92,4 +85,21 @@ function compareTags(tag1, tag2) {
   }
 }
 
-export { createTagList };
+export default class TagList extends ElementKeeper {
+  constructor(container) {
+    super(container, renderTagListItem);
+    container.classList.add("tag_list");
+  }
+
+  setTags(tags) {
+    if (tags == null) {
+      tags = [];
+    }
+    tags.sort(compareTags);
+    this.reorder(tags);
+  }
+
+  refreshTags() {
+    this.setTagList(getTags());
+  }
+}

@@ -61,8 +61,9 @@
     }
   </style>
   <script type="module">
+    import TagList from "/static/js/TagList.js"
+
     import {httpGetJson, httpPostJson} from "/static/js/http_helper.js"
-    import {createTagList} from "/static/js/tag_presentation.js"
     import {getTagServices, getTags, getAllKnownTags, STATUS_CURRENT} from "/static/js/tags.js"
     import {getFileMetadata} from "/static/js/api.js"
     import {renderEmbedElement} from "/static/js/file_embeds.js"
@@ -73,6 +74,8 @@
 
     // we store the actions here for reference later. we will populate them
     // at a later time too.
+    var tagList;
+
     var fileActions = {};
     var shortcutsToActionNames = {};
 
@@ -197,10 +200,7 @@
       if (metadataChanged) {
         var metadata = await getCurrentMetadata();
 
-        var tagsContainer = document.getElementById("tags_container");
-        var newTagList = createTagList(await getCurrentTags());
-        tagsContainer.innerHTML = "";
-        tagsContainer.appendChild(newTagList);
+        tagList.setTags(await getCurrentTags());
 
         var hash = metadata.hash || "?";
         document
@@ -241,9 +241,7 @@
       }
 
       // console.log(changes, {fileIDChanged, metadataChanged, ruleChanged});
-      return await Promise
-        .all(pendingActions)
-        .then(console.log("Render done"));
+      return await Promise.all(pendingActions);
     }
 
     async function moveInPlaylist(motion) {
@@ -287,8 +285,6 @@
     }
 
     async function renderFileEmbed() {
-      console.log("Rendering file embed...");
-
       var fileId = getCurrentFileID();
       var metadata = await getCurrentMetadata();
       var mime = metadata.mime;
@@ -461,7 +457,8 @@
             }
           })
           .catch(err => {
-            alert("Execution of '" + actionName + "' failed: " + err);
+            alert("Execution of '" + actionName + "' failed: " + err + ". Please open the console, expand the error, and screenshot as much as you can. Thank you :)");
+            console.error(err);
           });
 
         return true;
@@ -529,6 +526,8 @@
       var rule = params.get("rule");
       var useRuleExemptions = params.get("exemptions") == 'true';
 
+      tagList = new TagList(document.getElementById("tag_list"));
+
       await changePageState({fileID: file, ruleName: rule, useRuleExemptions: useRuleExemptions});
     })
   </script>
@@ -547,7 +546,9 @@
     <div id="actions_container"></div>
 
     <h3 id="tags_header">Display Tags ({{server.tag_service}})</h3>
-    <div id="tags_container"></div>
+    <div id="tags_container">
+      <ul id="tag_list"></ul>
+    </div>
 
     <h3>Metadata</h3>
     <div id="metadata_container">

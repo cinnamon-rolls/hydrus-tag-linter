@@ -40,6 +40,10 @@ code {
   text-decoration: underline;
 }
 
+.noshow {
+  display: none;
+}
+
 /* Navigation */
 
 nav {

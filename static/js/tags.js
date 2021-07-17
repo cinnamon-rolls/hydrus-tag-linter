@@ -1,5 +1,5 @@
 import { getFileMetadata, getServices } from "./api.js";
-import ApiCache from "./apiCache.js";
+import ApiCache from "./ApiCache.js";
 
 const TAG_SERVICE_CACHE = new ApiCache(fetchTagServices);
 
