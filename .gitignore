@@ -1,9 +1,26 @@
+
+### For user convenience
+
+# User can put their personal rules here
+my-rules/*
+
+# For developers testing rules they want to disable when running "for real"
+test-rules/*
+
+# User can create scripts such as `run_localhost.sh` for convenience
+
+run*.sh
+run*.bat
+
+
+
+### IDE and language stuff
+
 # python
 # https://github.com/github/gitignore/blob/master/Python.gitignore
 __pycache__/
 *.py[cod]
 *$py.class
-
 # python environments
 .env
 .venv
@@ -16,20 +33,6 @@ venv.bak/
 # vscode
 # https://github.com/github/gitignore/blob/master/Global/VisualStudioCode.gitignore
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
 *.code-workspace
 # Local History for Visual Studio Code
 .history/
-
-
-### For user convenience
-
-# User can put their rules here
-my-rules/*
-
-lint_results.*
-run.sh
-run.bat

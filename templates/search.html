@@ -20,7 +20,7 @@
       var searchByJSON = document.getElementById('search_by_json');
 
       if (search != null) {
-        searchResult = await getSearchFiles(search)
+        let searchResult = await getSearchFiles(search)
           .then(x => renderGallery(x))
           .catch(console.error);
 

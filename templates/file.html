@@ -23,6 +23,12 @@
       max-height: calc(100% - 75);
     }
 
+    .full_file_sidebar p {
+      max-width: 100%;
+      word-wrap: normal;
+      overflow: scroll;
+    }
+
     .full_file_container {
       display: block;
       float: left;
@@ -55,7 +61,7 @@
     }
   </style>
   <script type="module">
-    import {httpGetJson} from "/static/js/http_helper.js"
+    import {httpGetJson, httpPostJson} from "/static/js/http_helper.js"
     import {createTagList} from "/static/js/tags.js"
 
     // shortcuts to assign to actions with the 'auto' shortcut
@@ -107,7 +113,7 @@
       },
 
       'move': async function (hints) {
-        movement = hints.movement || 1;
+        let movement = hints.movement || 1;
         await moveInPlaylist(movement);
       },
 
@@ -136,7 +142,7 @@
         alert("undo not implemented (yet?)")
         return true;
       }
-      shortcutName = "";
+      var shortcutName = "";
       if (e.ctrlKey) {
         shortcutName += "ctrl+";
       }
@@ -178,11 +184,19 @@
 
       var pendingActions = [];
 
-      // update tags list
+      // update tags list & other metadata doodads
       if (metadataChanged) {
+        var metadata = getCurrentMetadata();
+
         var tagsContainer = document.getElementById("tags_container")
+        var newTagList = createTagList(getDisplayTagsFromMetadata(getTagService(), metadata))
         tagsContainer.innerHTML = ""
-        tagsContainer.appendChild(createTagList(getDisplayTagsFromMetadata(getTagService(), getCurrentMetadata())))
+        tagsContainer.appendChild(newTagList);
+
+        var hash = metadata.hash || "?"
+        document
+          .getElementById("hash_container")
+          .innerText = hash
       }
 
       if (ruleChanged) {
@@ -402,7 +416,7 @@
         return false;
       }
 
-      action = fileActions[actionName];
+      var action = fileActions[actionName];
 
       if (action == null) {
         console.log('no action for: ' + actionName, fileActions)
@@ -500,7 +514,10 @@
     }
 
     function getDisplayTagsFromMetadata(service, metadata) {
-      return metadata['service_names_to_statuses_to_display_tags'][service]['0'];
+      var sntstdt = metadata['service_names_to_statuses_to_display_tags'] || {};
+      var statuses_to_tags = sntstdt[service] || {}
+      var ret = statuses_to_tags['0'] || [];
+      return ret;
     }
 
     function getTagsFromMetadata(service, metadata) {
@@ -580,6 +597,13 @@
 
     <h3 id="tags_header">Display Tags ({{server.tag_service}})</h3>
     <div id="tags_container"></div>
+
+    <h3>Metadata</h3>
+    <div id="metadata_container">
+      <p>Hash:
+        <code id="hash_container"></code>
+      </p>
+    </div>
 
     <h3 id="rule_header" style="display: none;">Rule Info</h3>
     <div id="rule_container"></div>
