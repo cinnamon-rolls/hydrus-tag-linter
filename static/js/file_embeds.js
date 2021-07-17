@@ -22,7 +22,7 @@ function renderAsAudio(fileId, src, mime) {
   var e = document.createElement("audio");
   e.className = classNameFullFile;
   e.controls = true;
-  e.appendChild(renderSourceElement(src, mime));
+  e.appendChild(renderSourceElement(fileId, src, mime));
   return e;
 }
 
@@ -30,7 +30,7 @@ function renderAsVideo(fileId, src, mime) {
   var e = document.createElement("video");
   e.className = classNameFullFile;
   e.controls = true;
-  e.appendChild(renderSourceElement(src, mime));
+  e.appendChild(renderSourceElement(fileId, src, mime));
   return e;
 }
 

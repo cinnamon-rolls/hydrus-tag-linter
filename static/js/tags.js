@@ -14,6 +14,8 @@ const TAG_SERVICE_CATEGORIES = [
   "all_known_tags",
 ];
 
+var allKnownTagsServiceName;
+
 async function fetchTagServices() {
   var services = getServices();
   var ret = [];
@@ -41,11 +43,16 @@ export async function getTagServices() {
 }
 
 async function getAllKnownTagsServiceName() {
+  if (allKnownTagsServiceName != null) {
+    return allKnownTagsServiceName;
+  }
+
   var services = await getServices();
 
   var allKnownTagsServices = services["all_known_tags"];
   if (allKnownTagsServices != null && allKnownTagsServices.length > 0) {
-    return allKnownTagsServices[0].name;
+    allKnownTagsServiceName = allKnownTagsServices[0].name;
+    return allKnownTagsServiceName;
   }
 
   console.error("What? You don't have an all_known_tags service???");

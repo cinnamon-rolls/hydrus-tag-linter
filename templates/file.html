@@ -176,8 +176,19 @@
       var ruleChanged = false;
 
       if (changes.fileID != null) {
-        currentFileId = parseInt(changes.fileID + "");
-        fileIdChanged = true;
+        let nextFileId = parseInt(changes.fileID + "");
+
+        if (nextFileId !== currentFileId) {
+          currentFileId = nextFileId;
+
+          let params = new URLSearchParams(window.location.search);
+          params.set("file", currentFileId + "")
+          window
+            .history
+            .replaceState(null, null, "/file?" + params.toString());
+
+          fileIdChanged = true;
+        }
       }
 
       if (fileIdChanged || changes.updateMetadata) {

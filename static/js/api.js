@@ -6,12 +6,16 @@ const FILE_METADATA_CACHE = new ApiCache(
     await httpGetJson("/api/files/get_metadata?file_id=" + fileId)
 );
 
+const SERVICES_CACHE = new ApiCache(
+  async () => await httpGetJson("/api/services/get_services")
+);
+
 export async function getFileMetadata(fileId, force = false) {
   return FILE_METADATA_CACHE.get(fileId, force);
 }
 
 export async function getServices() {
-  return await httpGetJson("/api/services/get_services");
+  return await SERVICES_CACHE.get();
 }
 
 export async function getServerInfo() {
