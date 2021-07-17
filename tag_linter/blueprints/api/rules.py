@@ -51,7 +51,7 @@ def api_rules_apply_noncompliance_tag():
     preview = request.args.get('preview', 'true') == 'true'
     rule = get_rule(request.args.get('name'))
     tag_raw = request.args.get('tag', rule.get_noncompliance_tag())
-    tag_service = server.default_tag_service
+    tag_service = request.args.get('tag_service', 'my tags')
 
     enable_add = request.args.get('add', 'true') == 'true'
     enable_remove = request.args.get('remove', 'true') == 'true'
@@ -74,7 +74,7 @@ def api_rules_apply_noncompliance_tag():
             server.get_client().add_tags(
                 hashes=ids2hashes(files_to_tag),
                 service_to_action_to_tags={
-                    server.default_tag_service: {
+                    tag_service: {
                         TAG_ACTION_ADD_LOCAL: [tag]
                     }
                 }
@@ -86,7 +86,7 @@ def api_rules_apply_noncompliance_tag():
             server.get_client().add_tags(
                 hashes=ids2hashes(files_to_untag),
                 service_to_action_to_tags={
-                    server.default_tag_service: {
+                    tag_service: {
                         TAG_ACTION_DELETE_LOCAL: [tag]
                     }
                 }
