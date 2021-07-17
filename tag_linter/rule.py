@@ -20,11 +20,13 @@ class Rule:
 
     def get_info(self) -> dict:
         ret = {
-            # 'search': self.search.as_jsonifiable(),
             'name': self.name,
             'note': self.note,
-            # 'actions': [i.as_dict() for i in self.actions],
-            'icon': self.get_icon(),
+
+            'icon_active': self.icon_active,
+            'icon_disabled': self.icon_disabled,
+            'icon_done': self.icon_done,
+
             'noncompliance_tag': self.get_noncompliance_tag(),
             'exempt_tag': self.get_exempt_tag()
         }
@@ -58,14 +60,6 @@ class Rule:
     def get_hashes_as_str(self) -> str:
         text = "\n".join(self.get_hashes())
         return text
-
-    def get_icon(self):
-        if not self.is_enabled():
-            return self.icon_disabled
-        if len(self.get_files()) > 0:
-            return self.icon_active
-        else:
-            return self.icon_done
 
     def get_actions(self):
         return self.actions

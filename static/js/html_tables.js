@@ -1,9 +1,14 @@
-export function renderDataAsText(
+export function defaultRenderStrategy(
   data,
   elemType = null,
   elemId = null,
   elemClass = null
 ) {
+  // if the thing is already rendered as a document element, we return it unchanged
+  if (data instanceof Node) {
+    return data;
+  }
+
   if (elemType == null) {
     if (typeof data === "number") {
       elemType = "code";
@@ -37,19 +42,22 @@ export async function renderTr(row, renderFuncs) {
   var tr = document.createElement("tr");
 
   for (let i = 0; i < row.length; i++) {
+    let thingToRender = row[i];
+
     let renderFunc = null;
+
     if (renderFuncs.length > i) {
       renderFunc = renderFuncs[i];
     }
     if (typeof renderFunc === "string") {
-      renderFunc = (data) => renderDataAsText(data);
-    }
-    if (renderFunc == null) {
-      renderFunc = renderDataAsText;
+      let elemType = renderFunc;
+      renderFunc = (data) => defaultRenderStrategy(data, elemType);
+    } else if (renderFunc == null) {
+      renderFunc = defaultRenderStrategy;
     }
 
     let td = document.createElement("td");
-    let rendered = await renderFunc(row[i]);
+    let rendered = await renderFunc(thingToRender);
     if (rendered != null) {
       td.appendChild(rendered);
     }
@@ -68,15 +76,12 @@ export async function renderRows(tbody, data, renderFuncs) {
     renderFuncs = [];
   }
 
-  var rows = [];
+  var fragment = document.createDocumentFragment();
 
   for (var i = 0; i < data.length; i++) {
-    rows.push(await renderTr(data[i], renderFuncs));
+    fragment.appendChild(await renderTr(data[i], renderFuncs));
   }
 
-  tbody.innerHTML = "";
-
-  for (let row of rows) {
-    tbody.appendChild(row);
-  }
+  tbody.innerHTML = null;
+  tbody.appendChild(fragment);
 }

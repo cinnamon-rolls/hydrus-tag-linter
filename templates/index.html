@@ -9,40 +9,56 @@
 {% endblock %}
 
 {% block head_extra %}
+  <style>
+    #all_rules_table {
+      min-width: 300px;
+    }
+  </style>
   <script type="module">
     import {getRuleInfo, getRuleNames, getRuleFileCount} from "/static/js/rules.js";
-    import {renderRows, renderDataAsText} from "/static/js/html_tables.js";
-
-    async function renderRuleName(ruleName) {
-      var anchor = document.createElement("a");
-      anchor.href = "/rules/" + ruleName;
-
-      var ruleInfo = await getRuleInfo(ruleName);
-
-      var ruleTitle = document.createElement("span");
-      ruleTitle.innerText = ruleName;
-      var icon = ruleInfo.icon;
-      if (icon != null) {
-        ruleTitle.className = "icon_right icon_right_" + icon;
-      }
-      anchor.appendChild(ruleTitle);
-
-      return anchor;
-    }
+    import {renderRows} from "/static/js/html_tables.js";
 
     async function renderAllRules() {
       var allRulesTableBody = document.getElementById("all_rules_table_body");
 
       var data = (await getRuleNames()).map(async ruleName => {
+
+        let ruleInfo = await getRuleInfo(ruleName);
+
         let fileCount = await getRuleFileCount(ruleName).catch(x => {
           console.error(x);
-          return "?"
+          return -1
         });
-        return [fileCount, ruleName]
+
+        var ruleNameElem = document.createElement("a");
+        ruleNameElem.href = "/rules/" + ruleName;
+
+        var ruleTitle = document.createElement("span");
+        ruleTitle.innerText = ruleName;
+
+        if (ruleInfo.disabled) {
+          var icon = ruleInfo.icon_disabled;
+        } else if (fileCount === 0) {
+          var icon = ruleInfo.icon_done;
+        } else {
+          var icon = ruleInfo.icon_active;
+        }
+
+        if (icon != null) {
+          ruleTitle.className = "icon_right icon_right_" + icon;
+        }
+        ruleNameElem.appendChild(ruleTitle);
+
+        return [
+          fileCount < 0
+            ? "?"
+            : fileCount,
+          ruleNameElem
+        ]
       });
       data = await Promise.all(data)
 
-      renderRows(allRulesTableBody, data, ["code", renderRuleName])
+      renderRows(allRulesTableBody, data, ["code", null])
     }
 
     window.addEventListener("load", async function () {
@@ -71,7 +87,7 @@
   <h2>Summary</h2>
   {% for section in summary %}
     <h3>{{section.name}}</h3>
-    <table>
+    <table id="summary_table">
       {% for key_val in section.get('value') %}
         <tr>
           <td>

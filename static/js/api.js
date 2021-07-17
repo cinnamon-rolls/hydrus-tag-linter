@@ -29,7 +29,3 @@ export async function getRuleNames() {
 export async function getRuleInfo(name) {
   return await httpGetJson("api/rules/get_info?name=" + name);
 }
-
-export async function getRuleFiles(name) {
-  return await httpGetJson("api/rules/get_files?name=" + name);
-}
