@@ -13,26 +13,30 @@
   {% set rules = server.get_rules() %}
   {% if rules and len(rules) > 0%}
     <table>
-      <tr>
-        <th>Files</th>
-        <th>Rule</th>
-      </tr>
-      {% for rule in rules %}
+      <thead>
         <tr>
-          <td style='text-align:right'>
-            {% if rule.is_enabled() %}
-              <code>{{ len(rule.get_files(rule)) }}</code>
-            {% else %}
-              Disabled
-            {% endif %}
-          </td>
-          <td>
-            <a href='/rules/{{ rule.name }}'>
-              {{ icon_span(text=rule.name, icon=rule.get_icon(), left=False) }}
-            </a>
-          </td>
+          <th>Files</th>
+          <th>Rule</th>
         </tr>
-      {% endfor %}
+      </thead>
+      <tbody>
+        {% for rule in rules %}
+          <tr>
+            <td style='text-align:right'>
+              {% if rule.is_enabled() %}
+                <code>{{ len(rule.get_files(rule)) }}</code>
+              {% else %}
+                Disabled
+              {% endif %}
+            </td>
+            <td>
+              <a href='/rules/{{ rule.name }}'>
+                {{ icon_span(text=rule.name, icon=rule.get_icon(), left=False) }}
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
     </table>
   {% else %}
     <p>no rules defined :(</p>

@@ -1,7 +1,7 @@
 body {
   display: block;
   text-align: left;
-  background-color: #0D1117;
+  background-color: #0d1117;
   color: #c9d1d9;
   margin: 0;
   font-family: arial, helvetica;
@@ -12,15 +12,14 @@ a {
   text-decoration: none;
 }
 
-.anchorbutton:hover,
 a:hover {
   text-decoration: underline;
 }
 
 code {
-  font-family:  monospace;
+  font-family: monospace;
   font-size: 100%;
-  color: #D7BA7D;
+  color: #d7ba7d;
 }
 
 .content {
@@ -29,18 +28,23 @@ code {
 
 .anchorbutton {
   /* https://stackoverflow.com/questions/1367409/how-to-make-button-look-like-a-link */
-  background: none!important;
+  background: none;
   border: none;
-  padding: 0!important;
+  padding: 0;
   color: #58a6ff;
   cursor: pointer;
+  font-size: 100%;
+}
+
+.anchorbutton:hover {
+  text-decoration: underline;
 }
 
 /* Navigation */
 
 nav {
-  background-color: #161B22;
-  padding: 8px 16px 8px 16px
+  background-color: #161b22;
+  padding: 8px 16px 8px 16px;
 }
 
 nav .site-title {
@@ -59,7 +63,7 @@ nav ul li {
 
 /* Tables */
 
-table{
+table {
   border-collapse: collapse;
 }
 
@@ -72,12 +76,14 @@ table tr {
   background-color: #323232;
 }
 
-table td, table th {
-  padding: 4px 8px 4px 8px
+table td,
+table th {
+  padding: 4px 8px 4px 8px;
 }
 
-table td, table th {
-  border: 1px solid #636363
+table td,
+table th {
+  border: 1px solid #636363;
 }
 
 /* Files */
@@ -114,16 +120,16 @@ table td, table th {
 
 .pagination {
   text-align: center;
-  font-family: monospace;
-  font-size: 1em;
   padding: 2em 0 1em 0;
   display: block;
+  font-size: 100%;
 }
 
-.pagination button {
+.pagination_entry {
   border: 1px solid #404048;
   margin: 0 3px;
   padding: 2px 6px;
+  font-family: monospace;
 }
 
 /* Icons */

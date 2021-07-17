@@ -54,18 +54,12 @@
       }
     }
   </style>
-  <script src="{{ url_for('static', filename='js/async_helper.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/tag_presentation_helper.js') }}"></script>
-  <script>
+  <script type="module">
+    import {httpGetJson} from "/static/js/http_helper.js"
+    import {createTagList} from "/static/js/tags.js"
+
     // shortcuts to assign to actions with the 'auto' shortcut
-    var autoShortcuts = [
-      'q',
-      'w',
-      'e',
-      '1',
-      '2',
-      '3'
-    ]
+    var autoShortcuts = "qwe123".split("");
 
     // we store the actions here for reference later. we will populate them
     // at a later time too.
@@ -367,7 +361,7 @@
           console.log('not rendering action: ' + action.name);
           return;
         }
-        elem = createActionButton(action);
+        var elem = createActionButton(action);
         actionsContainer.appendChild(elem);
         actionsContainer.append(document.createElement("br"));
       }

@@ -1,9 +1,4 @@
-// depends on async_helper.js
-
-var rule_namespaces = [
-  "linter rule:",
-  "linter exempt:"
-]
+var rule_namespaces = ["linter rule:", "linter exempt:"];
 
 // future versions maybe download automagically from client api
 var tagPresentation = {
@@ -18,8 +13,8 @@ var tagPresentation = {
     studio: "#800000",
     system: "#996515",
     "linter rule": "#AA8000",
-    "linter exempt": "#AA8000"
-  }
+    "linter exempt": "#AA8000",
+  },
 };
 
 /** Given a namespace name as a string, get the color in css */
@@ -46,10 +41,10 @@ function createTagAnchor(tag) {
   e.innerText = tag;
   e.style = "color:" + getTagColor(tag) + ";";
   e.className += "tag_anchor";
-  
+
   var match = null;
-  for(var i = 0; i < rule_namespaces.length && match == null; i++) {
-    if(tag.startsWith(rule_namespaces[i])) {
+  for (var i = 0; i < rule_namespaces.length && match == null; i++) {
+    if (tag.startsWith(rule_namespaces[i])) {
       match = rule_namespaces[i];
     }
   }
@@ -93,3 +88,5 @@ function compareTags(tag1, tag2) {
     return tag1.localeCompare(tag2);
   }
 }
+
+export { createTagList };

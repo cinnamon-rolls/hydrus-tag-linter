@@ -2,7 +2,9 @@
 
 {% block head_extra %}
   <script src="{{ url_for('static', filename='js/async_helper.js') }}"></script>
-  <script>
+  <script type="module">
+    import {httpPostJson} from "/static/js/http_helper.js"
+
     window.addEventListener("load", async function () {
       document
         .getElementById('submit')

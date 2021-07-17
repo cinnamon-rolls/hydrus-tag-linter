@@ -32,9 +32,10 @@
       }
     }
   </style>
-  <script src="{{ url_for('static', filename='js/async_helper.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/gallery_helper.js') }}"></script>
-  <script>
+  <script type="module">
+    import {renderGallery} from "/static/js/galleries.js"
+    import {httpGetJson} from "/static/js/http_helper.js"
+
     var linterRuleTag = "{{ rule.get_noncompliance_tag() }}"
     var linterRuleTagURI = encodeURI(linterRuleTag)
 
@@ -69,11 +70,11 @@
     }
 
     async function getRuleFiles(rule) {
-      return httpGetJson('/api/rules/get_files?name=' + ruleNameURI).catch(x => alert("failed to fetch files: " + x))
+      return httpGetJson('/api/rules/get_files?name=' + ruleNameURI).catch(console.error)
     }
 
     async function getRuleExemptions(rule) {
-      return httpGetJson('/api/rules/get_exemptions?name=' + ruleNameURI).catch(x => alert("failed to fetch files: " + x))
+      return httpGetJson('/api/rules/get_exemptions?name=' + ruleNameURI).catch(console.error)
     }
 
     window.addEventListener("load", async function () {
@@ -81,11 +82,11 @@
 
       console.log("creating galleries for rule '" + ruleName + "', uri '" + ruleNameURI)
 
-      createGallery(await getRuleFiles(), {
+      renderGallery(await getRuleFiles(), {
         galleryElemID: "noncompliance_gallery",
         ruleName: ruleName
       })
-      createGallery(await getRuleExemptions(), {
+      renderGallery(await getRuleExemptions(), {
         galleryElemID: "exempt_gallery",
         ruleName: ruleName,
         exemptions: true

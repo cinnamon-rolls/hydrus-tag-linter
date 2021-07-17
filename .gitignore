@@ -33,9 +33,3 @@ my-rules/*
 lint_results.*
 run.sh
 run.bat
-
-### From the future
-build_key.txt
-react-app/*
-flask-server/*
-build/*

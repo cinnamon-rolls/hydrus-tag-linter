@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 
 {% block head_extra %}
-  <script src="{{ url_for('static', filename='js/async_helper.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/gallery_helper.js') }}"></script>
-  <script>
+  <script type="module">
+    import {renderGallery} from "/static/js/galleries.js"
+    import {httpGetJson} from "/static/js/http_helper.js"
+
     async function getSearchFiles(search) {
       console.log(search)
       return httpGetJson('/api/search/get_files?search=' + encodeURI(search))
@@ -20,8 +21,8 @@
 
       if (search != null) {
         searchResult = await getSearchFiles(search)
-          .then(x => createGallery(x))
-          .catch(x => alert("Search failed: " + x));
+          .then(x => renderGallery(x))
+          .catch(console.error);
 
         searchInput.value = search;
         searchByJSON.checked = "checked";
@@ -39,10 +40,10 @@
             search = document
               .getElementById("search_input")
               .value
-        
-            try{
+
+            try {
               JSON.parse(search);
-            }catch(e) {
+            } catch (e) {
               alert("Invalid JSON");
               return;
             }
