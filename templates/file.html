@@ -62,7 +62,10 @@
   </style>
   <script type="module">
     import {httpGetJson, httpPostJson} from "/static/js/http_helper.js"
-    import {createTagList} from "/static/js/tags.js"
+    import {createTagList} from "/static/js/tag_presentation.js"
+    import {getTagServices} from "/static/js/tags.js"
+    import {getFileMetadata} from "/static/js/api.js"
+    import {renderEmbedElement} from "/static/js/file_embeds.js"
 
     // shortcuts to assign to actions with the 'auto' shortcut
     var autoShortcuts = "qwe123".split("");
@@ -72,8 +75,9 @@
     var fileActions = {};
     var shortcutsToActionNames = {};
 
-    var currentMetadata = null;
-    var currentFileID = null;
+    var currentTagService = "{{server.tag_service}}"
+    var currentFileMetadata = null;
+    var currentFileId = null;
     var currentRule = null;
 
     var playlist = null;
@@ -95,14 +99,14 @@
       },
 
       'quick_add_tag': async function () {
-        var tag = prompt("Please enter a tag to add to the file. The tag will be added to '" + getTagService() + "'")
+        var tag = prompt("Please enter a tag to add to the file. The tag will be added to '" + getCurrentTagService() + "'")
         if (tag != null && tag != "") {
           await changeTags(tag, null);
         }
       },
 
       'quick_delete_tag': async function () {
-        var tag = prompt("Please enter a tag to remove from the file. The tag will be removed from '" + getTagService() + "'")
+        var tag = prompt("Please enter a tag to remove from the file. The tag will be removed from '" + getCurrentTagService() + "'")
         if (tag != null && tag != "") {
           await changeTags(null, tag);
         }
@@ -159,17 +163,17 @@
     };
 
     async function changePageState(changes = {}) {
-      var fileIDChanged = false;
+      var fileIdChanged = false;
       var metadataChanged = false;
       var ruleChanged = false;
 
       if (changes.fileID != null) {
-        currentFileID = parseInt(changes.fileID + "");
-        fileIDChanged = true;
+        currentFileId = parseInt(changes.fileID + "");
+        fileIdChanged = true;
       }
 
-      if (fileIDChanged || changes.updateMetadata) {
-        currentMetadata = await httpGetJson('/api/files/get_metadata?file_id=' + encodeURI(currentFileID));
+      if (fileIdChanged || changes.updateMetadata) {
+        currentFileMetadata = getFileMetadata(currentFileId);
         metadataChanged = true;
       }
 
@@ -186,10 +190,10 @@
 
       // update tags list & other metadata doodads
       if (metadataChanged) {
-        var metadata = getCurrentMetadata();
+        var metadata = await getCurrentMetadata();
 
         var tagsContainer = document.getElementById("tags_container")
-        var newTagList = createTagList(getDisplayTagsFromMetadata(getTagService(), metadata))
+        var newTagList = createTagList(getDisplayTagsFromMetadata(getCurrentTagService(), metadata))
         tagsContainer.innerHTML = ""
         tagsContainer.appendChild(newTagList);
 
@@ -213,15 +217,15 @@
         }
       }
 
-      if (fileIDChanged) {
+      if (fileIdChanged) {
         // update embed
         pendingActions.push(renderFileEmbed());
       }
 
-      if (fileIDChanged || ruleChanged) {
+      if (fileIdChanged || ruleChanged) {
         // update position in playlist
         if (playlist != null) {
-          playlistPosition = playlist.indexOf(currentFileID);
+          playlistPosition = playlist.indexOf(currentFileId);
           // console.log(playlistPosition, currentFileID, playlist);
         }
       }
@@ -258,16 +262,16 @@
       await changePageState({updateMetadata: true})
     }
 
-    function getTagService() {
-      return "{{server.tag_service}}";
+    function getCurrentTagService() {
+      return currentTagService;
     }
 
     function getCurrentMetadata() {
-      return currentMetadata;
+      return currentFileMetadata;
     }
 
     function getCurrentFileID() {
-      return currentFileID;
+      return currentFileId;
     }
 
     function getCurrentRule() {
@@ -277,14 +281,15 @@
     async function renderFileEmbed() {
       console.log("Rendering file embed...");
 
-      var metadata = getCurrentMetadata();
-      var fileID = metadata.file_id;
+      var fileId = getCurrentFileID();
+      var metadata = await getCurrentMetadata();
       var mime = metadata.mime;
-      var src = "/files/full/" + encodeURI(fileID);
+      var src = "/files/full/" + encodeURI(fileId);
 
+      var embed = await renderEmbedElement(fileId);
       var embedTarget = document.getElementById("embed_target");
       embedTarget.innerHTML = ""
-      embedTarget.appendChild(createEmbedElement(metadata, src));
+      embedTarget.appendChild(embed);
 
       var title = "File #" + metadata.file_id;
 
@@ -460,59 +465,6 @@
       }
     }
 
-    /** Creates an element to display the file in based on the mimetype */
-    function createEmbedElement(metadata, src) {
-      var mime = metadata.mime;
-
-      // i do URI encoding out of paranoia
-      var fileID = metadata.file_id;
-      var fileIDURI = encodeURI(fileID + "");
-
-      var classNameFullFile = "full_file";
-
-      /** Creates a source element, needed for some cases below */
-      function createSourceElement() {
-        var source = document.createElement("source");
-        source.src = src;
-        source.type = mime;
-        return source;
-      }
-
-      if (mime.startsWith("image")) {
-        // for images, create a simple img element
-        var e = document.createElement("img");
-        e.src = src;
-        e.className = classNameFullFile;
-        return e;
-      } else if (mime.startsWith("audio")) {
-        // audio -> audio element
-        var e = document.createElement("audio");
-        e.className = classNameFullFile;
-        e.controls = true;
-        e.appendChild(createSourceElement());
-        return e
-      } else if (mime.startsWith("video")) {
-        // videos -> video element
-        var e = document.createElement("video");
-        e.className = classNameFullFile;
-        e.controls = true;
-        e.appendChild(createSourceElement());
-        return e
-      } else {
-        // We don't know how to render that file so we throw up the thumbnail
-        var e = document.createElement("div");
-        var span = document.createElement("span");
-        span.innerText = "The MIME type of this file is not supported.";
-        e.appendChild(span);
-        e.appendChild(document.createElement("br"));
-        var img = document.createElement("img");
-        img.className = "thumbnail";
-        img.src = "/files/thumbnail/" + fileIDURI;
-        e.appendChild(img);
-        return e
-      }
-    }
-
     function getDisplayTagsFromMetadata(service, metadata) {
       var sntstdt = metadata['service_names_to_statuses_to_display_tags'] || {};
       var statuses_to_tags = sntstdt[service] || {}
@@ -533,7 +485,7 @@
 
     function getCurrentFileHasTag(tag, tagService) {
       if (tagService == null) {
-        tagService = getTagService();
+        tagService = getCurrentTagService();
       }
 
       return getTagsFromMetadata(tagService, getCurrentMetadata()).indexOf(tag) != -1;

@@ -1,92 +1,67 @@
-var rule_namespaces = ["linter rule:", "linter exempt:"];
+import { getFileMetadata, getServices } from "./api.js";
 
-// future versions maybe download automagically from client api
-var tagPresentation = {
-  default: "#72A0C1", // undefined namespace
-  namespaces: {
-    "": "#006FFA", // no namespace
-    character: "#00AA00",
-    creator: "#AA0000",
-    meta: "#AAAAAA",
-    person: "#008000",
-    series: "#AA00AA",
-    studio: "#800000",
-    system: "#996515",
-    "linter rule": "#AA8000",
-    "linter exempt": "#AA8000",
-  },
-};
+export const STATUS_CURRENT = "0";
+export const STATUS_PENDING = "1";
+export const STATUS_DELETED = "2";
+export const STATUS_PETITIONED = "3";
 
-/** Given a namespace name as a string, get the color in css */
-function getNamespaceColor(namespace) {
-  var ret = tagPresentation.namespaces[namespace];
-  if (ret == null) {
-    ret = tagPresentation.default;
-  }
-  return ret;
-}
+const TAG_SERVICE_CATEGORIES = [
+  "local_tags",
+  "tag_repositories",
+  "all_known_tags",
+];
 
-/** Given a tag as a string, get the color in css */
-function getTagColor(tag) {
-  var parts = tag.split(":", 2);
-  if (parts.length < 2) {
-    return tagPresentation.namespaces[""];
-  } else {
-    return getNamespaceColor(parts[0]);
-  }
-}
+export async function getTagServices() {
+  var services = getServices();
+  var ret = [];
 
-function createTagAnchor(tag) {
-  var e = document.createElement("a");
-  e.innerText = tag;
-  e.style = "color:" + getTagColor(tag) + ";";
-  e.className += "tag_anchor";
+  for (category of TAG_SERVICE_CATEGORIES) {
+    for (service of services[category] || []) {
+      let serviceObj = Object.assign({}, service);
+      serviceObj.category = category;
 
-  var match = null;
-  for (var i = 0; i < rule_namespaces.length && match == null; i++) {
-    if (tag.startsWith(rule_namespaces[i])) {
-      match = rule_namespaces[i];
+      if (service.category.replace("_", " ") == service.name) {
+        serviceObj.userString = service.name;
+      } else {
+        serviceObj.userString = service.name + " (" + service.category + ")";
+      }
+
+      ret.push(serviceObj);
     }
   }
 
-  if (match != null) {
-    e.href = "/rules/" + encodeURI(tag.substring(match.length));
-  } else {
-    var search = encodeURI('"' + tag + '"');
-    e.href = "/search?search=" + search;
+  return ret;
+}
+
+export async function getTags(
+  fileId,
+  serviceName,
+  status = STATUS_CURRENT,
+  display = true
+) {
+  var metadata = await getFileMetadata(fileId);
+
+  var lookup = display
+    ? "service_names_to_statuses_to_display_tags"
+    : "service_names_to_statuses_to_tags";
+
+  // very defensive against null values because i've been burned by unexpected
+  // nulls related to this api path too many times
+
+  var serviceNamesToStatusesToTags = metadata[lookup];
+  if (serviceNamesToStatusesToTags == null) {
+    return [];
   }
-  return e;
-}
 
-function createTagListItem(tag) {
-  var li = document.createElement("li");
-  li.appendChild(createTagAnchor(tag));
-  return li;
-}
-
-function createTagList(tags) {
-  tags.sort(compareTags);
-  var ul = document.createElement("ul");
-  ul.className += "tag_list";
-  for (var i = 0; i < tags.length; i++) {
-    ul.appendChild(createTagListItem(tags[i]));
+  var statusesToTags = serviceNamesToStatusesToTags[serviceName];
+  if (statusesToTags == null) {
+    return [];
   }
-  return ul;
-}
 
-/** Sorts tags based on namespace and then text */
-function compareTags(tag1, tag2) {
-  var b1 = tag1.includes(":");
-  var b2 = tag2.includes(":");
-  if (b1 && !b2) {
-    return -1;
-  } else if (!b1 && b2) {
-    return 1;
-  } else if (b1 && b2) {
-    return tag1.split(":", 2)[0].localeCompare(tag2.split(":", 2)[0]);
-  } else {
-    return tag1.localeCompare(tag2);
+  var tags = statusesToTags[status];
+  if (tags == null) {
+    return [];
   }
-}
 
-export { createTagList };
+  return tags;
+}
