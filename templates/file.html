@@ -26,7 +26,7 @@
     .full_file_sidebar p {
       max-width: 100%;
       word-wrap: normal;
-      overflow: scroll;
+      overflow-x: auto;
     }
 
     .full_file_container {
@@ -63,19 +63,20 @@
   <script type="module">
     import {httpGetJson, httpPostJson} from "/static/js/http_helper.js"
     import {createTagList} from "/static/js/tag_presentation.js"
-    import {getTagServices} from "/static/js/tags.js"
+    import {getTagServices, getTags, getAllKnownTags, STATUS_CURRENT} from "/static/js/tags.js"
     import {getFileMetadata} from "/static/js/api.js"
     import {renderEmbedElement} from "/static/js/file_embeds.js"
+    import {getRuleInfo, getRuleFiles, getRuleExemptions} from "/static/js/rules.js"
 
     // shortcuts to assign to actions with the 'auto' shortcut
-    var autoShortcuts = "qwe123".split("");
+    var autoShortcuts = "qwerty1234567890uiopghjklvbnm".split("");
 
     // we store the actions here for reference later. we will populate them
     // at a later time too.
     var fileActions = {};
     var shortcutsToActionNames = {};
 
-    var currentTagService = "{{server.tag_service}}"
+    var currentTagService = "my tags";
     var currentFileMetadata = null;
     var currentFileId = null;
     var currentRule = null;
@@ -159,6 +160,10 @@
       shortcutName += e.key;
       shortcutName = shortcutName.toLowerCase();
       // console.log(shortcutName);
+      if (shortcutName == "shift+r") {
+        await redownloadFileMetadata();
+        return true;
+      }
       return await !onAction(shortcutsToActionNames[shortcutName]);
     };
 
@@ -173,7 +178,7 @@
       }
 
       if (fileIdChanged || changes.updateMetadata) {
-        currentFileMetadata = getFileMetadata(currentFileId);
+        currentFileMetadata = await getFileMetadata(currentFileId, true);
         metadataChanged = true;
       }
 
@@ -182,7 +187,7 @@
         if (ruleName == null && currentRule != null) {
           ruleName = currentRule.name;
         }
-        currentRule = await httpGetJson('/api/rules/get_rule?name=' + encodeURI(changes.ruleName));
+        currentRule = await getRuleInfo(changes.ruleName);
         ruleChanged = true;
       }
 
@@ -192,15 +197,15 @@
       if (metadataChanged) {
         var metadata = await getCurrentMetadata();
 
-        var tagsContainer = document.getElementById("tags_container")
-        var newTagList = createTagList(getDisplayTagsFromMetadata(getCurrentTagService(), metadata))
-        tagsContainer.innerHTML = ""
+        var tagsContainer = document.getElementById("tags_container");
+        var newTagList = createTagList(await getCurrentTags());
+        tagsContainer.innerHTML = "";
         tagsContainer.appendChild(newTagList);
 
-        var hash = metadata.hash || "?"
+        var hash = metadata.hash || "?";
         document
           .getElementById("hash_container")
-          .innerText = hash
+          .innerText = hash;
       }
 
       if (ruleChanged) {
@@ -210,9 +215,9 @@
         // redownload playlist
         if (currentRule != null) {
           if (changes.useRuleExemptions) {
-            playlist = await httpGetJson('/api/rules/get_exemptions?name=' + currentRule.name);
+            playlist = await getRuleExemptions(currentRule.name);
           } else {
-            playlist = await httpGetJson('/api/rules/get_files?name=' + currentRule.name);
+            playlist = await getRuleFiles(currentRule.name);
           }
         }
       }
@@ -245,6 +250,7 @@
       if (playlist == null || motion == null || motion == 0 || playlist.length == 0) {
         return;
       }
+      var lastPlaylistPos = playlistPosition;
       if (playlistPosition == null || playlistPosition == -1) {
         playlistPosition = 0;
       } else {
@@ -255,7 +261,9 @@
       } else if (playlistPosition < 0) {
         playlistPosition = playlist.length - 1;
       }
-      await changePageState({fileID: playlist[playlistPosition]});
+      if (lastPlaylistPos !== playlistPosition) {
+        await changePageState({fileID: playlist[playlistPosition]});
+      }
     }
 
     async function redownloadFileMetadata() {
@@ -337,9 +345,10 @@
 
       var defaultActions = await httpGetJson('/api/server/get_global_file_actions');
 
-      var location = getLocationFromMetadata(getCurrentMetadata());
+      var location = getCurrentFileLocation();
+      // console.log(location)
 
-      function maybeRender(action) {
+      async function maybeRender(action) {
 
         fileActions[action.name] = action;
 
@@ -372,12 +381,12 @@
         hidden = hidden || (action.hiddenIfNoRule && rule == null);
         hidden = hidden || (action.hiddenIfRule && rule != null);
 
-        var exempt = rule != null && getCurrentFileHasTag(rule.exempt_tag);
+        var exempt = rule != null && (await getCurrentFileHasTag(rule.exempt_tag));
         hidden = hidden || (action.hiddenIfExempt && exempt);
         hidden = hidden || (action.hiddenIfNotExempt && !exempt)
 
         if (hidden) {
-          console.log('not rendering action: ' + action.name);
+          // console.log('not rendering action: ' + action.name);
           return;
         }
         var elem = createActionButton(action);
@@ -399,7 +408,7 @@
             actionsContainer.append(document.createElement('br'))
           }
           for (var i = 0; i < ruleActions.length; i++) {
-            maybeRender(ruleActions[i]);
+            await maybeRender(ruleActions[i]);
           }
         }
       }
@@ -407,12 +416,16 @@
 
     async function changeTags(addTags, rmTags) {
       return await httpPostJson('/api/files/change_tags', {
+        'tag_service': getCurrentTagService(),
         'file_ids': parseInt(getCurrentFileID() + ""),
         'add_tags': addTags,
         'rm_tags': rmTags
       })
         .then(redownloadFileMetadata)
-        .catch(e => "Failed to change tags: " + e);
+        .catch(e => {
+          alert("Failed to change tags: " + e + ", please check the console, expand the error, and screenshot as much as you can.");
+          console.error(e);
+        });
     }
 
     /** Returns true if there is a matching action */
@@ -465,34 +478,20 @@
       }
     }
 
-    function getDisplayTagsFromMetadata(service, metadata) {
-      var sntstdt = metadata['service_names_to_statuses_to_display_tags'] || {};
-      var statuses_to_tags = sntstdt[service] || {}
-      var ret = statuses_to_tags['0'] || [];
-      return ret;
+    async function getCurrentTags() {
+      return await getTags(getCurrentFileID(), getCurrentTagService(), STATUS_CURRENT, true);
     }
 
-    function getTagsFromMetadata(service, metadata) {
-      if (metadata == null) {
-        return [];
-      }
-
-      var sntstt = metadata['service_names_to_statuses_to_tags'] || {};
-      var statuses_to_tags = sntstt[service] || {}
-      var ret = statuses_to_tags['0'] || [];
-      return ret;
+    async function getCurrentAllKnownTags() {
+      return await getAllKnownTags(getCurrentFileID(), STATUS_CURRENT, true);
     }
 
-    function getCurrentFileHasTag(tag, tagService) {
-      if (tagService == null) {
-        tagService = getCurrentTagService();
-      }
-
-      return getTagsFromMetadata(tagService, getCurrentMetadata()).indexOf(tag) != -1;
-
+    async function getCurrentFileHasTag(tag) {
+      return (await getCurrentAllKnownTags()).indexOf(tag) != -1;
     }
 
-    function getLocationFromMetadata(metadata) {
+    function getCurrentFileLocation() {
+      var metadata = getCurrentMetadata();
       if (metadata != null) {
         if (metadata.is_trashed) {
           return 'trash';

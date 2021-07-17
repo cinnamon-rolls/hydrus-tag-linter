@@ -65,6 +65,9 @@ function createTagListItem(tag) {
 }
 
 function createTagList(tags) {
+  if (tags == null) {
+    tags = [];
+  }
   tags.sort(compareTags);
   var ul = document.createElement("ul");
   ul.className += "tag_list";

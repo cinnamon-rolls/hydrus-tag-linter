@@ -22,6 +22,7 @@ def api_file_move_to_trash():
 def api_file_move_to_inbox():
     body = request.get_json(force=True)
     file_ids = coerce_list(body.get('file_ids'))
+    print("Move to inbox: " + str(file_ids))
     undelete_files(file_ids)
     unarchive_files(file_ids)
     return jsonify({})
@@ -31,6 +32,7 @@ def api_file_move_to_inbox():
 def api_file_move_to_archive():
     body = request.get_json(force=True)
     file_ids = coerce_list(body.get('file_ids'))
+    print("Move to archive: " + str(file_ids))
     undelete_files(file_ids)
     archive_files(file_ids)
     return jsonify({})
@@ -39,6 +41,8 @@ def api_file_move_to_archive():
 @blueprint.route('/change_tags', methods=['POST'])
 def api_file_add_tags():
     body = request.get_json(force=True)
+
+    tag_service = body.get('tag_service')
     file_ids = coerce_list(body.get('file_ids'))
     add_tags = coerce_list(body.get('add_tags'))
     rm_tags = coerce_list(body.get('rm_tags'))
@@ -52,7 +56,7 @@ def api_file_add_tags():
         server.get_client().add_tags(
             hashes=hashes,
             service_to_action_to_tags={
-                server.tag_service: {
+                tag_service: {
                     TAG_ACTION_ADD_LOCAL: add_tags,
                     TAG_ACTION_DELETE_LOCAL: rm_tags
                 }

@@ -8,39 +8,64 @@
   Home
 {% endblock %}
 
+{% block head_extra %}
+  <script type="module">
+    import {getRuleInfo, getRuleNames, getRuleFileCount} from "/static/js/rules.js";
+    import {renderRows, renderDataAsText} from "/static/js/html_tables.js";
+
+    async function renderRuleName(ruleName) {
+      var anchor = document.createElement("a");
+      anchor.href = "/rules/" + ruleName;
+
+      var ruleInfo = await getRuleInfo(ruleName);
+
+      var ruleTitle = document.createElement("span");
+      ruleTitle.innerText = ruleName;
+      var icon = ruleInfo.icon;
+      if (icon != null) {
+        ruleTitle.className = "icon_right icon_right_" + icon;
+      }
+      anchor.appendChild(ruleTitle);
+
+      return anchor;
+    }
+
+    async function renderAllRules() {
+      var allRulesTableBody = document.getElementById("all_rules_table_body");
+
+      var data = (await getRuleNames()).map(async ruleName => {
+        let fileCount = await getRuleFileCount(ruleName).catch(x => {
+          console.error(x);
+          return "?"
+        });
+        return [fileCount, ruleName]
+      });
+      data = await Promise.all(data)
+
+      renderRows(allRulesTableBody, data, ["code", renderRuleName])
+    }
+
+    window.addEventListener("load", async function () {
+      await renderAllRules();
+    })
+  </script>
+{% endblock %}
+
 {% block content %}
 
-  {% set rules = server.get_rules() %}
-  {% if rules and len(rules) > 0%}
-    <table>
+  <div id="all_rules_container">
+    {% set rules = server.get_rules() %}
+    <table id="all_rules_table">
+      <caption>Overview of all loaded rules</caption>
       <thead>
         <tr>
           <th>Files</th>
           <th>Rule</th>
         </tr>
       </thead>
-      <tbody>
-        {% for rule in rules %}
-          <tr>
-            <td style='text-align:right'>
-              {% if rule.is_enabled() %}
-                <code>{{ len(rule.get_files(rule)) }}</code>
-              {% else %}
-                Disabled
-              {% endif %}
-            </td>
-            <td>
-              <a href='/rules/{{ rule.name }}'>
-                {{ icon_span(text=rule.name, icon=rule.get_icon(), left=False) }}
-              </a>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
+      <tbody id="all_rules_table_body"></tbody>
     </table>
-  {% else %}
-    <p>no rules defined :(</p>
-  {% endif %}
+  </div>
 
   {% set summary = server.get_summary() %}
   <h2>Summary</h2>

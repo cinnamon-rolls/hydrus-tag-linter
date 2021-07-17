@@ -11,7 +11,6 @@ class Rule:
         self.name = data.get('name', 'Unnamed Rule')
         self.note = data.get('note', None)
         self.disabled = data.get('disabled', False)
-        self.cached_files = None
 
         self.icon_active = data.get('icon_active')
         self.icon_disabled = data.get('icon_disabled')
@@ -19,12 +18,12 @@ class Rule:
 
         self.actions = [load_action(i) for i in data.get('actions', [])]
 
-    def as_dict(self) -> dict:
+    def get_info(self) -> dict:
         ret = {
-            'search': self.search.as_jsonifiable(),
+            # 'search': self.search.as_jsonifiable(),
             'name': self.name,
             'note': self.note,
-            'actions': [i.as_dict() for i in self.actions],
+            # 'actions': [i.as_dict() for i in self.actions],
             'icon': self.get_icon(),
             'noncompliance_tag': self.get_noncompliance_tag(),
             'exempt_tag': self.get_exempt_tag()
@@ -36,14 +35,9 @@ class Rule:
     def is_enabled(self):
         return not self.disabled
 
-    def get_files(self, refresh: bool = False):
+    def get_files(self):
         if(not self.is_enabled()):
             return []
-
-        if refresh == True:
-            self.cached_files = None
-        elif self.cached_files is not None:
-            return self.cached_files
 
         print("get_files: " + self.name)
 
@@ -58,17 +52,17 @@ class Rule:
     def get_exempt_files(self):
         return server.search_by_tags([self.get_exempt_tag()])
 
-    def get_hashes(self, refresh=False):
-        return ids2hashes(self.get_files(refresh=refresh))
+    def get_hashes(self):
+        return ids2hashes(self.get_files())
 
-    def get_hashes_as_str(self, refresh=False) -> str:
-        text = "\n".join(self.get_hashes(refresh=refresh))
+    def get_hashes_as_str(self) -> str:
+        text = "\n".join(self.get_hashes())
         return text
 
-    def get_icon(self, refresh=False):
+    def get_icon(self):
         if not self.is_enabled():
             return self.icon_disabled
-        if len(self.get_files(refresh=refresh)) > 0:
+        if len(self.get_files()) > 0:
             return self.icon_active
         else:
             return self.icon_done

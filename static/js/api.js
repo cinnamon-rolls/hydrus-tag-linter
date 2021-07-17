@@ -1,19 +1,13 @@
 import { httpGetJson } from "./http_helper.js";
+import ApiCache from "./apiCache.js";
 
-// will this get too big?
-const metadataCache = {};
+const FILE_METADATA_CACHE = new ApiCache(
+  async (fileId) =>
+    await httpGetJson("/api/files/get_metadata?file_id=" + fileId)
+);
 
-export async function getFileMetadata(fileId) {
-  const cached = metadataCache[fileId + ""];
-  if (cached != null) {
-    return cached;
-  }
-
-  const metadata = await httpGetJson(
-    "/api/files/get_metadata?file_id=" + fileId
-  );
-  metadataCache[fileId + ""] = metadata;
-  return metadata;
+export async function getFileMetadata(fileId, force = false) {
+  return FILE_METADATA_CACHE.get(fileId, force);
 }
 
 export async function getServices() {

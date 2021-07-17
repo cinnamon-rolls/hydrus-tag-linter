@@ -1,4 +1,7 @@
 import { getFileMetadata, getServices } from "./api.js";
+import ApiCache from "./apiCache.js";
+
+const TAG_SERVICE_CACHE = new ApiCache(fetchTagServices);
 
 export const STATUS_CURRENT = "0";
 export const STATUS_PENDING = "1";
@@ -11,7 +14,7 @@ const TAG_SERVICE_CATEGORIES = [
   "all_known_tags",
 ];
 
-export async function getTagServices() {
+async function fetchTagServices() {
   var services = getServices();
   var ret = [];
 
@@ -31,6 +34,35 @@ export async function getTagServices() {
   }
 
   return ret;
+}
+
+export async function getTagServices() {
+  return await TAG_SERVICE_CACHE.get("singleton");
+}
+
+async function getAllKnownTagsServiceName() {
+  var services = await getServices();
+
+  var allKnownTagsServices = services["all_known_tags"];
+  if (allKnownTagsServices != null && allKnownTagsServices.length > 0) {
+    return allKnownTagsServices[0].name;
+  }
+
+  console.error("What? You don't have an all_known_tags service???");
+  return null;
+}
+
+export async function getAllKnownTags(
+  fileId,
+  status = STATUS_CURRENT,
+  display = true
+) {
+  return await getTags(
+    fileId,
+    await getAllKnownTagsServiceName(),
+    status,
+    display
+  );
 }
 
 export async function getTags(
