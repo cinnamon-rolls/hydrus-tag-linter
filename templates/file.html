@@ -375,7 +375,7 @@
           if (shortcut == 'auto') {
             shortcut = null;
             for (var i = 0; i < autoShortcuts.length && shortcut == null; i++) {
-              autoShortcut = autoShortcuts[i];
+              let autoShortcut = autoShortcuts[i];
               if (shortcutsToActionNames[autoShortcut] == null) {
                 shortcut = autoShortcut;
               }
