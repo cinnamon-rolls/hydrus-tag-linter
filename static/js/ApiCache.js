@@ -40,9 +40,6 @@ export default class ApiCache {
     return await this.fetch(key);
   }
 
-  /** Returns true if an object saved at the given time hasn't expired yet */
-  wouldStillBeValid(savedTime) {}
-
   /** Returns the remembered object if its saved and not expired, or null */
   recall(key) {
     if (LOGGING) {

@@ -81,7 +81,7 @@ class Rule:
         This is the tag to apply to files that are noncompliant with this rule,
         and to remove from files that are not
         """
-        return "linter rule:" + self.get_name()
+        return "linter rule:" + self.get_name().strip().lower()
 
     def get_exempt_tag(self):
-        return "linter exempt:" + self.get_name()
+        return "linter exempt:" + self.get_name().strip().lower()
