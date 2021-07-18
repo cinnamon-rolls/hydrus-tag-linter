@@ -22,6 +22,10 @@ const RULE_EXEMPTIONS_COUNT_CACHE = new ApiCache(
     await httpGetJson("/api/rules/get_exemptions_count?name=" + name)
 );
 
+const RULE_ACTIONS_CACHE = new ApiCache(
+  async (name) => await httpGetJson("/api/rules/get_actions?name=" + name)
+);
+
 export async function getRuleInfo(ruleName) {
   return RULE_INFO_CACHE.get(ruleName);
 }
@@ -40,6 +44,10 @@ export async function getRuleExemptions(ruleName) {
 
 export async function getRuleExemptionsCount(ruleName) {
   return RULE_EXEMPTIONS_COUNT_CACHE.get(ruleName);
+}
+
+export async function getRuleActions(ruleName) {
+  return RULE_ACTIONS_CACHE.get(ruleName);
 }
 
 export async function getRuleNames() {

@@ -19,7 +19,7 @@ def api_get_rule():
 @blueprint.route('/get_actions', methods=['GET'])
 def api_rules_get_actions():
     rule = get_rule(request.args.get('name'))
-    return jsonify(rule.get_actions())
+    return jsonify([i.as_dict() for i in rule.get_actions()])
 
 
 @blueprint.route('/get_files', methods=['GET'])

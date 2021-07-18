@@ -17,15 +17,15 @@ const TAG_SERVICE_CATEGORIES = [
 var allKnownTagsServiceName;
 
 async function fetchTagServices() {
-  var services = getServices();
+  var services = await getServices();
   var ret = [];
 
-  for (category of TAG_SERVICE_CATEGORIES) {
-    for (service of services[category] || []) {
+  for (let category of TAG_SERVICE_CATEGORIES) {
+    for (let service of services[category] || []) {
       let serviceObj = Object.assign({}, service);
       serviceObj.category = category;
 
-      if (service.category.replace("_", " ") == service.name) {
+      if (serviceObj.category.replace("_", " ") == service.name) {
         serviceObj.userString = service.name;
       } else {
         serviceObj.userString = service.name + " (" + service.category + ")";
