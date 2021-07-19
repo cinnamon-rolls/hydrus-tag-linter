@@ -8,7 +8,7 @@ class Rule:
         from tag_linter.searches import load_search
 
         self.search = load_search(data.get('search'))
-        self.name = data.get('name', 'Unnamed Rule')
+        self.name = data.get('name')
         self.note = data.get('note', None)
         self.disabled = data.get('disabled', False)
 
@@ -17,6 +17,9 @@ class Rule:
         self.icon_done = data.get('icon_done', 'accept')
 
         self.actions = [load_action(i) for i in data.get('actions', [])]
+
+        if self.name is None:
+            raise ValueError("name not set")
 
     def get_info(self) -> dict:
         ret = {
@@ -51,8 +54,14 @@ class Rule:
         self.cached_files = ret
         return ret
 
+    def count_files(self):
+        return len(self.get_files())
+
     def get_exempt_files(self):
         return server.search_by_tags([self.get_exempt_tag()])
+
+    def count_exempt_files(self):
+        return len(self.get_exempt_files())
 
     def get_hashes(self):
         return ids2hashes(self.get_files())

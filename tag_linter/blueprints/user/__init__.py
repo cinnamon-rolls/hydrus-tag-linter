@@ -1,6 +1,7 @@
 from flask import Blueprint, abort, make_response
 from tag_linter.server import instance as server
 import requests
+from datetime import datetime, date, timedelta
 from flask import render_template, make_response, abort
 
 
@@ -33,6 +34,7 @@ def app_get_file_thumbnail(file_id):
     # just hope the browser can figure it out...
     # it should just be a jpg or png
     my_res.mimetype = 'image'
+    my_res.headers.add('Cache-Control', 'public, max-age=604800, immutable')
     return my_res
 
 
@@ -42,6 +44,7 @@ def app_get_file_full(file_id):
     file_res: requests.Response = server.get_client().get_file(file_id=file_id)
     my_res = make_response(file_res.content)
     my_res.mimetype = metadata.get('mime')
+    my_res.headers.add('Cache-Control', 'public, max-age=604800, immutable')
     return my_res
 
 

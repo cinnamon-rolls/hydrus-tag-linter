@@ -21,14 +21,11 @@
     async function renderAllRules() {
       var allRulesTableBody = document.getElementById("all_rules_table_body");
 
-      var data = (await getRuleNames()).map(async ruleName => {
+      var ruleInfos = await getRuleInfo(null, {includeFileCount: true})
 
-        let ruleInfo = await getRuleInfo(ruleName);
-
-        let fileCount = await getRuleFileCount(ruleName).catch(x => {
-          console.error(x);
-          return -1
-        });
+      var data = ruleInfos.map(async ruleInfo => {
+        let fileCount = ruleInfo.file_count;
+        let ruleName = ruleInfo.name;
 
         var ruleNameElem = document.createElement("a");
         ruleNameElem.href = "/rules/" + ruleName;

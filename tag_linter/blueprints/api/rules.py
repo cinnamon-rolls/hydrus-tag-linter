@@ -12,8 +12,30 @@ def api_get_rule_names():
 
 @blueprint.route('/get_info', methods=['GET'])
 def api_get_rule():
-    rule = get_rule(request.args.get('name'))
-    return jsonify(rule.get_info())
+    get_all = parse_json_arg(request.args, 'all', False)
+    include_file_count = parse_json_arg(
+        request.args, 'include_file_count', False)
+    include_exemption_count = parse_json_arg(
+        request.args, 'include_exemption_count', False)
+
+    if get_all:
+        elems = server.get_rule_names()
+    else:
+        elems = parse_json_arg(request.args, 'names')
+
+    def conversion(ruleName):
+        rule = get_rule(ruleName)
+        info = rule.get_info()
+
+        if include_file_count:
+            info['file_count'] = rule.count_files()
+
+        if include_exemption_count:
+            info['exemption_count'] = rule.count_exempt_files()
+
+        return info
+
+    return jsonify(for_each_elem(elems, conversion))
 
 
 @blueprint.route('/get_actions', methods=['GET'])
@@ -30,14 +52,12 @@ def api_get_rule_files():
 
 @blueprint.route('/get_files_count', methods=['GET'])
 def api_get_rule_files_count():
-    rule = get_rule(request.args.get('name'))
-    return jsonify(len(rule.get_files()))
+    return jsonify(get_rule(request.args.get('name')).count_files())
 
 
 @blueprint.route('/get_exemptions', methods=['GET'])
 def api_get_rule_exemptions():
-    rule = get_rule(request.args.get('name'))
-    return jsonify(rule.get_exempt_files())
+    return jsonify(get_rule(request.args.get('name')).count_exempt_files())
 
 
 @blueprint.route('/get_exemptions_count', methods=['GET'])
