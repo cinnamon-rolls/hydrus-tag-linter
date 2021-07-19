@@ -23,6 +23,10 @@
 
       var ruleInfos = await getRuleInfo(null, {includeFileCount: true})
 
+      ruleInfos.sort((a, b) => {
+        return b.file_count - a.file_count;
+      });
+
       var data = ruleInfos.map(async ruleInfo => {
         let fileCount = ruleInfo.file_count;
         let ruleName = ruleInfo.name;
