@@ -10,7 +10,9 @@ import os
 import tag_linter.blueprints.api
 import tag_linter.blueprints.user
 
-app = Flask(__name__)
+aggressive_static_caching = False
+
+app: Flask = Flask(__name__, static_folder=None)
 
 # If this were a 'real' app you wouldn't see this, but this is a DIY project
 # meant for just one person, and any security is a joke to begin with :)
@@ -39,14 +41,22 @@ def guard_user():
 app.register_blueprint(blueprint_user, url_prefix='')
 
 
-@app.route('/favicon.ico')
+@app.route("/static/<path:path>")
+def send_static_file(path):
+    res = send_from_directory(os.path.join(app.root_path, 'static'), path)
+    if not app.debug:
+        res.headers.add('Cache-Control', 'public, max-age=604800, immutable')
+    return res
+
+
+@ app.route('/favicon.ico')
 def favicon():
     return send_from_directory(
         os.path.join(app.root_path, 'static'),
         'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@ app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
         if session.get('logged_in', False):
@@ -61,14 +71,14 @@ def login():
         return abort(400, "wrong password")
 
 
-@app.before_first_request
+@ app.before_first_request
 def before_first_request():
     "set up globals here"
     tag_linter.server.accept_user_args(args)
     print("done with 'before first request'")
 
 
-@app.context_processor
+@ app.context_processor
 def context_process():
     return {
         'len': len,
@@ -78,13 +88,14 @@ def context_process():
 
 
 def main(args) -> int:
-    global app
+    global app, aggressive_static_caching
 
     run_kwargs = {
         'host': args.host,
         'port': args.port,
         'debug': args.debug
     }
+    aggressive_static_caching = not args.debug
 
     if args.ssl_adhoc == True:
         run_kwargs['ssl_context'] = 'adhoc'

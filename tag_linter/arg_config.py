@@ -51,7 +51,7 @@ def add_args(argp: argparse.ArgumentParser):
 
     argp.add_argument(
         "--debug", "-d",
-        const=True, nargs='?', type=str2bool, default=True,
+        const=True, nargs='?', type=str2bool, default=False,
         help="Enables debug mode, which will give more info if things fail"
     )
 
