@@ -57,13 +57,12 @@ def api_get_rule_files_count():
 
 @blueprint.route('/get_exemptions', methods=['GET'])
 def api_get_rule_exemptions():
-    return jsonify(get_rule(request.args.get('name')).count_exempt_files())
+    return jsonify(get_rule(request.args.get('name')).get_exempt_files())
 
 
 @blueprint.route('/get_exemptions_count', methods=['GET'])
 def api_get_rule_exemptions_count():
-    rule = get_rule(request.args.get('name'))
-    return jsonify(len(rule.get_exempt_files()))
+    return jsonify(get_rule(request.args.get('name')).count_exempt_files())
 
 
 @blueprint.route('/apply_noncompliance_tag', methods=['GET'])

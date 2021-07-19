@@ -74,8 +74,13 @@ function renderGallery(fileIds, galleryOptions = {}) {
   const page = galleryOptions.page || 1;
   const filesPerPage = galleryOptions.filesPerPage || 24;
 
+  if (typeof fileIds !== "object" || fileIds.length == null) {
+    console.error(fileIds);
+    throw Error("not an array: " + fileIds);
+  }
+
   const rerender = (newPage) => {
-    var newOptions = Object.assign({}, galleryOptions);
+    let newOptions = Object.assign({}, galleryOptions);
     newOptions.page = newPage;
     renderGallery(fileIds, newOptions);
   };
@@ -85,18 +90,20 @@ function renderGallery(fileIds, galleryOptions = {}) {
       page +
       " with " +
       filesPerPage +
-      " files per page"
+      " files per page and " +
+      fileIds.length +
+      " files in total"
   );
 
-  const target = document.getElementById(galleryElemID);
+  let target = document.getElementById(galleryElemID);
   if (target == null) {
     console.log("Cannot find element: " + galleryElemID);
     return;
   }
 
-  target.innerHTML = "";
+  target.innerHTML = null;
 
-  if (fileIds == null || fileIds.length == 0) {
+  if (fileIds.length == 0) {
     target.appendChild(renderNobodyHome());
     return;
   }
@@ -107,7 +114,7 @@ function renderGallery(fileIds, galleryOptions = {}) {
 
   var startIndex = (page - 1) * filesPerPage;
 
-  var filesAdded = 0;
+  let filesAdded = 0;
   for (
     let i = startIndex;
     i < fileIds.length && filesAdded < filesPerPage;
