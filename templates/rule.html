@@ -1,37 +1,6 @@
 {% extends 'base.html' %}
 
 {% block head_extra %}
-  <style>
-    #all_galleries_container {
-      float: left;
-      display: block;
-      max-width: calc(100% - 550px);
-    }
-
-    #side_info {
-      float: left;
-      display: block;
-      max-width: 520px;
-      margin-right: 16px;
-      min-height: 100%;
-    }
-
-    @media screen and (max-width: 1000px) {
-
-      #all_galleries_container {
-        float: none;
-        display: block;
-        max-width: 100%;
-      }
-
-      #side_info {
-        float: none;
-        display: block;
-        max-width: 100%;
-        margin-right: 0;
-      }
-    }
-  </style>
   <script type="module">
     import {renderGallery} from "/static/js/galleries.js"
     import {httpGetJson} from "/static/js/http_helper.js"
@@ -107,7 +76,7 @@
   {% set files = rule.get_files() %}
   {% set files_count = len(files) %}
 
-  <div id="side_info">
+  <div class="sidebar" id="side_info">
 
     <h2>{{ rule.name }}</h2>
 
@@ -136,7 +105,7 @@
     </ul>
   </div>
 
-  <div id="all_galleries_container">
+  <div class="sidebarred_content" id="all_galleries_container">
     <div id="noncompliance_gallery_container">
       <h2>Files</h2>
       <div class="gallery" id="noncompliance_gallery"></div>

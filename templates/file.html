@@ -13,26 +13,10 @@
       max-height: 100vh;
     }
 
-    .full_file_sidebar {
-      display: block;
-      margin-right: 1em;
-      font-size: 80%;
-      width: 230px;
-      float: left;
-      overflow: auto;
-      max-height: calc(100% - 75);
-    }
-
     .full_file_sidebar p {
       max-width: 100%;
       word-wrap: normal;
       overflow-x: auto;
-    }
-
-    .full_file_container {
-      display: block;
-      float: left;
-      width: calc(100% - 300px);
     }
 
     .tag_list {
@@ -46,22 +30,6 @@
 
     #actions_container .anchorbutton {
       text-align: left;
-    }
-
-    @media screen and (max-width: 721px) {
-      .full_file_sidebar {
-        display: block;
-        float: none;
-        width: 100%;
-        margin-bottom: 16px;
-        font-size: 100%;
-      }
-
-      .full_file_container {
-        display: block;
-        float: none;
-        width: 100%;
-      }
     }
   </style>
   <script type="module">
@@ -143,7 +111,7 @@
 {% endblock %}
 
 {% block content %}
-  <div class="full_file_sidebar">
+  <div class="sidebar full_file_sidebar">
     <h2 id="file_title"></h2>
     <p>
       <a id="direct_download">Direct Download</a>
@@ -174,6 +142,8 @@
     </div>
   </div>
 
-  <div id="file_embed_container" class="full_file_container"></div>
+  <div class="sidebarred_content">
+    <div id="file_embed_container" class="full_file_container"></div>
+  </div>
 
 {% endblock %}
