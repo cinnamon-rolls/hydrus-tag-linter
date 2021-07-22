@@ -7,8 +7,21 @@ class Rule:
     def __init__(self, data: dict):
         from tag_linter.searches import load_search
 
-        self.search = load_search(data.get('search'))
         self.name = data.get('name')
+        self.uid = data.get('uid')
+        self.version = data.get('version')
+
+        if not isinstance(self.uid, str):
+            raise ValueError(
+                "Expected a string for uid, got: " + str(self.uid))
+        if not isinstance(self.name, str):
+            raise ValueError(
+                "Expected a string for name, got: " + str(self.uid))
+        if not isinstance(self.version, int):
+            raise ValueError(
+                "Expected a number for version, got: " + str(self.version))
+
+        self.search = load_search(data.get('search'))
         self.note = data.get('note', None)
         self.disabled = data.get('disabled', False)
 
@@ -24,6 +37,8 @@ class Rule:
     def get_info(self) -> dict:
         ret = {
             'name': self.name,
+            'uid': self.uid,
+            'version': self.version,
             'note': self.note,
 
             'icon_active': self.icon_active,
@@ -75,6 +90,12 @@ class Rule:
 
     def get_name(self):
         return self.name if self.name is not None else "Unnamed Rule"
+
+    def get_uid(self):
+        return self.uid
+
+    def get_version(self):
+        return self.version
 
     def get_note(self):
         return self.note

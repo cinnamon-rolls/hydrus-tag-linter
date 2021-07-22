@@ -1,3 +1,5 @@
+from copy import Error
+from itsdangerous import exc
 from tag_linter.rule import Rule
 from .rule_templates import apply_template
 
@@ -46,10 +48,13 @@ def load_rules_from_file(rule_file_name: str) -> List[Rule]:
         print("DOES NOT EXIST: " + rule_file_name)
         return None
 
-    with open(rule_file_name) as rule_file:
-        data = json.load(rule_file)
+    try:
+        with open(rule_file_name) as rule_file:
+            data = json.load(rule_file)
 
-    return load_rules_from_data(data=data)
+        return load_rules_from_data(data=data)
+    except ValueError as e:
+        raise RuntimeError("An error occurred loading from the file '" + rule_file_name + "': " + str(e)) from e
 
 
 def load_rules_from_dirs(rules_dirs: Union[str, List[str]]) -> List[Rule]:

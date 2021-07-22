@@ -1,6 +1,6 @@
 from typing import List
 from tag_linter.rule import Rule
-from .default import template_default
+from .default import forward_to_default
 
 
 def template_tag_disambiguation(data) -> List[Rule]:
@@ -21,11 +21,9 @@ def template_tag_disambiguation(data) -> List[Rule]:
     else:
         raise ValueError("Bad value for bad_tag: " + str(bad_tag))
 
-    default_name = "disambiguation: " + bad_tag_str
-
     def create_replace_action(tag):
         return {
-            'name': "Replace with '" + tag + "'",
+            'name': tag,
             'archetype': 'change_tags',
             'shortcut': 'auto',
             'resolves': True,
@@ -38,7 +36,17 @@ def template_tag_disambiguation(data) -> List[Rule]:
     actions = [create_replace_action(i) for i in alternatives]
 
     actions.append({
-        'name': "Just remove the bad tag(s)",
+        'name': "Other...",
+        'archetype': 'quick_add_tag',
+        'shortcut': 'auto',
+        'resolves': True,
+        'hints': {
+            'rm_tags': bad_tag
+        }
+    })
+
+    actions.append({
+        'name': "None",
         'archetype': 'change_tags',
         'shortcut': 'auto',
         'resolves': True,
@@ -55,9 +63,12 @@ def template_tag_disambiguation(data) -> List[Rule]:
     else:
         search = bad_tag
 
-    return template_default({
-        'name': data.get('name', default_name),
-        'note': "The tag(s) " + bad_tag_str + " has/have fallen out of favor, and should be replaced with one of: " + ", ".join(alternatives) + ", or otherwise removed",
-        'search': search,
-        'actions': actions
-    })
+    return forward_to_default(
+        data,
+        {
+            'search': search,
+            'actions': actions
+        }, {
+            'name': "disambiguation: " + bad_tag_str,
+            'note': "The tag(s) " + bad_tag_str + " has/have fallen out of favor, and should be replaced with one of: " + ", ".join(alternatives) + ", or otherwise removed",
+        })

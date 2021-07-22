@@ -1,6 +1,6 @@
 from typing import List
 from tag_linter.rule import Rule
-from .default import template_default
+from .default import forward_to_default
 
 
 def template_mutual_exclusion(data) -> List[Rule]:
@@ -37,9 +37,12 @@ def template_mutual_exclusion(data) -> List[Rule]:
         }
     })
 
-    return template_default({
-        'name': data.get('name', defaultName),
-        'note': "The tags " + ", ".join(tags) + " are mutually exclusive, so only one should be present",
-        'search': tags,
-        'actions': actions
-    })
+    return forward_to_default(
+        data,
+        {
+            'search': tags,
+            'actions': actions
+        }, {
+            'name': defaultName,
+            'note': "The tags " + ", ".join(tags) + " are mutually exclusive, so only one should be present"
+        })

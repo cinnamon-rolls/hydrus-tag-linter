@@ -90,7 +90,7 @@
       files detected by this rule
     </p>
 
-    <h3>Actions</h3>
+    <h2>Actions</h2>
 
     <h4>Sync Rule Tag</h4>
     <span>
@@ -103,6 +103,14 @@
         {{ icon_btn(id='mass_tag_button', text="Sync Rule Tag...", icon='tag_blue_edit') }}
       </li>
     </ul>
+
+    <h2>Metadata</h2>
+    <p>UID:
+      <code>{{ rule.get_uid() }}</code>
+    </p>
+    <p>Version:
+      <code>{{ rule.get_version() }}</code>
+    </p>
   </div>
 
   <div class="sidebarred_content" id="all_galleries_container">

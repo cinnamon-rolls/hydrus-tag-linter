@@ -45,7 +45,7 @@ app.register_blueprint(blueprint_user, url_prefix='')
 def send_static_file(path):
     res = send_from_directory(os.path.join(app.root_path, 'static'), path)
     if not app.debug:
-        res.headers.add('Cache-Control', 'public, max-age=604800, immutable')
+        res.headers.add('Cache-Control', 'public, max-age=3600, immutable')
     return res
 
 

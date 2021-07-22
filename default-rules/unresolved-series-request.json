@@ -1,5 +1,7 @@
 {
     "name": "unresolved series request",
+    "uid": "1miCUUMPA-VkYTKjHFrq8F7Z0",
+    "version": 1,
     "search": {
         "op": "union",
         "of": [

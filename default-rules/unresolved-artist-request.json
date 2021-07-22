@@ -1,5 +1,7 @@
 {
     "name": "unresolved artist request",
+    "uid": "gQYklIMkpoLbaFfys6dEAsCIn",
+    "version": 1,
     "search": {
         "op": "union",
         "of": [

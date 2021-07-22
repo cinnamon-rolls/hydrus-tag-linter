@@ -1,5 +1,7 @@
 {
     "name": "official art without series or copyright",
+    "uid": "lNbwYzJ-VWNaaVev5El-YlvzZ",
+    "version": 1,
     "note": "Files with the 'meta:official art' tag should also have a 'series' or 'copyright' tag.",
     "search": [
         "meta:official art",

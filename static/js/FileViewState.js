@@ -375,7 +375,7 @@ export default class FileViewState {
 
     switch (archetype.trim().toLowerCase()) {
       case "noop":
-        promise = Promise.resolve(null);
+        promise = null;
         break;
       case "move_to_trash":
         promise = this.actionMoveToTrash(hints);
@@ -387,10 +387,13 @@ export default class FileViewState {
         promise = this.actionMoveToArchive(hints);
         break;
       case "quick_add_tag":
-        promise = this.actionQuickAddTag(hints);
+        promise = this.actionQuickAddOrDeleteTag(true, hints);
         break;
       case "quick_delete_tag":
-        promise = this.actionQuickDeleteTag(hints);
+        promise = this.actionQuickAddOrDeleteTag(false, hints);
+        break;
+      case "quick_delete_tag":
+        promise = this.actionQuickAddOrDeleteTag(null, hints);
         break;
       case "change_tags":
         promise = this.actionChangeTags(hints);
@@ -410,7 +413,11 @@ export default class FileViewState {
 
     var viewState = this;
 
-    Promise.resolve(promise)
+    if (promise == null) {
+      promise = Promise.resolve(null);
+    }
+
+    promise
       .then((x) => {
         if (actionInfo.resolves) {
           viewState.moveInFileQueue(1);
@@ -469,25 +476,52 @@ export default class FileViewState {
     }).then(this.redownloadFileMetadata.bind(this));
   }
 
-  actionQuickAddTag() {
-    var tag = prompt(
-      "Please enter a tag to add to the file. The tag will be added to '" +
-        this.getTagService() +
-        "'"
-    );
-    if (tag != null && tag != "") {
-      return this.changeTags(tag, null);
+  actionQuickAddOrDeleteTag(add, hints) {
+    if (hints == null) {
+      hints = {};
     }
-  }
 
-  actionQuickDeleteTag() {
-    var tag = prompt(
-      "Please enter a tag to remove from the file. The tag will be removed from '" +
+    if (add == null) {
+      if (hints.prompt_add == null) {
+        throw new Error("add or remove not specified :(");
+      }
+      add = !!hints.prompt_add;
+    }
+
+    if (add) {
+      var message =
+        "Please enter a tag to add to the file. The tag will be added to '" +
         this.getTagService() +
-        "'"
-    );
+        "'";
+    } else {
+      var message =
+        "Please enter a tag to remove from the file. The tag will be removed from '" +
+        this.getTagService() +
+        "'";
+    }
+
+    var defaultTag = hints.default_tag != null ? hints.default_tag + "" : "";
+
+    var tag = prompt(message, defaultTag);
+
     if (tag != null && tag != "") {
-      return this.changeTags(null, tag);
+      var addTags = [];
+      var rmTags = [];
+
+      if (add) {
+        addTags.push(tag);
+      } else {
+        rmTags.push(tag);
+      }
+
+      if (hints.add_tags != null) {
+        addTags = addTags.concat(hints.add_tags);
+      }
+      if (hints.rm_tags != null) {
+        rmTags = rmTags.concat(hints.rm_tags);
+      }
+
+      return this.changeTags(addTags, rmTags);
     }
   }
 
