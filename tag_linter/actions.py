@@ -6,7 +6,8 @@ DEFAULT_ICONS_FOR_ARCHETYPE = {
     "move_to_archive": "database_add",
     "change_tags": "tag_blue",
     "mark_as_exempt": "asterisk_yellow",
-    "unmark_as_exempt": "asterisk_yellow"
+    "unmark_as_exempt": "asterisk_yellow",
+    "skip": "arrow_right"
 }
 
 
@@ -103,6 +104,13 @@ FILE_GLOBAL_ACTIONS = [
         "shortcut": "shift+x",
         "hiddenIfNoRule": True,
         "hiddenIfNotExempt": True
+    }),
+    Action({
+        "name": "Skip",
+        "archetype": "skip",
+        "shortcut": "s",
+        "resolves": True,
+        "hiddenIfNoRule": True
     }),
     Action({
         "name": "Move Right",

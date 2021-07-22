@@ -32,7 +32,7 @@
         let ruleName = ruleInfo.name;
 
         var ruleNameElem = document.createElement("a");
-        ruleNameElem.href = "/rules/" + ruleName;
+        ruleNameElem.href = "/rule?name=" + ruleName;
 
         var ruleTitle = document.createElement("span");
         ruleTitle.innerText = ruleName;

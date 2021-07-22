@@ -1,13 +1,15 @@
 {
-    "name": "unresolved series request",
-    "uid": "1miCUUMPA-VkYTKjHFrq8F7Z0",
+    "name": "Series/Copyright Request",
+    "uid": "c6cz91oo",
     "version": 1,
     "search": {
         "op": "union",
         "of": [
             "series:series request",
             "series:copyright request",
-            "meta:series request"
+            "copyright:copyright request",
+            "meta:series request",
+            "meta:copyright request"
         ]
     }
 }

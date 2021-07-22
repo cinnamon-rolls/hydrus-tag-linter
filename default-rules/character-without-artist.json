@@ -1,6 +1,6 @@
 {
-    "name": "character without creator",
-    "uid": "k1mQzfIncVQbcB-Yy33vi9Db4",
+    "name": "Character without creator",
+    "uid": "hsaair0b",
     "version": 1,
     "note": "Files with a 'character' tag should also have a 'creator' tag. Exceptions are made for pending character requests, and for files tagged as 'meta:official art' as they may not have a known artist.",
     "search": [

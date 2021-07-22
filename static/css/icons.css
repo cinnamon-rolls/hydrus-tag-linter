@@ -33,6 +33,8 @@
 .icon_right_accept{background: url('/static/icons/accept.png') no-repeat right center;}
 .icon_left_tag_blue{background: url('/static/icons/tag_blue.png') no-repeat left center;}
 .icon_right_tag_blue{background: url('/static/icons/tag_blue.png') no-repeat right center;}
+.icon_left_arrow_right{background: url('/static/icons/arrow_right.png') no-repeat left center;}
+.icon_right_arrow_right{background: url('/static/icons/arrow_right.png') no-repeat right center;}
 .icon_left_tag_red{background: url('/static/icons/tag_red.png') no-repeat left center;}
 .icon_right_tag_red{background: url('/static/icons/tag_red.png') no-repeat right center;}
 .icon_left_arrow_refresh{background: url('/static/icons/arrow_refresh.png') no-repeat left center;}

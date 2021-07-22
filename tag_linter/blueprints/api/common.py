@@ -12,7 +12,9 @@ TAG_ACTION_DELETE_LOCAL = "1"
 def get_rule(rule_name) -> Rule:
     if rule_name is None:
         abort(400, "rule name not specified")
-    rule = server.get_rule(rule_name)
+    rule = server.get_rule_by_name(rule_name)
+    if rule is None:
+        rule = server.get_rule_by_uid(rule_name)
     if rule is None:
         print("no rule definition found for '" + rule_name + "'")
         abort(400, "rule not found: '" + rule_name + "'")

@@ -56,7 +56,7 @@ function renderTagAnchor(tag) {
   }
 
   if (match != null) {
-    e.href = "/rules/" + encodeURI(tag.substring(match.length));
+    e.href = "/rule?uid=" + tag.substring(match.length);
   } else {
     var search = encodeURI('"' + tag + '"');
     e.href = "/search?search=" + search;

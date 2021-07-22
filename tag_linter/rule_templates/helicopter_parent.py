@@ -19,6 +19,6 @@ def template_helicopter(data) -> List[Rule]:
         {
             'search': search,
         }, {
-            'name': 'heli-parent ' + parent,
+            'name': 'Heli-Parent: ' + parent,
             'note': "the tag '" + parent + "' should accompany one or more of its children",
         })

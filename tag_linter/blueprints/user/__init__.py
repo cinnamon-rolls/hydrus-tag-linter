@@ -1,4 +1,4 @@
-from flask import Blueprint, abort, make_response
+from flask import Blueprint, abort, make_response, request
 from tag_linter.server import instance as server
 import requests
 from datetime import datetime, date, timedelta
@@ -13,12 +13,22 @@ def app_get_index():
     return render_template('index.html')
 
 
-@blueprint.route('/rules/<rule_name>', methods=['GET'])
-def app_get_rule(rule_name):
-    rule = server.get_rule(rule_name)
+@blueprint.route('/rule', methods=['GET'])
+def app_get_rule():
+    rule_uid = request.args.get('uid')
+    rule_name = request.args.get('name')
+
+    if rule_uid is None and rule_name is None:
+        abort(400, "Expected uid or name")
+
+    if rule_uid is not None:
+        rule = server.get_rule_by_uid(rule_uid)
+    else:
+        rule = server.get_rule_by_name(rule_name)
+
     if rule is None:
-        abort(404, "Rule not found: '" + rule_name + "'")
-    rule.get_files()
+        abort(404, "Rule not found")
+
     return render_template('rule.html', rule=rule)
 
 

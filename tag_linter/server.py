@@ -40,7 +40,11 @@ class Server:
         """Please do not call this unless you are in server.py, and you probably
         aren't in server.py"""
         from tag_linter.rules import load_rules
-        self.rules = load_rules(args.rules)
+        self.rules_by_name = load_rules(args.rules)
+
+        self.rules_by_uid = {}
+        for rule in self.rules_by_name.values():
+            self.rules_by_uid[rule.get_uid()] = rule
 
         self.archive_enabled = not args.disable_archive
         self.inbox_enabled = not args.disable_inbox
@@ -75,16 +79,16 @@ class Server:
             return self.get_client().search_files(tags, self.inbox_enabled, self.archive_enabled)
 
     def get_rules(self):
-        return list(self.rules.values())
+        return list(self.rules_by_name.values())
 
-    def get_rule(self, rule_name):
-        from tag_linter.rule import Rule
-        if isinstance(rule_name, Rule):
-            return rule_name
-        return self.rules.get(rule_name.strip().lower())
+    def get_rule_by_name(self, rule_name):
+        return self.rules_by_name.get(rule_name.strip().lower())
+
+    def get_rule_by_uid(self, rule_uid):
+        return self.rules_by_uid.get(rule_uid)
 
     def get_rule_names(self) -> T.List[str]:
-        ret = list(self.rules.keys())
+        ret = list(self.rules_by_name.keys())
         ret.sort()
         return ret
 

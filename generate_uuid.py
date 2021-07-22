@@ -5,7 +5,7 @@ Use this script to generate random strings
 
 USAGE:
     -q sets the amount of IDs to generate, default 1
-    -l sets the length of each ID, default 25
+    -l sets the length of each ID, default 8
 
 
 FOR LINUX USERS:
@@ -17,7 +17,9 @@ FOR LINUX USERS:
 import argparse
 from secrets import randbelow
 
-CHARS = [i for i in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-"]
+# These should be case insensitive and generally just
+# not a pain to encode or move around
+CHARS = [i for i in "abcdefghijklmnopqrstuvwxyz0123456789"]
 CHARS_LEN = len(CHARS)
 
 argp = argparse.ArgumentParser()
@@ -29,7 +31,7 @@ argp.add_argument(
 
 argp.add_argument(
     "--length", "-l",
-    type=int, default=25,
+    type=int, default=8,
     help="length of the string to generate"
 )
 

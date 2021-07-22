@@ -33,7 +33,7 @@ def template_tag_disambiguation(data) -> List[Rule]:
             }
         }
 
-    actions = [create_replace_action(i) for i in alternatives]
+    actions = []
 
     actions.append({
         'name': "Other...",
@@ -54,6 +54,8 @@ def template_tag_disambiguation(data) -> List[Rule]:
             'rm_tags': bad_tag
         }
     })
+
+    actions.extend([create_replace_action(i) for i in alternatives])
 
     if isinstance(bad_tag, list):
         search = {

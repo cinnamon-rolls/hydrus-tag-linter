@@ -375,6 +375,7 @@ export default class FileViewState {
 
     switch (archetype.trim().toLowerCase()) {
       case "noop":
+      case "skip":
         promise = null;
         break;
       case "move_to_trash":

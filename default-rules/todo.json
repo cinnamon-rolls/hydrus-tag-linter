@@ -1,6 +1,6 @@
 {
-    "name": "todo tag present",
-    "uid": "eoZiWE5BO9HnjZbShs2oFNuVQ",
+    "name": "Todo",
+    "uid": "js52ry2y",
     "version": 1,
     "note": "Catches the 'todo' tag and anything in the 'todo:' namespace",
     "search": {
