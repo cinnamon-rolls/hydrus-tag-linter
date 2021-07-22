@@ -5,13 +5,18 @@ from .helicopter_parent import template_helicopter
 from .mutual_exclusion import template_mutual_exclusion
 from .default import template_default
 from .tag_disambiguation import template_tag_disambiguation
+from .character_appearance import template_character_hair_color, template_character_traits_hub, template_character_eye_color
 
 
 templates = {
     'default': template_default,
     'helicopter parent': template_helicopter,
     'mutual exclusion': template_mutual_exclusion,
-    'tag disambiguation': template_tag_disambiguation
+    'tag disambiguation': template_tag_disambiguation,
+
+    'character traits hub': template_character_traits_hub,
+    'character hair color': template_character_hair_color,
+    'character eye color': template_character_eye_color
 }
 
 
