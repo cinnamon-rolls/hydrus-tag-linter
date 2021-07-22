@@ -11,6 +11,9 @@ const SERVICES_CACHE = new ApiCache(
 );
 
 export async function getFileMetadata(fileId, force = false) {
+  if (typeof fileId !== "number") {
+    throw new Error("Not a valid file ID: " + fileId);
+  }
   return FILE_METADATA_CACHE.get(fileId, force);
 }
 

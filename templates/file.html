@@ -40,6 +40,10 @@
       margin: 0;
     }
 
+    .action_button {
+      display: block;
+    }
+
     #actions_container .anchorbutton {
       text-align: left;
     }
@@ -61,493 +65,32 @@
     }
   </style>
   <script type="module">
-    import TagList from "/static/js/TagList.js"
+    import FileViewState, {QUEUE_RULE, QUEUE_EXEMPTIONS} from "/static/js/FileViewState.js"
+    import {getTagServices} from "/static/js/tags.js"
 
-    import {httpGetJson, httpPostJson} from "/static/js/http_helper.js"
-    import {getTagServices, getTags, getAllKnownTags, STATUS_CURRENT} from "/static/js/tags.js"
-    import {getFileMetadata} from "/static/js/api.js"
-    import {renderEmbedElement} from "/static/js/file_embeds.js"
-    import {getRuleInfo, getRuleFiles, getRuleExemptions, getRuleActions} from "/static/js/rules.js"
-
-    // shortcuts to assign to actions with the 'auto' shortcut
-    var autoShortcuts = "qwerty1234567890uiopghjklvbnm".split("");
-
-    // we store the actions here for reference later. we will populate them
-    // at a later time too.
-    var tagList;
-
-    var fileActions = {};
-    var shortcutsToActionNames = {};
-
-    var currentTagService = null;
-    var currentFileMetadata = null;
-    var currentFileId = null;
-    var currentRule = null;
-
-    var playlist = null;
-    var playlistPosition = null;
-
-    var archetypeFuncs = {
-      'noop': async function () {},
-
-      'move_to_trash': async function () {
-        await httpPostJson('/api/files/move_to_trash', {"file_ids": getCurrentFileID()}).then(redownloadFileMetadata)
-      },
-
-      'move_to_inbox': async function () {
-        await httpPostJson('/api/files/move_to_inbox', {"file_ids": getCurrentFileID()}).then(redownloadFileMetadata)
-      },
-
-      'move_to_archive': async function () {
-        await httpPostJson('/api/files/move_to_archive', {"file_ids": getCurrentFileID()}).then(redownloadFileMetadata)
-      },
-
-      'quick_add_tag': async function () {
-        var tag = prompt("Please enter a tag to add to the file. The tag will be added to '" + getCurrentTagService() + "'")
-        if (tag != null && tag != "") {
-          await changeTags(tag, null);
-        }
-      },
-
-      'quick_delete_tag': async function () {
-        var tag = prompt("Please enter a tag to remove from the file. The tag will be removed from '" + getCurrentTagService() + "'")
-        if (tag != null && tag != "") {
-          await changeTags(null, tag);
-        }
-      },
-
-      'change_tags': async function (hints) {
-        await changeTags(hints.add_tags, hints.rm_tags)
-      },
-
-      'move': async function (hints) {
-        let movement = hints.movement || 1;
-        await moveInPlaylist(movement);
-      },
-
-      'mark_as_exempt': async function () {
-        var rule = getCurrentRule();
-        if (rule != null) {
-          await changeTags([rule.exempt_tag], null);
-        } else {
-          alert("cannot mark as an exception because there is no rule in the current context");
-        }
-      },
-
-      'unmark_as_exempt': async function () {
-        var rule = getCurrentRule();
-        if (rule != null) {
-          await changeTags(null, [rule.exempt_tag]);
-        } else {
-          alert("cannot unmark as an exception because there is no rule in the current context");
-        }
-      }
-    }
-
-    document.onkeydown = async function (e) {
-      e = e || window.event;
-      if (e.ctrlKey && e.keyCode == 90) {
-        alert("undo not implemented (yet?)")
-        return true;
-      }
-      var shortcutName = "";
-      if (e.ctrlKey) {
-        shortcutName += "ctrl+";
-      }
-      if (e.altKey) {
-        shortcutName += "alt+";
-      }
-      if (e.shiftKey) {
-        shortcutName += "shift+";
-      }
-      shortcutName += e.key;
-      shortcutName = shortcutName.toLowerCase();
-      // console.log(shortcutName);
-      if (shortcutName == "shift+r") {
-        await redownloadFileMetadata();
-        return true;
-      }
-      return await !onAction(shortcutsToActionNames[shortcutName]);
-    };
-
-    async function changePageState(changes = {}) {
-      var fileIdChanged = false;
-      var metadataChanged = false;
-      var ruleChanged = false;
-      var tagServiceChanged = false;
-
-      if (changes.tagService != null && currentTagService !== changes.tagService) {
-        currentTagService = changes.tagService;
-        var tagHeader = document.getElementById("tags_header");
-        tagHeader.innerText = "Display Tags (" + currentTagService + ")";
-        tagServiceChanged = true;
-      }
-
-      if (changes.fileID != null) {
-        let nextFileId = parseInt(changes.fileID + "");
-
-        if (nextFileId !== currentFileId) {
-          currentFileId = nextFileId;
-
-          let params = new URLSearchParams(window.location.search);
-          params.set("file", currentFileId + "")
-          window
-            .history
-            .replaceState(null, null, "/file?" + params.toString());
-
-          fileIdChanged = true;
-        }
-      }
-
-      if (fileIdChanged || changes.updateMetadata) {
-        currentFileMetadata = await getFileMetadata(currentFileId, true);
-        metadataChanged = true;
-      }
-
-      if (changes.ruleName != null || changes.updateRule) {
-        var ruleName = changes.ruleName;
-        if (ruleName == null && currentRule != null) {
-          ruleName = currentRule.name;
-        }
-        currentRule = await getRuleInfo(changes.ruleName);
-        ruleChanged = true;
-      }
-
-      var pendingActions = [];
-
-      // update tags list & other metadata doodads
-      if (metadataChanged) {
-        var metadata = await getCurrentMetadata();
-
-        var hash = metadata.hash || "?";
-        document
-          .getElementById("hash_container")
-          .innerText = hash;
-      }
-
-      if (metadataChanged || tagServiceChanged) {
-        tagList.setTags(await getCurrentTags());
-      }
-
-      if (ruleChanged) {
-        // update rule info components
-        await renderRuleComponents();
-
-        // redownload playlist
-        if (currentRule != null) {
-          if (changes.useRuleExemptions) {
-            playlist = await getRuleExemptions(currentRule.name);
-          } else {
-            playlist = await getRuleFiles(currentRule.name);
-          }
-        }
-      }
-
-      if (fileIdChanged) {
-        // update embed
-        await renderFileEmbed();
-      }
-
-      if (fileIdChanged || ruleChanged) {
-        // update position in playlist
-        if (playlist != null) {
-          playlistPosition = playlist.indexOf(currentFileId);
-          // console.log(playlistPosition, currentFileID, playlist);
-        }
-      }
-
-      if (metadataChanged || ruleChanged) {
-        // update actions list
-        await renderActionComponents();
-      }
-    }
-
-    async function moveInPlaylist(motion) {
-      if (playlist == null || motion == null || motion == 0 || playlist.length == 0) {
-        return;
-      }
-      var lastPlaylistPos = playlistPosition;
-      if (playlistPosition == null || playlistPosition == -1) {
-        playlistPosition = 0;
-      } else {
-        playlistPosition += motion;
-      }
-      if (playlistPosition >= playlist.length) {
-        playlistPosition = 0;
-      } else if (playlistPosition < 0) {
-        playlistPosition = playlist.length - 1;
-      }
-      if (lastPlaylistPos !== playlistPosition) {
-        await changePageState({fileID: playlist[playlistPosition]});
-      }
-    }
-
-    async function redownloadFileMetadata() {
-      await changePageState({updateMetadata: true})
-    }
-
-    function getCurrentTagService() {
-      return currentTagService;
-    }
-
-    function getCurrentMetadata() {
-      return currentFileMetadata;
-    }
-
-    function getCurrentFileID() {
-      return currentFileId;
-    }
-
-    function getCurrentRule() {
-      return currentRule;
-    }
-
-    async function renderFileEmbed() {
-      var fileId = getCurrentFileID();
-      var metadata = await getCurrentMetadata();
-      var mime = metadata.mime;
-      var src = "/files/full/" + encodeURI(fileId);
-
-      var embed = await renderEmbedElement(fileId);
-      var embedTarget = document.getElementById("embed_target");
-      embedTarget.innerHTML = ""
-      embedTarget.appendChild(embed);
-
-      var title = "File #" + metadata.file_id;
-
-      document
-        .getElementById("file_title")
-        .textContent = title;
-      // elem("uploader-name").textContent = metadata.uploader;
-      // elem("uploaded-time").textContent = timeToSring(metadata.uploaded);
-
-      var elemDownload = document.getElementById("direct_download");
-      elemDownload.innerHTML = "<span>Direct Download (<code>" + metadata.mime + "</code>)</span>";
-      elemDownload.href = src;
-    }
-
-    async function renderRuleComponents() {
-      var ruleData = getCurrentRule();
-      var ruleName = ruleData.name;
-
-      var ruleHeader = document.getElementById("rule_header");
-      var ruleContainer = document.getElementById("rule_container");
-
-      ruleHeader.innerText = "Rule: " + ruleName;
-      ruleHeader.style = "";
-
-      ruleContainer.innerHTML = "";
-
-      if (ruleData.note) {
-        var ruleNoteElem = document.createElement("p");
-        ruleNoteElem.innerText = ruleData.note;
-        ruleContainer.appendChild(ruleNoteElem);
-      }
-
-      var ruleLinkElem = document.createElement("a");
-      ruleLinkElem.innerText = "(Rule Page)";
-      ruleLinkElem.href = "/rules/" + encodeURI(ruleName);
-      ruleContainer.appendChild(ruleLinkElem);
-    }
-
-    async function renderActionComponents() {
-      var actionsContainer = document.getElementById("actions_container");
-      actionsContainer.innerHTML = null;
-
-      fileActions = {};
-      shortcutsToActionNames = {};
-
-      var defaultActions = await httpGetJson('/api/server/get_global_file_actions');
-
-      var location = getCurrentFileLocation();
-      // console.log(location)
-
-      async function maybeRender(action) {
-
-        fileActions[action.name] = action;
-
-        if (action.shortcut != null) {
-          var shortcut = action
-            .shortcut
-            .trim()
-            .toLowerCase();
-
-          if (shortcut == 'auto') {
-            shortcut = null;
-            for (var i = 0; i < autoShortcuts.length && shortcut == null; i++) {
-              let autoShortcut = autoShortcuts[i];
-              if (shortcutsToActionNames[autoShortcut] == null) {
-                shortcut = autoShortcut;
-              }
-            }
-          }
-
-          shortcutsToActionNames[shortcut] = action.name;
-          action.shortcut = shortcut;
-        }
-
-        var rule = getCurrentRule();
-        var hidden = action.hidden;
-        hidden = hidden || (action.hiddenIfInbox && location == 'inbox');
-        hidden = hidden || (action.hiddenIfArchive && location == 'archive');
-        hidden = hidden || (action.hiddenIfTrash && location == 'trash');
-
-        hidden = hidden || (action.hiddenIfNoRule && rule == null);
-        hidden = hidden || (action.hiddenIfRule && rule != null);
-
-        var exempt = rule != null && (await getCurrentFileHasTag(rule.exempt_tag));
-        hidden = hidden || (action.hiddenIfExempt && exempt);
-        hidden = hidden || (action.hiddenIfNotExempt && !exempt)
-
-        if (hidden) {
-          // console.log('not rendering action: ' + action.name);
-          return;
-        }
-        var elem = createActionButton(action);
-        actionsContainer.appendChild(elem);
-        actionsContainer.append(document.createElement("br"));
-      }
-
-      if (defaultActions != null) {
-        for (var i = 0; i < defaultActions.length; i++) {
-          await maybeRender(defaultActions[i]);
-        }
-      }
-
-      var rule = getCurrentRule();
-      if (rule != null) {
-        var ruleActions = await getRuleActions(rule.name);
-        if (ruleActions != null && ruleActions.length > 0) {
-          if (defaultActions != null && defaultActions.length > 0) {
-
-            // add a divider between the default actions and the local special actions
-            let divider = document.createElement('br')
-            actionsContainer.append(divider)
-          }
-          for (var i = 0; i < ruleActions.length; i++) {
-            await maybeRender(ruleActions[i]);
-          }
-        }
-      }
-    }
-
-    async function changeTags(addTags, rmTags) {
-      return await httpPostJson('/api/files/change_tags', {
-        'tag_service': getCurrentTagService(),
-        'file_ids': parseInt(getCurrentFileID() + ""),
-        'add_tags': addTags,
-        'rm_tags': rmTags
-      })
-        .then(redownloadFileMetadata)
-        .catch(e => {
-          alert("Failed to change tags: " + e + ", please check the console, expand the error, and screenshot as much as you can.");
-          console.error(e);
-        });
-    }
-
-    /** Returns true if there is a matching action */
-    async function onAction(actionName) {
-      if (actionName == null) {
-        return false;
-      }
-
-      var action = fileActions[actionName];
-
-      if (action == null) {
-        console.log('no action for: ' + actionName, fileActions)
-        return false;
-      }
-
-      var archetype = action.archetype;
-      if (archetype == null) {
-        alert(actionName + " does not have an archetype, doing nothing");
-        return true;
-      }
-
-      var func = archetypeFuncs[
-        archetype
-          .trim()
-          .toLowerCase()
-      ];
-
-      if (func != null) {
-        func(action.hints)
-          .then(x => {
-            if (action.resolves) {
-              moveInPlaylist(1);
-            }
-          })
-          .catch(err => {
-            alert("Execution of '" + actionName + "' failed: " + err + ". Please open the console, expand the error, and screenshot as much as you can. Thank you :)");
-            console.error(err);
-          });
-
-        return true;
-      }
-
-      alert(actionName + " has an unknown/unsupported archetype: '" + archetype + "'");
-      return true;
-    }
-
-    async function onShortcut(shortcut) {
-      actionName = shortcutsToActionNames[shortcut];
-      if (actionName != null) {
-        return await onAction(actionName);
-      }
-    }
-
-    async function getCurrentTags() {
-      return await getTags(getCurrentFileID(), getCurrentTagService(), STATUS_CURRENT, true);
-    }
-
-    async function getCurrentAllKnownTags() {
-      return await getAllKnownTags(getCurrentFileID(), STATUS_CURRENT, true);
-    }
-
-    async function getCurrentFileHasTag(tag) {
-      return (await getCurrentAllKnownTags()).indexOf(tag) != -1;
-    }
-
-    function getCurrentFileLocation() {
-      var metadata = getCurrentMetadata();
-      if (metadata != null) {
-        if (metadata.is_trashed) {
-          return 'trash';
-        }
-        if (metadata.is_inbox) {
-          return 'inbox';
-        } else {
-          return 'archive';
-        }
-      }
-      return 'unknown';
-    }
-
-    function createActionButton(action) {
-      var span = document.createElement('span');
-      var innerText = action.name;
-      if (action.shortcut != null) {
-        innerText += " (" + action.shortcut + ")";
-      }
-      span.innerText = innerText;
-      span.className += "icon_left icon_left_" + action.icon;
-
-      var e = document.createElement('button');
-      e.className = "anchorbutton";
-      e.appendChild(span);
-      e.onclick = async function () {
-        await onAction(action.name);
-      }
-      return e;
-    }
+    var state = null;
 
     window.addEventListener("load", async function () {
       var params = new URLSearchParams(window.location.search);
-      var file = params.get("file");
-      var rule = params.get("rule");
-      var useRuleExemptions = params.get("exemptions") == 'true';
+      var fileId = parseInt(params.get("file") + "");
+      var ruleName = params.get("rule");
+      var useRuleExemptions = params.get("exemptions") === 'true';
 
-      tagList = new TagList(document.getElementById("tag_list"));
+      state = new FileViewState();
+
+      state.setFileId(fileId);
+      state.setRuleName(ruleName);
+      state.setTagService("my tags");
+
+      if (ruleName != null) {
+        if (useRuleExemptions) {
+          state.setFileQueueStrategy(QUEUE_EXEMPTIONS);
+        } else {
+          state.setFileQueueStrategy(QUEUE_RULE);
+        }
+      }
+
+      state.refresh();
 
       var tagServiceSelect = document.getElementById("tag_service_select");
 
@@ -565,10 +108,36 @@
       }, false)
 
       tagServiceSelect.onchange = function (e) {
-        changePageState({tagService: tagServiceSelect.value})
+        state.setTagService(tagServiceSelect.value);
+        state.refresh();
       }
 
-      await changePageState({fileID: file, ruleName: rule, useRuleExemptions: useRuleExemptions, tagService: "my tags"});
+      document.onkeydown = async function (e) {
+        if (state == null) {
+          return false;
+        }
+
+        e = e || window.event;
+        if (e.ctrlKey && e.keyCode == 90) {
+          alert("undo not implemented (yet?)")
+          return true;
+        }
+        var shortcutName = "";
+        if (e.ctrlKey) {
+          shortcutName += "ctrl+";
+        }
+        if (e.altKey) {
+          shortcutName += "alt+";
+        }
+        if (e.shiftKey) {
+          shortcutName += "shift+";
+        }
+        shortcutName += e.key;
+        shortcutName = shortcutName.toLowerCase();
+        // console.log(shortcutName);
+
+        return await !state.onShortcut(shortcutName);
+      };
     })
   </script>
 {% endblock %}
@@ -585,7 +154,7 @@
     <h3 id="actions_header">Actions</h3>
     <div id="actions_container"></div>
 
-    <h3 id="tags_header"></h3>
+    <h3 id="tags_header">Tags</h3>
     <select id="tag_service_select"></select>
     <div id="tags_container">
       <ul id="tag_list"></ul>
@@ -598,10 +167,13 @@
       </p>
     </div>
 
-    <h3 id="rule_header" style="display: none;">Rule Info</h3>
-    <div id="rule_container"></div>
+    <div id="rule_container" class="noshow">
+      <h3 id="rule_header">Rule Info</h3>
+      <p id="rule_note"></p>
+      <a id="rule_page_link">(Rule Page)</a>
+    </div>
   </div>
 
-  <div id="embed_target" class="full_file_container"></div>
+  <div id="file_embed_container" class="full_file_container"></div>
 
 {% endblock %}

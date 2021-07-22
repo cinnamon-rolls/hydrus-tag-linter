@@ -41,7 +41,7 @@ code {
 }
 
 .noshow {
-  display: none;
+  display: none !important;
 }
 
 /* Navigation */

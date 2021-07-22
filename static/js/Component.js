@@ -1,19 +1,26 @@
-const LOGGING = true;
+const LOGGING = false;
 
 export default class Component {
-  /**
-   * @param container probably a &lt;div&gt; or a &lt;ul&gt; or a &lt;table&gt; in the document
-   * @param creatorFunc function(key) that returns an object, {elem, state} where elem is some element in the document and a state is something it can refer to later
-   * @param updaterFunc function(key, elem, state) that gets the elem and state it created earlier and can modify it as it sees fit
-   */
-  constructor(container, creatorFunc) {
+  constructor(container, creatorFunc, updateFunc) {
+    if (typeof container === "string") {
+      container = document.getElementById(container);
+    }
     this.container = container;
     this.creatorFunc = creatorFunc;
+    this.updateFunc = updateFunc;
 
     this.children = {};
 
+    if (!(container instanceof Node)) {
+      throw new Error(
+        "Not a Node: " + container + " (" + typeof container + ")"
+      );
+    }
     if (typeof creatorFunc !== "function") {
       throw new Error("Expected a function for creatorFunc");
+    }
+    if (updateFunc != null && typeof updateFunc !== "function") {
+      throw new Error("Expected a function for updateFunc, or null/undefined");
     }
   }
 
@@ -56,7 +63,19 @@ export default class Component {
     var fragment = document.createDocumentFragment();
 
     for (let key of keyOrder) {
-      fragment.appendChild(this.getChild(key));
+      let elem = this.getChild(key);
+
+      if (this.updateFunc != null) {
+        this.updateFunc(key, elem);
+      }
+
+      if (elem != null) {
+        if (elem instanceof Node) {
+          fragment.append(elem);
+        } else {
+          console.error("not a Node: " + elem + " (" + typeof elem + ")");
+        }
+      }
     }
 
     this.container.innerHTML = null;

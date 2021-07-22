@@ -79,7 +79,15 @@ export async function getTags(
   display = true
 ) {
   var metadata = await getFileMetadata(fileId);
+  return getTagsFromMetadata(metadata, serviceName, status, display);
+}
 
+export function getTagsFromMetadata(
+  metadata,
+  serviceName,
+  status = STATUS_CURRENT,
+  display = true
+) {
   var lookup = display
     ? "service_names_to_statuses_to_display_tags"
     : "service_names_to_statuses_to_tags";
@@ -103,4 +111,12 @@ export async function getTags(
   }
 
   return tags;
+}
+
+export function getAllKnownTagsFromMetadata(
+  metadata,
+  status = STATUS_CURRENT,
+  display = true
+) {
+  return getTagsFromMetadata(metadata, "all known tags", status, display);
 }

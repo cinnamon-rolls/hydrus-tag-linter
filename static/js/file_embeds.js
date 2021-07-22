@@ -1,4 +1,3 @@
-import { getFileMetadata } from "./api.js";
 import { renderThumbnail } from "./thumbnails.js";
 
 const classNameFullFile = "full_file";
@@ -45,9 +44,8 @@ function renderAsUnknwon(fileId, src, mime) {
 }
 
 /** Creates an element to display the file in based on the mimetype */
-export async function renderEmbedElement(fileId) {
-  var metadata = await getFileMetadata(fileId);
-
+export function renderEmbedElement(metadata) {
+  var fileId = metadata.file_id;
   var mime = metadata.mime;
   var src = "/files/full/" + fileId;
 

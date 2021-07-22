@@ -1,4 +1,4 @@
-import ElementKeeper from "./Component.js";
+import Component from "./Component.js";
 
 var rule_namespaces = ["linter rule:", "linter exempt:"];
 
@@ -85,10 +85,10 @@ function compareTags(tag1, tag2) {
   }
 }
 
-export default class TagList extends ElementKeeper {
+export default class TagList extends Component {
   constructor(container) {
     super(container, renderTagListItem);
-    container.classList.add("tag_list");
+    this.container.classList.add("tag_list");
   }
 
   setTags(tags) {
