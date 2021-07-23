@@ -1,20 +1,3 @@
-{% macro icon_span(text="", icon=None, left=True) -%}
-  {% if icon %}
-    {% if left %}
-      {% set classVal = "icon_left icon_left_" + icon %}
-    {% else %}
-      {% set classVal = "icon_right icon_right_" + icon %}
-    {% endif %}
-  {% endif %}
-  <span {% if classVal %} class="{{ classVal }}" {% endif %}>{{text}}</span>
-{% endmacro -%}
-
-{% macro icon_btn(id=None, onclick=None, text="", icon=None, left=True) -%}
-  <button id="{{id}}" onclick="{{onclick}}">
-    {{ icon_span(text=text, icon=icon, left=left) }}
-  </button>
-{% endmacro -%}
-
 <!doctype html>
 <html>
 

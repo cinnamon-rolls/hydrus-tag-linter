@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+  Rule:
+  {{ rule.name }}
+{% endblock %}
+
+{% block contenttitle %}{% endblock %}
+
+{% block head_extra %}
+  <script type="module">
+    import {renderGallery} from "/static/js/galleries.js"
+    import {httpGetJson} from "/static/js/http_helper.js"
+    import {getRuleInfo, getRuleFiles, getRuleExemptions} from "/static/js/rules.js"
+
+    var ruleName = "{{ rule.get_name() }}"
+    var ruleNameURI = encodeURI(ruleName)
+
+    var applyLinterTagURL = "/api/rules/apply_noncompliance_tag?name=" + ruleNameURI
+
+    function setText(id, text) {
+      var e = document.getElementById(id);
+      if (e == null) {
+        console.error("doesn't exist: " + e);
+        return;
+      }
+      e.innerText = text;
+    }
+
+    window.addEventListener("load", async function () {
+      console.log("creating galleries for rule '" + ruleName + "', uri '" + ruleNameURI)
+
+      var urlParams = new URLSearchParams(window.location.search);
+
+      var ruleIdentifier = urlParams.get('uid') || urlParams.get('name')
+
+      var ruleInfo = await getRuleInfo(ruleIdentifier);
+
+      setText("rule_name", ruleInfo.name);
+      setText("rule_note", ruleInfo.note || "(no note)");
+      setText("rule_metadata_uid", ruleInfo.uid);
+      setText("rule_metadata_version", ruleInfo.version);
+
+      var ruleFiles = await getRuleFiles(ruleIdentifier);
+
+      setText("rule_files_count", ruleFiles.length);
+
+      var ruleExemptions = await getRuleExemptions(ruleIdentifier);
+
+      renderGallery(ruleFiles, {
+        galleryElemID: "noncompliance_gallery",
+        ruleName: ruleName
+      })
+      renderGallery(ruleExemptions, {
+        galleryElemID: "exempt_gallery",
+        ruleName: ruleName,
+        exemptions: true
+      })
+    })
+  </script>
+{% endblock %}
+
+{% block content %}
+
+  <div class="sidebar" id="side_info">
+
+    <h2 id="rule_name"></h2>
+
+    <p id="rule_note"></p>
+
+    <p>
+      There are
+      <code id="rule_files_count">?</code>
+      files detected by this rule
+    </p>
+
+    <h2>Metadata</h2>
+    <p>UID:
+      <code id="rule_metadata_uid">?</code>
+    </p>
+    <p>Version:
+      <code id="rule_metadata_version">?</code>
+    </p>
+  </div>
+
+  <div class="sidebarred_content" id="all_galleries_container">
+    <div id="noncompliance_gallery_container">
+      <h2>Files</h2>
+      <div class="gallery" id="noncompliance_gallery"></div>
+    </div>
+
+    <div id="exempt_gallery_container">
+      <h2>Exemptions</h2>
+      <div class="gallery" id="exempt_gallery"></div>
+    </div>
+  </div>
+
+{% endblock %}

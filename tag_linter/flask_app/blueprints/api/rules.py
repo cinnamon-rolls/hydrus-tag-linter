@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, abort, make_response
-from tag_linter.blueprints.api.common import *
+from .common import *
 from tag_linter.hydrus_util import *
 
 blueprint = Blueprint('api rules', __name__)

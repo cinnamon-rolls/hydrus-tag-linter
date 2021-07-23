@@ -71,7 +71,6 @@
 {% block content %}
 
   <div id="all_rules_container">
-    {% set rules = server.get_rules() %}
     <table id="all_rules_table">
       <caption>Overview of all loaded rules</caption>
       <thead>
@@ -84,21 +83,4 @@
     </table>
   </div>
 
-  {% set summary = server.get_summary() %}
-  <h2>Summary</h2>
-  {% for section in summary %}
-    <h3>{{section.name}}</h3>
-    <table id="summary_table">
-      {% for key_val in section.get('value') %}
-        <tr>
-          <td>
-            <span>{{ key_val.get('name') }}</span>
-          </td>
-          <td>
-            <code>{{ key_val.get('value') }}</code>
-          </td>
-        </tr>
-      {% endfor %}
-    </table>
-  {% endfor %}
 {% endblock %}
