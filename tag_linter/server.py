@@ -1,6 +1,4 @@
-import typing
 import hydrus
-
 import typing as T
 
 NAME = "hydrus tag linter"

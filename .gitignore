@@ -1,4 +1,3 @@
-
 ### For user convenience
 
 # User can put their personal rules here
@@ -12,7 +11,9 @@ test-rules/*
 run*.sh
 run*.bat
 
+### Databases
 
+*.sqlite3
 
 ### IDE and language stuff
 

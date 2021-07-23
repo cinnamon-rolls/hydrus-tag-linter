@@ -44,13 +44,7 @@ def add_args(argp: argparse.ArgumentParser):
         help="Disables searching in the inbox")
 
     argp.add_argument(
-        "--out", "-o",
-        default="lint_results.html",
-        help="File to write the lint results to"
-    )
-
-    argp.add_argument(
-        "--debug", "-d",
+        "--debug",
         const=True, nargs='?', type=str2bool, default=False,
         help="Enables debug mode, which will give more info if things fail"
     )
@@ -83,6 +77,12 @@ def add_args(argp: argparse.ArgumentParser):
         "--password",
         default=None,
         help="Requires people to enter a password before they get access to anything"
+    )
+
+    argp.add_argument(
+        "--database", "-d",
+        default="database.sqlite3",
+        help="Defines where the database file lives"
     )
 
 

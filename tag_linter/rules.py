@@ -113,7 +113,6 @@ def load_rules(paths: Union[str, Iterable[str]]) -> Dict[str, Rule]:
         else:
             rules = load_rules_from_file(path)
 
-        print(rules)
         for rule in rules:
             ret[rule.get_name().strip().lower()] = rule
 
