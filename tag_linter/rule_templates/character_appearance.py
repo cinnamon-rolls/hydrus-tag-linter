@@ -1,6 +1,7 @@
 from typing import List
 from tag_linter.rule import Rule
 from .default import forward_to_default
+from .common import *
 
 COLOR_EXEMPT = [
     "-monochrome"
@@ -11,32 +12,6 @@ HAIR_COLOR_EXEMPT.extend(COLOR_EXEMPT)
 
 EYE_COLOR_EXEMPT = []
 EYE_COLOR_EXEMPT.extend(COLOR_EXEMPT)
-
-
-def rm_tag_action(tag):
-    return {
-        'name': "Remove " + tag,
-        'icon': 'tag_blue_delete',
-        'archetype': 'change_tags',
-        'shortcut': 'auto',
-        'resolves': True,
-        'hints': {
-            'rm_tags': tag
-        }
-    }
-
-
-def add_tag_action(tag):
-    return {
-        'name': "Add " + tag,
-        'icon': 'tag_blue_add',
-        'archetype': 'change_tags',
-        'shortcut': 'auto',
-        'resolves': True,
-        'hints': {
-            'add_tags': tag
-        }
-    }
 
 
 def extract_tag(data, prefix, modifier=None):
