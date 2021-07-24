@@ -10,14 +10,17 @@ from flask import (
 
 from tag_linter.server import instance as server
 
-from .api import blueprint as blueprint_api
-from .user import blueprint as blueprint_user
 
 import os
 
 
-def create_master_blueprint(app, options):
+def create_master_blueprint(app, db_models, options):
     blueprint = Blueprint("master_blueprint", __name__)
+
+    from .api import create_blueprint as create_api_blueprint
+    from .user import blueprint as blueprint_user
+
+    blueprint_api = create_api_blueprint(app, db_models, options)
 
     @blueprint_api.before_request
     def guard_api():

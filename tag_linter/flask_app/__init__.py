@@ -26,14 +26,24 @@ def create_app(args, options: dict):
 
     db = SQLAlchemy(app)
 
+    from .models import create_models
+
+    db_models = create_models(app, db)
+
+    if options.get("debug"):
+        db.echo = True
+
     db.create_all()
 
     from .blueprints import create_master_blueprint
 
-    app.register_blueprint(create_master_blueprint(app, options))
+    app.register_blueprint(create_master_blueprint(app, db_models, options))
 
     import tag_linter.server
 
     tag_linter.server.accept_user_args(args)
 
-    return app
+    db_models.SoftParentRelation.ensure("test_parent", "test_child")
+    db_models.SoftParentRelation.ensure("test_parent1", "test_child1")
+
+    return app, db_models

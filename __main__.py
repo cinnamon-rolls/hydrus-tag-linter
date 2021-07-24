@@ -23,6 +23,7 @@ def main(args) -> int:
     app_options = {
         "aggressive_static_caching": not args.debug,
         "db_path": db_path,
+        "debug": args.debug,
     }
 
     if args.ssl_adhoc == True:
@@ -31,7 +32,7 @@ def main(args) -> int:
 
     from tag_linter.flask_app import create_app
 
-    app = create_app(args, app_options)
+    app, db_models = create_app(args, app_options)
 
     print("running app...")
     app.run(**run_options)

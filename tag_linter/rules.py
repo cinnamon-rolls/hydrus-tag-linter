@@ -31,9 +31,8 @@ def load_rules_from_data(data: Union[None, Dict, List]) -> List[Rule]:
             ret = [ret]
         return ret
 
-    raise ValueError(
-        'Unsure how to parse Rule from type ' +
-        str(type(data)) + ", see: " + str(data))
+    raise ValueError("Unsure how to parse Rule from type " + str(type(data)) +
+                     ", see: " + str(data))
 
 
 def load_rules_from_file(rule_file_name: str) -> List[Rule]:
@@ -54,7 +53,8 @@ def load_rules_from_file(rule_file_name: str) -> List[Rule]:
 
         return load_rules_from_data(data=data)
     except ValueError as e:
-        raise RuntimeError("An error occurred loading from the file '" + rule_file_name + "': " + str(e)) from e
+        raise RuntimeError("An error occurred loading from the file '" +
+                           rule_file_name + "': " + str(e)) from e
 
 
 def load_rules_from_dirs(rules_dirs: Union[str, List[str]]) -> List[Rule]:
