@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+  Soft Tag Parents
+{% endblock %}
+
+{% block contenttitle %}
+  Soft Tag Parents
+{% endblock %}
+
+{% block head_extra %}
+  <style>
+    .tag_manager_column {
+      float: left;
+      width: calc(50% - 34px);
+      margin: 16px;
+      text-align: center;
+      border-collapse: collapse;
+    }
+
+    .tag_manager_column .tag_block {
+      width: 100%;
+      height: 300px;
+      overflow-y: scroll;
+      overflow-x: auto;
+      text-align: left;
+    }
+
+    .tag_manager_column input {
+      width: 90%;
+    }
+  </style>
+  <script type="module">
+    import TagList from "/static/js/TagList.js"
+
+    var parentTagsToApplyList = new TagList("tags_parent_list")
+    var childTagsToApplyList = new TagList("tags_children_list")
+
+    var parentTagsToApply = []
+    var childTagsToApply = []
+
+    function addTagsToApply(holdingArray, component, inputElemName) {
+      var inputElem = document.getElementById(inputElemName)
+
+      inputElem.addEventListener('keyup', function (e) {
+        if (e.key === 'Enter' || e.keyCode === 13) {
+
+          var inputString = inputElem.value
+
+          var inputArray = inputString.split("\n");
+          for (let input of inputArray) {
+            input = input.trim().toLowerCase();
+            // check if not empty
+            if (!!input) {
+              let index = holdingArray.indexOf(input)
+              if (index == -1) {
+                holdingArray.push(input)
+              } else {
+                holdingArray.splice(index, 1)
+              }
+            }
+          }
+
+          inputElem.value = ""
+
+          component.reorder(holdingArray)
+        }
+      })
+
+    }
+
+    window.addEventListener("load", async function () {
+      addTagsToApply(parentTagsToApply, parentTagsToApplyList, "parent_input")
+      addTagsToApply(childTagsToApply, childTagsToApplyList, "child_input")
+    });
+  </script>
+{% endblock %}
+
+{% block content %}
+
+  <div id="section_add">
+    <h3>Add New</h3>
+
+    <div class="tag_manager_column">
+      <label>set children</label>
+      <div class="tag_block">
+        <ul id="tags_children_list"></ul>
+      </div>
+      <input type="text" id="child_input"/>
+    </div>
+
+    <div class="tag_manager_column">
+      <label>set (soft) parents</label>
+      <div class="tag_block">
+        <ul id="tags_parent_list"></ul>
+      </div>
+      <input type="text" id="parent_input"/>
+    </div>
+
+  </div>
+
+{% endblock %}

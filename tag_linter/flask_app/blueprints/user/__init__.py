@@ -61,3 +61,8 @@ def app_get_file_full(file_id):
 @blueprint.route('/search', methods=['GET'])
 def app_search_by_tag():
     return render_template('search.html')
+
+
+@blueprint.route('/soft_parents', methods=['GET'])
+def app_soft_parents():
+    return render_template('soft_parents.html')
