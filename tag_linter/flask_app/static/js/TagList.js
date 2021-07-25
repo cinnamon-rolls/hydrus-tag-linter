@@ -13,8 +13,6 @@ const DEFAULT_TAG_PRESENTATION = {
     series: "#AA00AA",
     studio: "#800000",
     system: "#996515",
-    "linter rule": "#AA8000",
-    "linter exempt": "#AA8000",
   },
 };
 
@@ -97,9 +95,5 @@ export default class TagList extends Component {
     }
     tags.sort(compareTags);
     this.reorder(tags);
-  }
-
-  refreshTags() {
-    this.setTagList(getTags());
   }
 }

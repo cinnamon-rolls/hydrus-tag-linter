@@ -31,47 +31,27 @@
     }
   </style>
   <script type="module">
-    import TagList from "/static/js/TagList.js"
+    import PendingTagList from "/static/js/PendingTagList.js"
 
-    var parentTagsToApplyList = new TagList("tags_parent_list")
-    var childTagsToApplyList = new TagList("tags_children_list")
+    var pendingParentTags = new PendingTagList("tags_parent_list")
+    var pendingChildTags = new PendingTagList("tags_children_list")
 
-    var parentTagsToApply = []
-    var childTagsToApply = []
-
-    function addTagsToApply(holdingArray, component, inputElemName) {
+    function addTagsToApply(pendingTagList, inputElemName) {
       var inputElem = document.getElementById(inputElemName)
 
       inputElem.addEventListener('keyup', function (e) {
         if (e.key === 'Enter' || e.keyCode === 13) {
-
-          var inputString = inputElem.value
-
-          var inputArray = inputString.split("\n");
-          for (let input of inputArray) {
-            input = input.trim().toLowerCase();
-            // check if not empty
-            if (!!input) {
-              let index = holdingArray.indexOf(input)
-              if (index == -1) {
-                holdingArray.push(input)
-              } else {
-                holdingArray.splice(index, 1)
-              }
-            }
-          }
-
-          inputElem.value = ""
-
-          component.reorder(holdingArray)
+          var inputString = inputElem.value;
+          inputElem.value = "";
+          pendingTagList.toggleTag(inputString);
         }
       })
 
     }
 
     window.addEventListener("load", async function () {
-      addTagsToApply(parentTagsToApply, parentTagsToApplyList, "parent_input")
-      addTagsToApply(childTagsToApply, childTagsToApplyList, "child_input")
+      addTagsToApply(pendingParentTags, "parent_input")
+      addTagsToApply(pendingChildTags, "child_input")
     });
   </script>
 {% endblock %}

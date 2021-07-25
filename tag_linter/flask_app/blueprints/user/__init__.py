@@ -15,21 +15,7 @@ def app_get_index():
 
 @blueprint.route('/rule', methods=['GET'])
 def app_get_rule():
-    rule_uid = request.args.get('uid')
-    rule_name = request.args.get('name')
-
-    if rule_uid is None and rule_name is None:
-        abort(400, "Expected uid or name")
-
-    if rule_uid is not None:
-        rule = server.get_rule_by_uid(rule_uid)
-    else:
-        rule = server.get_rule_by_name(rule_name)
-
-    if rule is None:
-        abort(404, "Rule not found")
-
-    return render_template('rule.html', rule=rule)
+    return render_template('rule.html')
 
 
 @blueprint.route('/file', methods=['GET'])
@@ -66,3 +52,8 @@ def app_search_by_tag():
 @blueprint.route('/soft_parents', methods=['GET'])
 def app_soft_parents():
     return render_template('soft_parents.html')
+
+@blueprint.route('/tag_management', methods=['GET'])
+def app_tag_management():
+    return render_template('tag_management.html')
+

@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 
 {% block pagetitle %}
-  Rule:
-  {{ rule.name }}
+  Rule
 {% endblock %}
 
 {% block contenttitle %}{% endblock %}
@@ -12,11 +11,6 @@
     import {renderGallery} from "/static/js/galleries.js"
     import {httpGetJson} from "/static/js/http_helper.js"
     import {getRuleInfo, getRuleFiles, getRuleExemptions} from "/static/js/rules.js"
-
-    var ruleName = "{{ rule.get_name() }}"
-    var ruleNameURI = encodeURI(ruleName)
-
-    var applyLinterTagURL = "/api/rules/apply_noncompliance_tag?name=" + ruleNameURI
 
     function setText(id, text) {
       var e = document.getElementById(id);
@@ -28,8 +22,6 @@
     }
 
     window.addEventListener("load", async function () {
-      console.log("creating galleries for rule '" + ruleName + "', uri '" + ruleNameURI)
-
       var urlParams = new URLSearchParams(window.location.search);
 
       var ruleIdentifier = urlParams.get('uid') || urlParams.get('name')
@@ -47,13 +39,15 @@
 
       var ruleExemptions = await getRuleExemptions(ruleIdentifier);
 
+      console.log("creating galleries for rule '" + ruleIdentifier)
+
       renderGallery(ruleFiles, {
         galleryElemID: "noncompliance_gallery",
-        ruleName: ruleName
+        ruleName: ruleIdentifier
       })
       renderGallery(ruleExemptions, {
         galleryElemID: "exempt_gallery",
-        ruleName: ruleName,
+        ruleName: ruleIdentifier,
         exemptions: true
       })
     })
