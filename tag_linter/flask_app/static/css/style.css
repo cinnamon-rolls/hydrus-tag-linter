@@ -179,6 +179,35 @@ table th {
   }
 }
 
+/* Tag management */
+
+.tag_manager_column {
+  float: left;
+  max-width: 500px;
+  width: 100%;
+  margin: 16px;
+  text-align: center;
+  border-collapse: collapse;
+}
+
+.tag_manager_column.two_columns {
+  width: calc(50% - 34px);
+}
+
+.tag_manager_column .tag_block {
+  width: 100%;
+  height: 300px;
+  overflow-y: scroll;
+  overflow-x: auto;
+  text-align: left;
+}
+
+/* Forms */
+
+textarea {
+  width: 100%;
+}
+
 /* Icons */
 
 .icon_left {

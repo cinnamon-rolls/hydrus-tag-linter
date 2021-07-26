@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+  Junk Tags
+{% endblock %}
+
+{% block contenttitle %}
+  Junk Tags
+{% endblock %}
+
+{% block head_extra %}
+  <style></style>
+  <script type="module">
+    import PendingTagList from "/static/js/PendingTagList.js"
+    import {httpGet, httpGetJson} from "/static/js/http_helper.js"
+
+    var pendingJunkTags = null;
+
+    async function refreshTotalCount() {
+      var elemJunkTagsCount = document.getElementById("junk_tags_count");
+      return httpGetJson("/api/junk_tags/count").then(x => elemJunkTagsCount.innerText = x.total + "");
+    }
+
+    async function submitJunkTags(tags, add) {
+      if (tags.length === 0) {
+        return;
+      }
+
+      var url = add
+        ? "/api/junk_tags/add"
+        : "/api/junk_tags/remove";
+
+      url += "?tags=" + JSON.stringify(tags);
+
+      return httpGet(url).then(refreshTotalCount);
+    }
+
+    window.addEventListener("load", async function () {
+      pendingJunkTags = new PendingTagList("junk_tags_list");
+      pendingJunkTags.listenToInput("parent_input");
+
+      refreshTotalCount();
+
+      var addButton = document.getElementById("add_button")
+      addButton.onclick = function (e) {
+        var tags = pendingJunkTags.getTags()
+        pendingJunkTags.setTags([])
+        submitJunkTags(tags, true)
+      }
+
+      var addButton = document.getElementById("remove_button")
+      addButton.onclick = function (e) {
+        var tags = pendingJunkTags.getTags()
+        pendingJunkTags.setTags([])
+        submitJunkTags(tags, false)
+      }
+    });
+  </script>
+{% endblock %}
+
+{% block content %}
+  <p>Junk Tags are tags that add no value or information, and should be removed whenever they appear. This should be the last resort for bad tags, when all other tools (such as tag siblings) can't help.</p>
+
+  <p>There are
+    <code id="junk_tags_count">?</code>
+    known junk tags.
+    <a href="/api/junk_tags/export?as_string=true" target="_blank" rel="noopener noreferrer">See all</a>
+  </p>
+
+  <h3>Actions</h3>
+
+  <h4>Search & Destroy</h4>
+
+  <p>This action will search through every file in your database, and remove every junk tag it comes across. This may be a slow operation, and it cannot be easily undone (so make a backup).</p>
+
+  <button>
+    <span class="icon_left icon_left_bomb">Search & Destroy</span>
+  </button>
+
+  <h3>Manage</h3>
+
+  <p>Here you can add or remove junk tags. Use the textbox below and type in the tags you would like to add or remove, and press enter for each tag. Alternatively, you can paste in a list of tags separated by newlines. Then, click the add/remove buttons to submit your changes.
+  </p>
+
+  <div class="tag_manager_column">
+    <div>
+      <button id="remove_button">
+        <span class="icon_left icon_left_delete">Remove These</span>
+      </button>
+      <button id="add_button">
+        <span class="icon_left icon_left_add">Add These</span>
+      </button>
+    </div>
+
+    <div class="tag_block">
+      <ul id="junk_tags_list"></ul>
+    </div>
+
+    <textarea cols="2" type="text" id="parent_input"></textarea>
+  </div>
+{% endblock %}

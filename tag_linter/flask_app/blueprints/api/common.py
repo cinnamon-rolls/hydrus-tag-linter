@@ -1,6 +1,6 @@
 from json.decoder import JSONDecodeError
 import typing as T
-from flask import abort
+from flask import abort, make_response
 from tag_linter.rule import Rule
 from tag_linter.server import instance as server
 import json
@@ -52,3 +52,8 @@ def for_each_elem(elems, func):
         return [func(i) for i in elems]
     else:
         return func(elems)
+
+def plaintext_response(text):
+    response = make_response(text, 200)
+    response.mimetype = "text/plain; charset=utf-8"
+    return response

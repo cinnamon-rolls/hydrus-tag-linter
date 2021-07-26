@@ -60,6 +60,16 @@ def create_models(app: Flask, db: SQLAlchemy):
         @classmethod
         def get_id(cls, tag_name):
             return cls.get_or_create(tag_name)._id
+        
+        @classmethod
+        def get_name(cls, id):
+            if id is None:
+                return None
+            found = get_first(cls, _id=id)
+            print(str(found))
+            if found is None:
+                return None
+            return found.tag_name
 
     class SoftParentRelation(db.Model):
         __tablename__ = "soft_parents"
@@ -85,9 +95,34 @@ def create_models(app: Flask, db: SQLAlchemy):
         def remove(cls, parent_tag_name, child_tag_name):
             parent_id = Tag.get_id(parent_tag_name)
             child_id = Tag.get_id(child_tag_name)
-            found = cls.get(parent_id, child_id)
-            if found is not None:
-                db.session.delete(found)
-                db.session.commit()
+            remove_if_present(cls, parent_id=parent_id, child_id=child_id)
 
-    return Namespace(Tag=Tag, SoftParentRelation=SoftParentRelation)
+    class JunkTag(db.Model):
+        __tablename__ = "junk_tags"
+        tag_id = db.Column(db.Integer, primary_key=True)
+
+        @classmethod
+        def ensure(cls, tag_name):
+            tag_id = Tag.get_id(tag_name)
+            get_or_create(cls, tag_id=tag_id)
+
+        @classmethod
+        def remove(cls, tag_name):
+            tag_id = Tag.get_id(tag_name)
+            remove_if_present(cls, tag_id=tag_id)
+
+        @classmethod
+        def count(cls):
+            return cls.query.count()
+
+        @classmethod
+        def export(cls):
+            tags = cls.query.all()
+            ret = []
+
+            for junk_tag in tags:
+                ret.append(Tag.get_name(junk_tag.tag_id))
+
+            return ret
+
+    return Namespace(Tag=Tag, SoftParentRelation=SoftParentRelation, JunkTag=JunkTag)

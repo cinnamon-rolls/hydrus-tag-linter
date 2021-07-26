@@ -9,27 +9,6 @@
 {% endblock %}
 
 {% block head_extra %}
-  <style>
-    .tag_manager_column {
-      float: left;
-      width: calc(50% - 34px);
-      margin: 16px;
-      text-align: center;
-      border-collapse: collapse;
-    }
-
-    .tag_manager_column .tag_block {
-      width: 100%;
-      height: 300px;
-      overflow-y: scroll;
-      overflow-x: auto;
-      text-align: left;
-    }
-
-    .tag_manager_column input {
-      width: 90%;
-    }
-  </style>
   <script type="module">
     import PendingTagList from "/static/js/PendingTagList.js"
 
@@ -61,7 +40,7 @@
   <div id="section_add">
     <h3>Add New</h3>
 
-    <div class="tag_manager_column">
+    <div class="tag_manager_column two_columns">
       <label>set children</label>
       <div class="tag_block">
         <ul id="tags_children_list"></ul>
@@ -69,7 +48,7 @@
       <input type="text" id="child_input"/>
     </div>
 
-    <div class="tag_manager_column">
+    <div class="tag_manager_column two_columns">
       <label>set (soft) parents</label>
       <div class="tag_block">
         <ul id="tags_parent_list"></ul>

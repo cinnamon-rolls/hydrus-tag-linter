@@ -34,7 +34,31 @@ export default class PendingTagList extends TagList {
     this.setTags(this.tags);
   }
 
+  setTags(tags) {
+    this.tags = tags;
+    super.setTags(tags);
+  }
+
   getTags() {
     return this.tags;
+  }
+
+  listenToInput(inputElemName) {
+    var inputElem = document.getElementById(inputElemName);
+
+    if (inputElem == null) {
+      console.error("Could not find element: " + inputElemName);
+      return;
+    }
+
+    var actualThis = this;
+
+    inputElem.addEventListener("keyup", function (e) {
+      if (e.key === "Enter" || e.keyCode === 13) {
+        var inputString = inputElem.value;
+        inputElem.value = "";
+        actualThis.toggleTag(inputString);
+      }
+    });
   }
 }
