@@ -81,7 +81,9 @@ def ids2hashes(file_ids):
     return ret
 
 
-def search_by_tags(tags, inbox=True, archive=True):
+def search_by_tags(tags, inbox=True, archive=True, tag_service=None):
+    # We currently just discard the tag_service because its not supported yet :(
+
     if inbox and archive:
         # neither are disabled
         return get_client().search_files(tags)
@@ -119,6 +121,15 @@ def change_tags(hashes=None, file_ids=None, add_tags=[], rm_tags=[], tag_service
     if hashes is None:
         hashes = ids2hashes(file_ids)
 
+    if not isinstance(hashes, list):
+        raise ValueError("Expected hashes as a list")
+    if not isinstance(add_tags, list):
+        raise ValueError("Expected add_tags as a list")
+    if not isinstance(rm_tags, list):
+        raise ValueError("Expected rm_tags as a list")
+    if not isinstance(tag_service, str):
+        raise ValueError("Expected tag_service as a string, but got " + str(type(tag_service)))
+
     if len(hashes) < 1 or (len(add_tags) < 1 and len(rm_tags) < 1):
         # no-op, don't forward to hydrus
         return
@@ -138,6 +149,33 @@ def change_tags(hashes=None, file_ids=None, add_tags=[], rm_tags=[], tag_service
             }
         },
     )
+
+
+def search_and_destroy(tags, inbox, archive, read_tag_service, write_tag_service):
+    if not isinstance(tags, list):
+        tags = [tags]
+
+    if read_tag_service is None:
+        raise ValueError("read tag service not defined")
+    if write_tag_service is None:
+        raise ValueError("write tag service is not defined")
+
+    removals = 0
+
+    for tag in tags:
+        rm_tags = [tag]
+        files = search_by_tags(rm_tags, inbox, archive, read_tag_service)
+
+        removals += len(files)
+
+        change_tags(
+            file_ids=files,
+            rm_tags=rm_tags,
+            tag_service=write_tag_service)
+
+    return {
+        'removals': removals
+    }
 
 
 def clean_tag(tag):

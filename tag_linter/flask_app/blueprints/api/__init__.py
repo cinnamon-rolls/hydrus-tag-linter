@@ -14,6 +14,7 @@ def create_blueprint(app, db_models, options):
     from .rules import blueprint as api_rules
     from .soft_parents import create_blueprint as create_soft_parents_blueprint
     from .junk_tags import create_blueprint as create_junk_tags_blueprint
+    from .tags import create_blueprint as create_tags_blueprint
 
     blueprint = Blueprint('api', __name__)
 
@@ -25,6 +26,9 @@ def create_blueprint(app, db_models, options):
 
     blueprint.register_blueprint(
         create_junk_tags_blueprint(app, db_models, options), url_prefix='junk_tags')
+
+    blueprint.register_blueprint(
+        create_tags_blueprint(app, db_models, options), url_prefix='tags')
 
     @blueprint.route('/server/get_global_file_actions', methods=['GET'])
     def api_server_get_global_file_actions():
