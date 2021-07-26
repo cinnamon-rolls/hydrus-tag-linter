@@ -75,7 +75,7 @@ def api_rules_apply_noncompliance_tag():
     enable_add = request.args.get('add', 'true') == 'true'
     enable_remove = request.args.get('remove', 'true') == 'true'
 
-    tag = server.get_client().clean_tags([tag_raw])[0]
+    tag = clean_tag(tag_raw)
 
     files_tagged_now = server.search_by_tags(tags=[tag])
     files_that_need_tag = rule.get_files()
@@ -87,28 +87,23 @@ def api_rules_apply_noncompliance_tag():
         i for i in files_that_need_tag if i not in files_tagged_now]
 
     if not preview:
+        hashes = ids2hashes(files_to_tag)
         # Add
         if(len(files_to_tag) > 0) and enable_add:
             print('add...')
-            server.get_client().add_tags(
-                hashes=ids2hashes(files_to_tag),
-                service_to_action_to_tags={
-                    tag_service: {
-                        TAG_ACTION_ADD_LOCAL: [tag]
-                    }
-                }
+            change_tags(
+                hashes=hashes,
+                tag_service=tag_service,
+                add_tags=[tag]
             )
 
         # Remove
         if(len(files_to_untag) > 0) and enable_remove:
             print('remove...')
-            server.get_client().add_tags(
-                hashes=ids2hashes(files_to_untag),
-                service_to_action_to_tags={
-                    tag_service: {
-                        TAG_ACTION_DELETE_LOCAL: [tag]
-                    }
-                }
+            change_tags(
+                hashes=hashes,
+                tag_service=tag_service,
+                rm_tags=[tag]
             )
 
     return jsonify({

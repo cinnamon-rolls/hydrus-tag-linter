@@ -17,6 +17,15 @@ import os
 def create_master_blueprint(app, db_models, options):
     blueprint = Blueprint("master_blueprint", __name__)
 
+    password = options.get('password')
+
+    def is_password_protected() -> bool:
+        return password is not None
+
+    def check_password(input) -> bool:
+        "Return True if there is no password or if the given password matches"
+        return password is None or password == input
+
     from .api import create_blueprint as create_api_blueprint
     from .user import blueprint as blueprint_user
 
@@ -24,14 +33,12 @@ def create_master_blueprint(app, db_models, options):
 
     @blueprint_api.before_request
     def guard_api():
-        if server.is_password_protected() and not session.get(
-                "logged_in", False):
+        if is_password_protected() and not session.get("logged_in", False):
             return abort(403)
 
     @blueprint_user.before_request
     def guard_user():
-        if server.is_password_protected() and not session.get(
-                "logged_in", False):
+        if is_password_protected() and not session.get("logged_in", False):
             return redirect("/login")
 
     blueprint.register_blueprint(blueprint_api, url_prefix="/api")
@@ -61,7 +68,7 @@ def create_master_blueprint(app, db_models, options):
         else:
             password = request.get_json(force=True).get("password")
             print(password)
-            if server.check_password(password):
+            if check_password(password):
                 session["logged_in"] = True
                 return "OK"
             return abort(400, "wrong password")

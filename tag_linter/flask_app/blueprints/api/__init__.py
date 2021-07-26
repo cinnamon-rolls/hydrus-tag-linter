@@ -19,8 +19,10 @@ def create_blueprint(app, db_models, options):
 
     blueprint.register_blueprint(api_files, url_prefix='files')
     blueprint.register_blueprint(api_rules, url_prefix='rules')
+
     blueprint.register_blueprint(
         create_soft_parents_blueprint(app, db_models, options), url_prefix='soft_parents')
+
     blueprint.register_blueprint(
         create_junk_tags_blueprint(app, db_models, options), url_prefix='junk_tags')
 
@@ -37,12 +39,6 @@ def create_blueprint(app, db_models, options):
             abort(400, "invalid json: '" + input_raw + "'")
         search = tag_linter.searches.load_search(input)
         return jsonify(search.execute(server))
-
-    @blueprint.route('/tags/clean_tags', methods=['GET'])
-    def api_hydrus_clean_tags():
-        tags_input = request.args.get('tags')
-        tags = json.loads(tags_input)
-        return jsonify(server.client.clean_tags(tags))
 
     @blueprint.route("/services/get_services", methods=['GET'])
     def api_services_get_services():

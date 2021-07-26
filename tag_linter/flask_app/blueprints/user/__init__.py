@@ -1,7 +1,7 @@
+import tag_linter.hydrus_util as hydrus_util
 from flask import Blueprint, abort, make_response, request
 from tag_linter.server import instance as server
 import requests
-from datetime import datetime, date, timedelta
 from flask import render_template, make_response, abort
 
 
@@ -25,7 +25,7 @@ def app_get_file():
 
 @blueprint.route('/files/thumbnail/<file_id>', methods=['GET'])
 def app_get_file_thumbnail(file_id):
-    thumb_res: requests.Response = server.get_client().get_thumbnail(file_id=file_id)
+    thumb_res: requests.Response = hydrus_util.get_client().get_thumbnail(file_id=file_id)
     my_res = make_response(thumb_res.content)
     # just hope the browser can figure it out...
     # it should just be a jpg or png
@@ -36,8 +36,8 @@ def app_get_file_thumbnail(file_id):
 
 @blueprint.route('/files/full/<file_id>', methods=['GET'])
 def app_get_file_full(file_id):
-    metadata = server.get_file_metadata(file_id)
-    file_res: requests.Response = server.get_client().get_file(file_id=file_id)
+    metadata = hydrus_util.get_file_metadata(file_id)
+    file_res: requests.Response = hydrus_util.get_client().get_file(file_id=file_id)
     my_res = make_response(file_res.content)
     my_res.mimetype = metadata.get('mime')
     my_res.headers.add('Cache-Control', 'public, max-age=604800, immutable')

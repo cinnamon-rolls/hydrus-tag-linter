@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import tag_linter.hydrus_util as hydrus_util
 import sys
 import traceback
 import os
@@ -7,6 +8,8 @@ import os
 
 def main(args) -> int:
     print("main")
+
+    hydrus_util.create_hydrus_client(args.api_key, args.api_url)
 
     db_path = args.database
 

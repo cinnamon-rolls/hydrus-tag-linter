@@ -5,9 +5,6 @@ from tag_linter.rule import Rule
 from tag_linter.server import instance as server
 import json
 
-TAG_ACTION_ADD_LOCAL = "0"
-TAG_ACTION_DELETE_LOCAL = "1"
-
 
 def get_rule(rule_name) -> Rule:
     if rule_name is None:
@@ -52,6 +49,7 @@ def for_each_elem(elems, func):
         return [func(i) for i in elems]
     else:
         return func(elems)
+
 
 def plaintext_response(text):
     response = make_response(text, 200)

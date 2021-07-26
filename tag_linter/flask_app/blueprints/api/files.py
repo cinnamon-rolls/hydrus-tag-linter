@@ -7,7 +7,7 @@ blueprint = Blueprint("api files", __name__)
 
 @blueprint.route("/get_metadata", methods=["GET"])
 def api_file_get_metadata():
-    return jsonify(server.get_file_metadata(request.args.get("file_id")))
+    return jsonify(get_file_metadata(request.args.get("file_id")))
 
 
 @blueprint.route("/move_to_trash", methods=["POST"])
@@ -47,20 +47,10 @@ def api_file_add_tags():
     add_tags = coerce_list(body.get("add_tags"))
     rm_tags = coerce_list(body.get("rm_tags"))
 
-    hashes = ids2hashes(file_ids)
-    # print(str(hashes))
-    # print(str(add_tags))
-    # print(str(rm_tags))
-
-    if len(hashes) > 0 and (len(add_tags) > 0 or len(rm_tags) > 0):
-        server.get_client().add_tags(
-            hashes=hashes,
-            service_to_action_to_tags={
-                tag_service: {
-                    TAG_ACTION_ADD_LOCAL: add_tags,
-                    TAG_ACTION_DELETE_LOCAL: rm_tags,
-                }
-            },
-        )
+    change_tags(
+        file_ids=file_ids,
+        add_tags=add_tags,
+        rm_tags=rm_tags,
+        tag_service=tag_service)
 
     return jsonify({})
