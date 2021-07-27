@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+  Tools
+{% endblock %}
+
+{% block contenttitle %}
+  Tools
+{% endblock %}
+
+{% block head_extra %}
+  <style></style>
+  <script type="module"></script>
+{% endblock %}
+
+{% block content %}
+  <h3>Tag Relations</h3>
+
+  <p>These tools define information about tags, and relationships between tags. They are saved in a database, so when you restart the server, they will be kept around. Use these for long-term planning.</p>
+
+  <ul>
+    <li>
+      <a href="/junk_tags">Junk Tags</a>
+      — Tags that provide no info and should be removed.
+    </li>
+    <li>
+      (WIP)
+      <a href="#">Soft Parents</a>
+      — Like tag parents, but less strict.
+    </li>
+    <li>
+      (WIP)
+      <a href="#">Tag Disambiguation</a>
+      — Take a vague tag, and define alternatives to replace it with
+    </li>
+    <li>
+      (WIP)
+      <a href="#">Helicopter Parents</a>
+      — Tags that must always be with one of their children. For example,
+      <code>dress</code>
+      must always be with
+      <code>red dress</code>,
+      <code>green dress</code>, etc...
+    </li>
+  </ul>
+
+  <h3>Others</h3>
+
+  <p>These tools are single operations, useful for simple, one-time operations</p>
+
+  <ul>
+    <li>
+      <a href="/search_and_destroy">Search & Destroy</a>
+      — Remove a tag or a namespace from a tag service.
+    </li>
+    <li>
+      (WIP)
+      <a href="#">Namespace Transpose</a>
+      — Replace all
+      <code>foo:abcd</code>
+      tags with
+      <code>bar:abcd</code>
+      tags.
+    </li>
+  </ul>
+{% endblock %}

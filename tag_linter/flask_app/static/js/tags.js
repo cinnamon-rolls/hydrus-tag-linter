@@ -56,7 +56,26 @@ async function getAllKnownTagsServiceName() {
   }
 
   console.error("What? You don't have an all_known_tags service???");
-  return null;
+  return "all known tags";
+}
+
+export async function renderTagDropdown(elemId) {
+  var tagServiceSelect = document.getElementById(elemId);
+
+  if (tagServiceSelect == null) {
+    console.error("couldnt find: " + elemId);
+    return;
+  }
+
+  var tagServices = await getTagServices();
+  
+  for (let service of tagServices) {
+    let serviceOption = document.createElement("option");
+    serviceOption.value = service.name;
+    serviceOption.innerText = service.name;
+    serviceOption.id = elemId + "_tag_select_option_" + service.name;
+    tagServiceSelect.appendChild(serviceOption);
+  }
 }
 
 export async function getAllKnownTags(

@@ -5,6 +5,10 @@ from tag_linter.server import instance as server
 TAG_ACTION_ADD_LOCAL = "0"
 TAG_ACTION_DELETE_LOCAL = "1"
 
+TAG_STATUS_STATUS_CURRENT = "0"
+TAG_STATUS_STATUS_PENDING = "1"
+TAG_STATUS_STATUS_DELETED = "2"
+TAG_STATUS_STATUS_PETITIONED = "3"
 
 NAME = "hydrus tag linter"
 PERMISSIONS = [
@@ -128,7 +132,8 @@ def change_tags(hashes=None, file_ids=None, add_tags=[], rm_tags=[], tag_service
     if not isinstance(rm_tags, list):
         raise ValueError("Expected rm_tags as a list")
     if not isinstance(tag_service, str):
-        raise ValueError("Expected tag_service as a string, but got " + str(type(tag_service)))
+        raise ValueError(
+            "Expected tag_service as a string, but got " + str(type(tag_service)))
 
     if len(hashes) < 1 or (len(add_tags) < 1 and len(rm_tags) < 1):
         # no-op, don't forward to hydrus
@@ -149,6 +154,48 @@ def change_tags(hashes=None, file_ids=None, add_tags=[], rm_tags=[], tag_service
             }
         },
     )
+
+
+def get_file_tags(file_id, serviceName, status=TAG_STATUS_STATUS_CURRENT, display=True):
+    metadata = get_file_metadata(file_id)
+    if metadata is None:
+        return []
+
+    lookup = "service_names_to_statuses_to_display_tags" if display else "service_names_to_statuses_to_tags"
+
+    serviceNamesToStatusesToTags = metadata.get(lookup)
+    if serviceNamesToStatusesToTags is None:
+        return []
+
+    statusesToTags = serviceNamesToStatusesToTags.get(serviceName)
+    if statusesToTags is None:
+        return []
+
+    tags = statusesToTags.get(status)
+    if tags is None:
+        return []
+
+    return tags
+
+
+def get_tags_in_namespace(namespace, tag_service, inbox=True, archive=True):
+    files = search_by_tags(
+        [namespace + ":*"], inbox=inbox, archive=archive, tag_service=tag_service)
+    ret = []
+    tag_prefix = namespace + ":"
+    for file in files:
+        tags = get_file_tags(file, serviceName=tag_service)
+        for tag in tags:
+            if tag.startswith(tag_prefix):
+                ret.append(tag)
+
+    return ret
+
+
+def search_and_destroy_namespace(namespace, inbox, archive, read_tag_service, write_tag_service):
+    tags = get_tags_in_namespace(namespace, read_tag_service, inbox, archive)
+    return search_and_destroy(
+        tags, inbox, archive, read_tag_service, write_tag_service)
 
 
 def search_and_destroy(tags, inbox, archive, read_tag_service, write_tag_service):

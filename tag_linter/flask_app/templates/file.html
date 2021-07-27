@@ -39,7 +39,7 @@
   </style>
   <script type="module">
     import FileViewState, {QUEUE_RULE, QUEUE_EXEMPTIONS} from "/static/js/FileViewState.js"
-    import {getTagServices} from "/static/js/tags.js"
+    import {renderTagDropdown} from "/static/js/tags.js"
 
     var state = null;
 
@@ -65,16 +65,7 @@
 
       state.refresh();
 
-      var tagServiceSelect = document.getElementById("tag_service_select");
-
-      var tagServices = await getTagServices();
-      for (let service of tagServices) {
-        let serviceOption = document.createElement("option");
-        serviceOption.value = service.name;
-        serviceOption.innerText = service.name;
-        serviceOption.id = "tag-select-option-" + service.name;
-        tagServiceSelect.appendChild(serviceOption);
-      }
+      renderTagDropdown("tag_service_select")
 
       tagServiceSelect.addEventListener("keydown", function (e) {
         e.preventDefault();

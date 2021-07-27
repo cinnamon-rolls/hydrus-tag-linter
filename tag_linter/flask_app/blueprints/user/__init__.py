@@ -57,7 +57,11 @@ def app_soft_parents():
 def app_junk_tags():
     return render_template('junk_tags.html')
 
-@blueprint.route('/tag_management', methods=['GET'])
+@blueprint.route('/search_and_destroy', methods=['GET'])
+def app_search_and_destroy():
+    return render_template('search_and_destroy.html')
+
+@blueprint.route('/tools', methods=['GET'])
 def app_tag_management():
-    return render_template('tag_management.html')
+    return render_template('tools.html')
 

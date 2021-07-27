@@ -13,39 +13,10 @@
   <script type="module">
     import PendingTagList from "/static/js/PendingTagList.js"
     import {httpGet, httpGetJson} from "/static/js/http_helper.js"
+    import {destroy} from "/static/js/search_and_destroy.js"
+    import {renderTagDropdown} from "/static/js/tags.js"
 
     var pendingJunkTags = null;
-
-    async function purgeJunkTags() {
-      var tagService = "my tags";
-
-      var inbox = true;
-      var archive = true;
-
-      var confirmed = window.confirm("Are you sure? This will automatically remove tags on the service 'my tags' from files in bulk. You should only proceed if you have a backup, or if you're prepared for potentially unforeseen consequences.")
-
-      if (!confirmed) {
-        return
-      }
-
-      var params = new URLSearchParams()
-      params.set("read_tag_service", tagService)
-      params.set("write_tag_service", tagService)
-      params.set("inbox", inbox)
-      params.set("archive", archive)
-
-      var url = "/api/junk_tags/search_and_destroy?" + params.toString();
-
-      return await httpGetJson(url)
-        .then(x => {
-          console.log(x)
-          alert("Done, removals: " + x.removals)
-        })
-        .catch(x => {
-          console.error(x)
-          alert("The command failed. Please open the console and screenshot as much as possible, thank you")
-        })
-      }
 
     async function refreshTotalCount() {
       var elemJunkTagsCount = document.getElementById("junk_tags_count");
@@ -86,9 +57,27 @@
         submitJunkTags(tags, false)
       }
 
+      renderTagDropdown("input_tag_service")
+      
+      var elemTagService = document.getElementById("input_tag_service")
+
+      var elemInboxEnabled = document.getElementById("input_enable_inbox")
+      var elemArchiveEnabled = document.getElementById("input_enable_archive")
+
       var destroyButton = document.getElementById("search_and_destroy_button")
-      destroyButton.onclick = function (e) {
-        purgeJunkTags();
+
+      destroyButton.onclick = async function (e) {
+        var tagService = "my tags";
+
+        var inbox = true;
+        var archive = true;
+
+        return destroy({
+          inbox: elemInboxEnabled.checked,
+          archive: elemArchiveEnabled.checked,
+          tagService: elemTagService.value,
+          allJunkTags: true
+        })
       }
     });
   </script>
@@ -109,6 +98,17 @@
 
   <p>This action will search through every file in your database, and remove every junk tag it comes across. This may be a slow operation, and it cannot be easily undone (so make a backup).</p>
 
+  <label for="input_tag_service">Tag service:</label>
+  <select id="input_tag_service"></select>
+  <br/>
+  <br/>
+  <input id="input_enable_inbox" type="checkbox" checked="true"/>
+  <label for="input_enable_inbox">Enable Inbox</label>
+  <br/>
+  <input id="input_enable_archive" type="checkbox" checked="true"/>
+  <label for="input_enable_archive">Enable Archive</label>
+  <br/>
+  <br/>
   <button id="search_and_destroy_button">
     <span class="icon_left icon_left_bomb">Search & Destroy</span>
   </button>
