@@ -48,4 +48,43 @@ def create_blueprint(app, db_models, options):
     def api_services_get_services():
         return jsonify(get_services())
 
+    @blueprint.route("/brew_coffee", methods=['GET', 'POST', 'BREW'])
+    def api_brew_coffee():
+        res = make_response("""
+
+                            HTTP 418 -- I'm a teapot
+
+    The server has refused to brew coffee because it is embedded
+within a teapot. If your use case requires this server to interface with a
+coffee pot, coffee machine, or otherwise emulate the behavior of a
+HTCPCP-compliant device, please open an issue on the project's issue tracker.
+
+
+                                                /
+                                               /
+                               xxX###xx       /
+                                ::XXX        /
+                         xxXX::::::###XXXXXx/#####
+                    :::XXXXX::::::XXXXXXXXX/    ####
+         xXXX//::::::://///////:::::::::::/#####    #         ##########
+      XXXXXX//:::::://///xXXXXXXXXXXXXXXX/#    #######      ###   ###
+     XXXX        :://///XXXXXXXXX######X/#######      #   ###    #
+     XXXX        ::////XXXXXXXXX#######/ #     #      ####   #  #
+      XXXX/:     ::////XXXXXXXXXX#####/  #     #########      ##
+       ""XX//::::::////XXXXXXXXXXXXXX/###########     #       #
+           "::::::::////XXXXXXXXXXXX/    #     #     #      ##
+                 ::::////XXXXXXXXXX/##################   ###
+                     ::::://XXXXXX/#    #     #   #######
+                         ::::::::/################
+                                /
+                               /
+                              /
+
+http://www.ascii-art.de/ascii/t/teapot.txt
+
+""")
+        res.status = 418
+        res.content_type = "plaintext; charset=utf-8"
+        return res
+
     return blueprint
