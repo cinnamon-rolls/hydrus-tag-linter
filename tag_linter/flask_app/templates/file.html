@@ -29,7 +29,7 @@
     }
 
     #actions_container {
-      overflow-x: scroll;
+      overflow-x: auto;
     }
 
     #actions_container .anchorbutton {
@@ -66,12 +66,13 @@
       state.refresh();
 
       renderTagDropdown("tag_service_select")
+      var elemTagServiceSelect = document.getElementById("tag_service_select")
 
-      tagServiceSelect.addEventListener("keydown", function (e) {
+      elemTagServiceSelect.addEventListener("keydown", function (e) {
         e.preventDefault();
       }, false)
 
-      tagServiceSelect.onchange = function (e) {
+      elemTagServiceSelect.onchange = function (e) {
         state.setTagService(tagServiceSelect.value);
         state.refresh();
       }
