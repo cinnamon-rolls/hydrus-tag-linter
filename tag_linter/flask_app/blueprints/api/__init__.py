@@ -51,7 +51,6 @@ def create_blueprint(app, db_models, options):
     @blueprint.route("/brew_coffee", methods=['GET', 'POST', 'BREW'])
     def api_brew_coffee():
         res = make_response("""
-
                             HTTP 418 -- I'm a teapot
 
     The server has refused to brew coffee because it is embedded
@@ -81,7 +80,6 @@ HTCPCP-compliant device, please open an issue on the project's issue tracker.
                               /
 
 http://www.ascii-art.de/ascii/t/teapot.txt
-
 """)
         res.status = 418
         res.content_type = "plaintext; charset=utf-8"

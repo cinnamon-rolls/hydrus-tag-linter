@@ -58,7 +58,7 @@
       }
 
       renderTagDropdown("input_tag_service")
-      
+
       var elemTagService = document.getElementById("input_tag_service")
 
       var elemInboxEnabled = document.getElementById("input_enable_inbox")
@@ -72,12 +72,7 @@
         var inbox = true;
         var archive = true;
 
-        return destroy({
-          inbox: elemInboxEnabled.checked,
-          archive: elemArchiveEnabled.checked,
-          tagService: elemTagService.value,
-          allJunkTags: true
-        })
+        return destroy({inbox: elemInboxEnabled.checked, archive: elemArchiveEnabled.checked, tagService: elemTagService.value, allJunkTags: true})
       }
     });
   </script>
@@ -116,6 +111,16 @@
   <h3>Manage</h3>
 
   <p>Here you can add or remove junk tags. Use the textbox below and type in the tags you would like to add or remove, and press enter for each tag. Alternatively, you can paste in a list of tags separated by newlines. Then, click the add/remove buttons to submit your changes.
+  </p>
+
+  <p>
+    To add an entire namespace as a junk tag, enter the namespace and append
+    <code>:*</code>
+    . For example, to add the entire
+    <code>species</code>
+    namespace, enter
+    <code>species:*</code>
+    .
   </p>
 
   <div class="tag_manager_column">

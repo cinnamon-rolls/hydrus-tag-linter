@@ -15,28 +15,13 @@ def create_blueprint(app, db_models, options):
 
         tags = coerce_list(parse_json_arg(request.args, 'tags', []))
 
-        namespaceMode = parse_json_arg(request.args, 'namespace_mode', False)
+        removals = hydrus_util.search_and_destroy(
+            tags=tags,
+            inbox=inbox,
+            archive=archive,
+            read_tag_service=read_tag_service,
+            write_tag_service=write_tag_service)
 
-        if namespaceMode:
-
-            if len(tags) != 1:
-                raise ValueError(
-                    "If namespace mode is enabled, then 1 tag must be specified")
-
-            result = hydrus_util.search_and_destroy_namespace(
-                namespace=tags[0],
-                inbox=inbox,
-                archive=archive,
-                read_tag_service=read_tag_service,
-                write_tag_service=write_tag_service)
-        else:
-            result = hydrus_util.search_and_destroy(
-                tags=tags,
-                inbox=inbox,
-                archive=archive,
-                read_tag_service=read_tag_service,
-                write_tag_service=write_tag_service)
-
-        return jsonify(result)
+        return jsonify({"removals": removals})
 
     return blueprint

@@ -50,11 +50,12 @@ def create_blueprint(app, db_models, options):
 
         tags = JunkTag.export()
 
-        return jsonify(hydrus_util.search_and_destroy(
-            tags=tags,
-            inbox=inbox,
-            archive=archive,
-            read_tag_service=read_tag_service,
-            write_tag_service=write_tag_service))
+        return jsonify({
+            "removals": hydrus_util.search_and_destroy(
+                tags=tags,
+                inbox=inbox,
+                archive=archive,
+                read_tag_service=read_tag_service,
+                write_tag_service=write_tag_service)})
 
     return blueprint

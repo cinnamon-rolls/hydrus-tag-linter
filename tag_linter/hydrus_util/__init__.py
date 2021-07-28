@@ -192,37 +192,42 @@ def get_tags_in_namespace(namespace, tag_service, inbox=True, archive=True):
     return ret
 
 
+def search_and_destroy(tags, inbox, archive, read_tag_service, write_tag_service):
+    removals = 0
+
+    for tag in tags:
+        if tag.endswith(":*"):
+            namespace = tag[:-2]
+            removals += search_and_destroy_namespace(namespace, inbox, archive, read_tag_service, write_tag_service)
+        else:
+            removals += search_and_destroy_tag(tag, inbox, archive, read_tag_service, write_tag_service)
+    
+    return removals
+
+
 def search_and_destroy_namespace(namespace, inbox, archive, read_tag_service, write_tag_service):
     tags = get_tags_in_namespace(namespace, read_tag_service, inbox, archive)
     return search_and_destroy(
         tags, inbox, archive, read_tag_service, write_tag_service)
 
 
-def search_and_destroy(tags, inbox, archive, read_tag_service, write_tag_service):
-    if not isinstance(tags, list):
-        tags = [tags]
-
+def search_and_destroy_tag(tag, inbox, archive, read_tag_service, write_tag_service):
     if read_tag_service is None:
         raise ValueError("read tag service not defined")
     if write_tag_service is None:
         raise ValueError("write tag service is not defined")
 
-    removals = 0
+    rm_tags = [tag]
+    files = search_by_tags(rm_tags, inbox, archive, read_tag_service)
 
-    for tag in tags:
-        rm_tags = [tag]
-        files = search_by_tags(rm_tags, inbox, archive, read_tag_service)
+    removals = len(files)
 
-        removals += len(files)
+    change_tags(
+        file_ids=files,
+        rm_tags=rm_tags,
+        tag_service=write_tag_service)
 
-        change_tags(
-            file_ids=files,
-            rm_tags=rm_tags,
-            tag_service=write_tag_service)
-
-    return {
-        'removals': removals
-    }
+    return removals
 
 
 def clean_tag(tag):
