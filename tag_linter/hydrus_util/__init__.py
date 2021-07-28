@@ -178,7 +178,12 @@ def get_file_tags(file_id, serviceName, status=TAG_STATUS_STATUS_CURRENT, displa
     return tags
 
 
-def get_tags_in_namespace(namespace, tag_service, inbox=True, archive=True):
+def get_tags_in_namespace(namespace, tag_service="all known tags", inbox=True, archive=True):
+    if namespace is None:
+        raise ValueError("namespace is not defined")
+    if tag_service is None:
+        raise ValueError("tag_service is not defined")
+
     files = search_by_tags(
         [namespace + ":*"], inbox=inbox, archive=archive, tag_service=tag_service)
     ret = []
@@ -192,16 +197,47 @@ def get_tags_in_namespace(namespace, tag_service, inbox=True, archive=True):
     return ret
 
 
+def transpose_namespace(
+        from_namespace,
+        to_namespace,
+        prefix = None,
+        suffix = None,
+        inbox = True,
+        archive = True,
+        tag_service = "my tags"):
+
+    changes = {}
+
+    if suffix is None:
+        suffix = ""
+    if prefix is None:
+        prefix = ""
+    if to_namespace is not None and to_namespace != "":
+        prefix = to_namespace + ":" + prefix
+
+    tags = get_tags_in_namespace(
+        from_namespace, tag_service, inbox, archive)
+
+    for tag in tags:
+        substr_start = len(from_namespace) + 1
+        new_tag = prefix + tag[substr_start:] + suffix
+        changes[tag] = new_tag
+
+    return changes
+
+
 def search_and_destroy(tags, inbox, archive, read_tag_service, write_tag_service):
     removals = 0
 
     for tag in tags:
         if tag.endswith(":*"):
             namespace = tag[:-2]
-            removals += search_and_destroy_namespace(namespace, inbox, archive, read_tag_service, write_tag_service)
+            removals += search_and_destroy_namespace(
+                namespace, inbox, archive, read_tag_service, write_tag_service)
         else:
-            removals += search_and_destroy_tag(tag, inbox, archive, read_tag_service, write_tag_service)
-    
+            removals += search_and_destroy_tag(
+                tag, inbox, archive, read_tag_service, write_tag_service)
+
     return removals
 
 

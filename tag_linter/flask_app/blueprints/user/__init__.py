@@ -61,6 +61,10 @@ def app_junk_tags():
 def app_search_and_destroy():
     return render_template('search_and_destroy.html')
 
+@blueprint.route('/transpose_namespace', methods=['GET'])
+def app_tranpose_namespace():
+    return render_template('transpose_namespace.html')
+
 @blueprint.route('/tools', methods=['GET'])
 def app_tag_management():
     return render_template('tools.html')

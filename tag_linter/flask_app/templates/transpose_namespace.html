@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+  Transpose Namespace
+{% endblock %}
+
+{% block contenttitle %}
+  Transpose Namespace
+{% endblock %}
+
+{% block head_extra %}
+  <script type="module">
+    import {httpGet} from "/static/js/http_helper.js"
+    import {renderTagDropdown} from "/static/js/tags.js"
+
+    const PRESETS = [
+      {
+        "title": "blank",
+        "bad_namespace": "",
+        "good_namespace": "",
+        "prefix": "",
+        "suffix": ""
+      }, {
+        "title": "hair:* to unnamespaced",
+        "bad_namespace": "hair",
+        "good_namespace": "",
+        "prefix": "",
+        "suffix": " hair"
+      }, {
+        "title": "seriees to series",
+        "bad_namespace": "seriees",
+        "good_namespace": "series",
+        "prefix": "",
+        "suffix": ""
+      }
+    ]
+
+    function getPreset(title) {
+      for (let preset of PRESETS) {
+        if (preset.title == title) {
+          return preset
+        }
+      }
+    }
+
+    window.addEventListener('load', (e) => {
+      var elemPresetSelect = document.getElementById("input_load_preset")
+      var elemPresetLoad = document.getElementById("btn_load_preset")
+
+      var elemTagService = document.getElementById("input_tag_service")
+
+      var elemGoodNamespace = document.getElementById("input_good_namespace")
+      var elemBadNamespace = document.getElementById("input_bad_namespace")
+
+      var elemPrefix = document.getElementById("input_prefix")
+      var elemSuffix = document.getElementById("input_suffix")
+
+      var elemInboxEnabled = document.getElementById("input_enable_inbox")
+      var elemArchiveEnabled = document.getElementById("input_enable_archive")
+
+      var elemSubmitButton = document.getElementById("submit_button")
+
+      for (let preset of PRESETS) {
+        let option = document.createElement("option");
+        option.value = preset.title;
+        option.innerText = preset.title;
+        elemPresetSelect.appendChild(option);
+      }
+
+      elemPresetLoad.onclick = function (e) {
+        let title = elemPresetSelect.value;
+        let preset = getPreset(title)
+        if (preset != null) {
+          elemGoodNamespace.value = preset.good_namespace;
+          elemBadNamespace.value = preset.bad_namespace;
+          elemPrefix.value = preset.prefix;
+          elemSuffix.value = preset.suffix;
+        }
+      }
+
+      renderTagDropdown("input_tag_service")
+
+      elemSubmitButton.onclick = async function (e) {
+        let tagService = elemTagService.value
+        let goodNamespace = elemGoodNamespace.value
+        let badNamespace = elemBadNamespace.value
+        let prefix = elemPrefix.value
+        let suffix = elemSuffix.value
+        let inbox = elemInboxEnabled.checked
+        let archive = elemArchiveEnabled.checked
+
+        let params = new URLSearchParams()
+        params.set('as_string', "true")
+        params.set('from_namespace', badNamespace)
+        params.set('to_namespace', goodNamespace)
+        params.set('prefix', prefix)
+        params.set('suffix', suffix)
+        params.set('inbox', inbox)
+        params.set('archive', archive)
+        params.set('tag_service', tagService)
+
+        let url = "/api/tags/transpose_namespace?" + params.toString()
+
+        let results = await httpGet(url).catch(alert);
+        if (results == "") {
+          results = "(No tags needed)"
+        }
+
+        let dump = document.getElementById("siblings_dump")
+        dump.innerText = results
+      }
+    })
+  </script>
+{% endblock %}
+
+{% block content %}
+  <p>This feature will generate a list of tag siblings to add, which will "transpose" or otherwise rename the entire namespace to something else. This is intended for...
+    <ul>
+      <li>Getting rid of namespace typos, e.g.
+        <code>seriees:*</code>
+        to
+        <code>series:*</code>
+      </li>
+      <li>Unravelling unnecessary namespaces, e.g.
+        <code>hair:blue</code>
+        to
+        <code>blue hair</code>
+      </li>
+    </ul>
+  </p>
+
+  <label for="input_load_preset">Preset:</label>
+  <select id="input_load_preset"></select>
+  <button id="btn_load_preset">
+    <span class="icon_left icon_left_arrow_refresh">Load</span>
+  </button>
+  <br/>
+  <br/>
+  <label for="input_tag_service">Tag service to find the bad tags:</label>
+  <select id="input_tag_service"></select>
+  <br/>
+  <br/>
+  <label for="input_bad_namespace">Bad Namespace:</label>
+  <input id="input_bad_namespace" type="text"/>
+  <br/>
+  <label for="input_good_namespace">Good Namespace:</label>
+  <input id="input_good_namespace" type="text"/>
+  <br/>
+  <br/>
+  <label for="input_prefix">Replacement Prefix:</label>
+  <input id="input_prefix" type="text"/>
+  <br/>
+  <label for="input_suffix">Replacement Suffix:</label>
+  <input id="input_suffix" type="text"/>
+  <br/>
+  <br/>
+  <input id="input_enable_inbox" type="checkbox" checked="true"/>
+  <label for="input_enable_inbox">Look for bad tags in Inbox</label>
+  <br/>
+  <input id="input_enable_archive" type="checkbox" checked="true"/>
+  <label for="input_enable_archive">Look for bad tags in Archive</label>
+  <br/>
+  <br/>
+  <button id="submit_button">
+    <span class="icon_left icon_left_tag_blue_add">Generate Siblings</span>
+  </button>
+  <br/>
+  <br/>
+  <p>
+    Siblings appear here:
+    <code>
+      <pre id="siblings_dump"></pre>
+    </code>
+  </p>
+{% endblock %}
