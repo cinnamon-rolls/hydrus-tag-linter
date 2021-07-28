@@ -1,7 +1,5 @@
 import Component from "./Component.js";
 
-var rule_namespaces = ["linter rule:", "linter exempt:"];
-
 const DEFAULT_TAG_PRESENTATION = {
   default: "#72A0C1", // undefined namespace
   namespaces: {
@@ -40,34 +38,6 @@ function getTagColor(tag) {
   }
 }
 
-function renderTagAnchor(tag) {
-  var e = document.createElement("a");
-  e.innerText = tag;
-  e.style = "color:" + getTagColor(tag) + ";";
-  e.className += "tag_anchor";
-
-  var match = null;
-  for (var i = 0; i < rule_namespaces.length && match == null; i++) {
-    if (tag.startsWith(rule_namespaces[i])) {
-      match = rule_namespaces[i];
-    }
-  }
-
-  if (match != null) {
-    e.href = "/rule?uid=" + tag.substring(match.length);
-  } else {
-    var search = encodeURI('"' + tag + '"');
-    e.href = "/search?search=" + search;
-  }
-  return e;
-}
-
-function renderTagListItem(tag) {
-  var li = document.createElement("li");
-  li.appendChild(renderTagAnchor(tag));
-  return li;
-}
-
 /** Sorts tags based on namespace and then text */
 function compareTags(tag1, tag2) {
   var b1 = tag1.includes(":");
@@ -83,10 +53,16 @@ function compareTags(tag1, tag2) {
   }
 }
 
+function defaultTagOnClick(tagName) {
+  var url = "/search?search=" + JSON.stringify(tagName);
+  window.open(url, "_blank");
+}
+
 export default class TagList extends Component {
-  constructor(container) {
-    super(container, renderTagListItem);
+  constructor(container, tagClickFunc) {
+    super(container, (x) => this.renderTagListItem(x));
     this.container.classList.add("tag_list");
+    this.tagClickFunc = tagClickFunc;
   }
 
   setTags(tags) {
@@ -95,5 +71,30 @@ export default class TagList extends Component {
     }
     tags.sort(compareTags);
     this.reorder(tags);
+  }
+
+  getTagClickFunc() {
+    var ret = this.tagClickFunc;
+    if (ret == null) {
+      return defaultTagOnClick;
+    }
+    return ret;
+  }
+
+  renderTagAnchor(tag) {
+    var e = document.createElement("button");
+    e.innerText = tag;
+    e.style = "color:" + getTagColor(tag) + ";";
+    e.className += "anchorbutton tag_anchor";
+
+    e.onclick = () => this.getTagClickFunc()(tag);
+
+    return e;
+  }
+
+  renderTagListItem(tag) {
+    var li = document.createElement("li");
+    li.appendChild(this.renderTagAnchor(tag));
+    return li;
   }
 }

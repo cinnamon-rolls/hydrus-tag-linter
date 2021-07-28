@@ -2,7 +2,7 @@ import TagList from "./TagList.js";
 
 export default class PendingTagList extends TagList {
   constructor(container) {
-    super(container);
+    super(container, x => this.toggleTag(x, false, true));
     this.tags = [];
   }
 
