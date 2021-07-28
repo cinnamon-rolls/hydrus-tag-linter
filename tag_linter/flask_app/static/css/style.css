@@ -30,10 +30,11 @@ code {
   /* https://stackoverflow.com/questions/1367409/how-to-make-button-look-like-a-link */
   background: none;
   border: none;
-  padding: 0;
+  padding: 0px;
   color: #58a6ff;
   cursor: pointer;
   font-size: 100%;
+  text-align: left;
 }
 
 .anchorbutton:hover {
@@ -180,6 +181,12 @@ table th {
 }
 
 /* Tag management */
+
+.tag_list {
+  padding: 0 0 0 0;
+  margin: 0;
+  list-style-type: none;
+}
 
 .tag_manager_column {
   float: left;

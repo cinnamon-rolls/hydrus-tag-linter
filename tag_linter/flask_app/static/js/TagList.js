@@ -82,14 +82,19 @@ export default class TagList extends Component {
   }
 
   renderTagAnchor(tag) {
-    var e = document.createElement("button");
-    e.innerText = tag;
-    e.style = "color:" + getTagColor(tag) + ";";
-    e.className += "anchorbutton tag_anchor";
+    var btn = document.createElement("button");
+    btn.classList.add("anchorbutton");
 
-    e.onclick = () => this.getTagClickFunc()(tag);
+    var span = document.createElement("span");
+    span.innerText = tag;
+    span.style = "color:" + getTagColor(tag) + ";";
+    span.classList.add("tag_anchor");
 
-    return e;
+    btn.appendChild(span);
+
+    btn.onclick = () => this.getTagClickFunc()(tag);
+
+    return btn;
   }
 
   renderTagListItem(tag) {
